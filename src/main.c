@@ -1,6 +1,48 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 
-int main(void) {
-    printf("Hello world!\n");
+#include "graph.h"
+
+int main(int argc, char **argv) {
+    srand(time(NULL));
+
+    int opt;
+    FILE *graph_file = NULL;
+    FILE *output_file = NULL;
+    int algorithm = 0;
+    // ----------------------------
+
+    // Parse command line arguments
+    while((opt = getopt(argc, argv, ":p:i:c:n:s:r:")) != -1) 
+    {
+        switch(opt) 
+            { 
+                case 'a':
+                    algorithm = atoi(optarg);
+                    if(algorithm < 0 || algorithm > 1) {
+                        fprintf(stderr, "BŁĄD: Podano nie prawidłowy algorytm.\n");
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case ':': 
+                    printf("Opcja -%c wymaga podania wartości!\n", optopt); 
+                    break; 
+                case '?': 
+                    printf("Nieznana opcja: -%c\n", optopt);
+                    break; 
+        } 
+    }
+
+    // Read the graph file name from command line arguments
+    if (optind < argc) {
+        graph_file = fopen(argv[optind], "r");
+    }
+
+    if (graph_file == NULL) {
+        fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
+        return EXIT_FAILURE;
+    }
     return 0;
 }
