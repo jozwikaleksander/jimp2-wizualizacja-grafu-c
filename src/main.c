@@ -51,6 +51,10 @@ int main(int argc, char **argv) {
         Edge *current_edge = &graph->edges[i];
         printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, current_edge->v, current_edge->weight);
     }
+    for(int i = 0; i < graph->num_nodes; i++) {
+        Node *node = &graph->nodes[i];
+        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, node->force.x, node->force.y);
+    }
     free_graph(graph);
 
     return 0;
