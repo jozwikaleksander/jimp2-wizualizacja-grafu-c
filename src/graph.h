@@ -11,13 +11,22 @@ typedef struct {
 } Edge;
 
 typedef struct {
-    Edge *edges;
-    int num_edges;
-    int capacity;
-} EdgeList;
+    double x;
+    double y;
+} Vector;
+
+typedef struct {
+    Vector position;
+    Vector force;
+} Node;
 
 typedef struct{
-    EdgeList *edge_list;
+    int num_nodes;
+    Node *nodes;
+    
+    Edge *edges;
+    int num_edges;
+    int capacity_edges;
 } Graph;
 
 Graph *load_graph(FILE *graph_file);

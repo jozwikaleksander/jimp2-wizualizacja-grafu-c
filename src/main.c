@@ -47,8 +47,8 @@ int main(int argc, char **argv) {
 
     Graph *graph = load_graph(graph_file);
 
-    for(int i = 0; i < graph->edge_list->num_edges; i++) {
-        Edge *current_edge = &graph->edge_list->edges[i];
+    for(int i = 0; i < graph->num_edges; i++) {
+        Edge *current_edge = &graph->edges[i];
         printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, current_edge->v, current_edge->weight);
     }
     free_graph(graph);
