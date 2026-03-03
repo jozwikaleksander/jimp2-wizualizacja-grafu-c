@@ -61,7 +61,7 @@ Graph *load_graph(FILE *graph_file) {
     int u = 0;
     int v = 0;
     double weight = 0.0;
-    while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 1) {
+    while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
         add_edge(graph->edge_list, u, v, weight, buff);
     }
     return graph;

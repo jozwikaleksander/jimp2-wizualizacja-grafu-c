@@ -20,4 +20,7 @@ typedef struct{
     EdgeList *edge_list;
 } Graph;
 
+Graph *load_graph(FILE *graph_file);
+void free_graph(Graph *graph);
+
 #endif
