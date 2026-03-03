@@ -1,5 +1,5 @@
-#ifndef _MAP_H_
-#define _MAP_H_
+#ifndef _GRAPH_H_
+#define _GRAPH_H_
 
 #include "stdio.h"
 #include "stdlib.h"
