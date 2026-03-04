@@ -1,6 +1,5 @@
+#include "eades.h"
 #include "graph.h"
-#include <string.h>
-#include <stdio.h>
 
 void eades_algorithm(Graph *graph){
     int t = 0;
