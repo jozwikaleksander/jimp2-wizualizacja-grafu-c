@@ -5,9 +5,9 @@
 #include "stdlib.h"
 
 typedef struct {
-    int u, v; // Indeksy wierzchołków
-    double weight; // Waga krawędzi
-    char *name; // Nazwa krawędzi
+    int u, v;
+    double weight;
+    char *name;
 } Edge;
 
 typedef struct {
@@ -29,7 +29,17 @@ typedef struct{
     int capacity_edges;
 } Graph;
 
+/**
+ * @brief Funkcja tworzy graf na podstawie wczytanego pliku
+ * @param graph_file - wskaznik do pliku
+ * @return wskaznik na stworzony graf
+*/
 Graph *load_graph(FILE *graph_file);
+
+/**
+ * @brief Funkcja zwalnie miejsca zaalokowane dla struktury grafuu
+ * @param graph - wskaznik na strutkure grafu
+*/
 void free_graph(Graph *graph);
 
 #endif

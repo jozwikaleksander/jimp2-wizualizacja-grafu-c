@@ -3,6 +3,15 @@
 #include <stdio.h>
 #define EDGELIST_SIZE 16
 
+
+/** 
+* @brief Dodaje nowa krawedz do grafu
+* @param graph - wskaznik na strukture grafu
+* @param u - indeks wierzcholka poczatkowego
+* @param v - indeks wierzcholka koncowego
+* @param weight - waga krawedzi
+* @param name - etykieta krawedzi
+*/
 void add_edge(Graph *graph, int u, int v, double weight, char *name) {
     // Sprawdzenie, czy należy powiększyć miejsce
     if(graph->num_edges >= graph->capacity_edges) {
@@ -24,6 +33,11 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
     graph->num_edges++;
 }
 
+/**
+ * @brief Funkcja zwieksza rozmiar dynamicznej tablicy wierzcholkow
+ * @param graph - wskaznik na strukture grafu
+ * @param max_index - maksymalny indeks wierzcholka
+*/
 void resize_nodes(Graph *graph, int max_index) {
     if(max_index >= graph->num_nodes){
         int old_amount = graph->num_nodes;
@@ -40,6 +54,11 @@ void resize_nodes(Graph *graph, int max_index) {
     }
 }
 
+/**
+ * @brief Funkcja tworzy graf na podstawie wczytanego pliku
+ * @param graph_file - wskaznik do pliku
+ * @return wskaznik na stworzony graf
+*/
 Graph *load_graph(FILE *graph_file) {
     if(!graph_file) return NULL;
     
@@ -76,6 +95,10 @@ Graph *load_graph(FILE *graph_file) {
     return graph;
 }
 
+/**
+ * @brief Funkcja zwalnie miejsca zaalokowane dla struktury grafuu
+ * @param graph - wskaznik na strutkure grafu
+*/
 void free_graph(Graph *graph) {
     if(graph) {
         for(int i = 0; i < graph->num_edges; i++) {

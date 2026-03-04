@@ -14,11 +14,12 @@ int main(int argc, char **argv) {
     int algorithm = 0;
     // ----------------------------
 
-    // Parse command line arguments
+    // Wczytanie parametrow wykonania
     while((opt = getopt(argc, argv, ":p:i:c:n:s:r:")) != -1) 
     {
         switch(opt) 
             { 
+                // Wybor algorytmu
                 case 'a':
                     algorithm = atoi(optarg);
                     if(algorithm < 0 || algorithm > 1) {
@@ -35,7 +36,7 @@ int main(int argc, char **argv) {
         } 
     }
 
-    // Read the graph file name from command line arguments
+    // Wczytanie pliku o nazwie wprowadzonej z linii poleceń
     if (optind < argc) {
         graph_file = fopen(argv[optind], "r");
     }
@@ -45,12 +46,15 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    // Stworzenie grafu na podstawie pliku
     Graph *graph = load_graph(graph_file);
 
+    // Wypisanie krawedzi grafu
     for(int i = 0; i < graph->num_edges; i++) {
         Edge *current_edge = &graph->edges[i];
         printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, current_edge->v, current_edge->weight);
     }
+    // Wypisanie wierzcholkow grafu
     for(int i = 0; i < graph->num_nodes; i++) {
         Node *node = &graph->nodes[i];
         printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, node->force.x, node->force.y);
