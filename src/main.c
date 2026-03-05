@@ -20,7 +20,8 @@ int main(int argc, char **argv) {
     double ideal_len = 5.0; //do tej długości będą dążyć sprzężyny 
     int c = 2;
     double spring_const =1.0;
-
+    int width = 500;
+    int height = 500;
 
     srand(time(NULL));
 
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
     }
 
     // Stworzenie grafu na podstawie pliku
-    Graph *graph = load_graph(graph_file);
+    Graph *graph = load_graph(graph_file, width, height);
     if(graph == NULL) {
         fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
     }

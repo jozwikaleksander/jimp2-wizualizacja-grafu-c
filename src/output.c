@@ -42,7 +42,7 @@ int save_to_bin(Graph *graph, char *output_name) {
     FILE *file = fopen(output_name,"wb");
     if(!file) return 1;
 
-    fwrite(&graph->nodes,sizeof(int),1,file);
+    fwrite(&graph->num_nodes,sizeof(int),1,file);
     for(int i = 0; i < graph->num_nodes; i++) {
         fwrite(&i,sizeof(int),1,file);
         fwrite(&graph->nodes[i].position.x,sizeof(double),1,file);

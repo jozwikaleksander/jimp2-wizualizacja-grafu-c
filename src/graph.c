@@ -37,8 +37,10 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
  * @brief Funkcja zwieksza rozmiar dynamicznej tablicy wierzcholkow
  * @param graph - wskaznik na strukture grafu
  * @param max_index - maksymalny indeks wierzcholka
+ * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
+ * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
 */
-void resize_nodes(Graph *graph, int max_index) {
+void resize_nodes(Graph *graph, int max_index, int width, int height) {
     if(max_index >= graph->num_nodes){
         int old_amount = graph->num_nodes;
 
@@ -46,8 +48,8 @@ void resize_nodes(Graph *graph, int max_index) {
         graph->nodes = realloc(graph->nodes, graph->num_nodes * sizeof(Node));
 
         for(int i = old_amount; i < graph->num_nodes; i++) {
-            graph->nodes[i].position.x = 0;
-            graph->nodes[i].position.y = 0;
+            graph->nodes[i].position.x = rand() % (width + 1);
+            graph->nodes[i].position.y = rand() % (height + 1);;
             graph->nodes[i].force.x = 0;
             graph->nodes[i].force.y = 0;
         }
@@ -57,9 +59,11 @@ void resize_nodes(Graph *graph, int max_index) {
 /**
  * @brief Funkcja tworzy graf na podstawie wczytanego pliku
  * @param graph_file - wskaznik do pliku
+ * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
+ * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
  * @return wskaznik na stworzony graf
 */
-Graph *load_graph(FILE *graph_file) {
+Graph *load_graph(FILE *graph_file, int width, int height) {
     if(!graph_file) return NULL;
     
     Graph *graph = malloc(sizeof(Graph));
@@ -88,7 +92,7 @@ Graph *load_graph(FILE *graph_file) {
     while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
         int max_index = (u > v) ? u : v;
 
-        resize_nodes(graph, max_index);
+        resize_nodes(graph, max_index, width ,height);
 
         add_edge(graph, u, v, weight, buff);
     }

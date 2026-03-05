@@ -27,11 +27,13 @@ typedef struct{
 } Graph;
 
 /**
- * @brief Funkcja tworzy graf na podstawie wczytanego pliku
- * @param graph_file - wskaznik do pliku
- * @return wskaznik na stworzony graf
+ * @brief Funkcja zwieksza rozmiar dynamicznej tablicy wierzcholkow
+ * @param graph - wskaznik na strukture grafu
+ * @param max_index - maksymalny indeks wierzcholka
+ * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
+ * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
 */
-Graph *load_graph(FILE *graph_file);
+Graph *load_graph(FILE *graph_file, int width, int height);
 
 /**
  * @brief Funkcja zwalnie miejsca zaalokowane dla struktury grafuu
