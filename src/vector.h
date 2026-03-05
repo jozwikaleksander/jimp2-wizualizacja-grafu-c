@@ -45,6 +45,12 @@ Vector vector_from_points(Vector a, Vector b);
 */
 Vector mult_by_num(Vector a, double n);
 
-Vector negative(Vector a); //zwraca nowy vector z negatywnymi wartościami
+/**
+ * @brief Funkcja zwraca ten vector z wartościami pomnożynymi przez -1
+ * @param a - wektor
+ * @return nowy zmieniony wektor
+*/
+
+Vector negative(Vector a); 
 
 #endif

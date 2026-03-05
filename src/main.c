@@ -12,6 +12,14 @@ int main(int argc, char **argv) {
     int algorithm = 0;
     int output_type = OUTPUT_TXT;
     char *output_name;
+    //te wartości dobra byłoby umieć znieniać przez linię poleceń
+    double minimum_force =  0.1; //miensz za nia->stop
+    int max_iterations = 10000;
+    // CZY INT?
+    double ideal_len = 5.0; //do tej długości będą dążyć sprzężyny 
+    int c = 2;
+    double spring_const =1.0;
+
 
     srand(time(NULL));
 

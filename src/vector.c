@@ -54,6 +54,13 @@ Vector mult_by_num(Vector a, double n){
     return a;
 }
 
+
+/**
+ * @brief Funkcja zwraca ten vector z wartościami pomnożynymi przez -1
+ * @param a - wektor
+ * @return nowy zmieniony wektor
+*/
+
 Vector negative(Vector a){
     Vector new;
     new.x = -a.x;
