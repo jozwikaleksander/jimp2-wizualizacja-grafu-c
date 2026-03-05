@@ -30,5 +30,34 @@
 
 	\section{Dokumentacja funkcjonalna}
 	\subsection{Cel projektu}
+	Celem projektu jest stworzenie programu w języku C, który służy do automatycznego i estetycznego rozmieszczania
+	wierzchołków grafu planarnego w przestrzenii dwuwymiarowej.
+	\subsection{Funkcjonalności programu}
+	Program posiada nastepujące funkcje:
+	\begin{enumerate}
+		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eades'a i algorytmu.
+		\item Wczytywanie grafu z pliku tekstowego.
+		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu.
+	\end{enumerate}
+	\subsection{Lista dostępnych flag}
+	\begin{enumerate}
+		\item \texttt{-a} - wybór algorytmu rozmieszczania wierzchołków. Dostępne wartości: e, eades;
+		\item \texttt{-t} - typ pliku wyjściowego. Dostepne wartości: t, txt, b, bin;
+		\item \texttt{-o} - nazwa pliku wyjściowego. Domyślnie: \texttt{output.txt} - dla pliku tekstowego i 
+		\texttt{output.bin} - dla pliku binarnego.
+	\end{enumerate}
+	\subsection{Formaty danych wejściowych}
+	Dane wejściowe mają następujący format:
+	\begin{mylisting}
+<nazwa_krawedzi> <wierzcholek_A> <wierzcholek_B> <waga_krawedzi>	
+	\end{mylisting}
+	\clearpage
+	Na przykład:
+	\begin{mylisting}
+AB   1  2  1
+BC   2  3  1
+CD   3  4  1
+DB   4  2  1.407
+	\end{mylisting}
 	
 \end{document}
