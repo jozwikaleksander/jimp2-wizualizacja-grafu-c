@@ -4,16 +4,13 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+#include "vector.h"
+
 typedef struct {
     int u, v;
     double weight;
     char *name;
 } Edge;
-
-typedef struct {
-    double x;
-    double y;
-} Vector;
 
 typedef struct {
     Vector position;

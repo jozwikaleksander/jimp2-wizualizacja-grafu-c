@@ -18,7 +18,7 @@ Vector add_vectors (Vector a, Vector b){
  * @param a - wektor
  * @return zwraca wartosc dlugosci wektora o typie double
 */
-double count_length(Vector a){
+double count_vector_length(Vector a){
     return sqrt(pow(a.x,2) + pow(a.y,2));
 }
 

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "eades.h"
 #include "graph.h"
 #include "output.h"
 
@@ -94,6 +95,15 @@ int main(int argc, char **argv) {
         Node *node = &graph->nodes[i];
         printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, 
             node->force.x, node->force.y);
+    }
+    
+    switch(algorithm) {
+        case 0:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c);
+            break;
+        default:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c);
+            break;
     }
 
     switch(output_type) {
