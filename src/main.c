@@ -6,7 +6,7 @@
 #include "graph.h"
 
 int main(int argc, char **argv) {
-    //te wartości dobra byłoby umieć znieniać
+    // Zmienne dla parametrow wykonania
 
 
     srand(time(NULL));
