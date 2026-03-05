@@ -9,7 +9,7 @@
 #define IDEAL_LEN 5 //do tej długości będą dążyć sprzężyny
 
 void eades_algorithm(Graph *graph);
-void compute_repulive(Node u, Node v);
-void compute_attract(Node u, Node v);
+void compute_repulive(Node *u, Node *v);
+void compute_attract(Node *u, Node *v);
 
 #endif

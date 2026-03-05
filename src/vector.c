@@ -53,3 +53,10 @@ Vector mult_by_num(Vector a, double n){
     a.y *=n;
     return a;
 }
+
+Vector negative(Vector a){
+    Vector new;
+    new.x = -a.x;
+    new.y= -a.y;
+    return new;
+}

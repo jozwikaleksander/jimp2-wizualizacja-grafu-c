@@ -6,6 +6,9 @@
 #include "graph.h"
 
 int main(int argc, char **argv) {
+    //te wartości dobra byłoby umieć znieniać
+
+
     srand(time(NULL));
 
     int opt;
