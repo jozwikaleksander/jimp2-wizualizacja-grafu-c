@@ -1,24 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <time.h>
 
 #include "graph.h"
+#include "output.h"
 
 int main(int argc, char **argv) {
     // Zmienne dla parametrow wykonania
-
+    int algorithm = 0;
+    int output_type = OUTPUT_TXT;
+    char *output_name;
 
     srand(time(NULL));
 
     int opt;
     FILE *graph_file = NULL;
-    FILE *output_file = NULL;
-    int algorithm = 0;
+    
     // ----------------------------
 
     // Wczytanie parametrow wykonania
-    while((opt = getopt(argc, argv, ":p:i:c:n:s:r:")) != -1) 
+    while((opt = getopt(argc, argv, ":a:t:")) != -1) 
     {
         switch(opt) 
             { 
@@ -27,6 +30,23 @@ int main(int argc, char **argv) {
                     algorithm = atoi(optarg);
                     if(algorithm < 0 || algorithm > 1) {
                         fprintf(stderr, "BŁĄD: Podano nie prawidłowy algorytm.\n");
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case 't':
+                    if(strcmp(optarg, "b") == 0 || strcmp(optarg, "bin") == 0) {
+                        output_type = OUTPUT_BIN;
+                    } else if(strcmp(optarg, "t") == 0 || strcmp(optarg, "txt") == 0){
+                        output_type = OUTPUT_TXT;
+                    } else {
+                        fprintf(stderr, "BŁĄD: Podano nie prawidłowy typ pliku wyjściowego.\n");
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case 'o':
+                    output_name = strdup(optarg);
+                    if(strcmp(output_name, "")){
+                        fprintf(stderr, "BŁĄD: Podano nie prawidłową nazwę pliku wyjściowego.\n");
                         return EXIT_FAILURE;
                     }
                     break;
@@ -51,6 +71,9 @@ int main(int argc, char **argv) {
 
     // Stworzenie grafu na podstawie pliku
     Graph *graph = load_graph(graph_file);
+    if(graph == NULL) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+    }
 
     // Wypisanie krawedzi grafu
     for(int i = 0; i < graph->num_edges; i++) {
@@ -64,7 +87,23 @@ int main(int argc, char **argv) {
         printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, 
             node->force.x, node->force.y);
     }
+
+    switch(output_type) {
+        case OUTPUT_TXT:
+            if(save_to_txt(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku tekstowego.\n");
+                return EXIT_FAILURE;
+            }
+            break;
+        case OUTPUT_BIN:
+            if(save_to_bin(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku binarnego.\n");
+                return EXIT_FAILURE;
+            }
+            break;
+    }
+    printf("Pomyślnie zapisano informacje o %d wierzcholkach do pliku.\n", graph->num_nodes);
     free_graph(graph);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

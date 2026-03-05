@@ -6,3 +6,5 @@ bin/
 *.out
 *.run.xml
 *.synctex.gz
+output.bin
+output*.txt

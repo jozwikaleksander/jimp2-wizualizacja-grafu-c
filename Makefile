@@ -1,2 +1,2 @@
 all:
-	gcc -Wall --pedantic src/*.c -o bin/main
+	gcc -Wall --pedantic src/graph.c src/main.c src/output.c src/vector.c -o bin/main -lm
