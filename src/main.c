@@ -55,12 +55,14 @@ int main(int argc, char **argv) {
     // Wypisanie krawedzi grafu
     for(int i = 0; i < graph->num_edges; i++) {
         Edge *current_edge = &graph->edges[i];
-        printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, current_edge->v, current_edge->weight);
+        printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, 
+            current_edge->v, current_edge->weight);
     }
     // Wypisanie wierzcholkow grafu
     for(int i = 0; i < graph->num_nodes; i++) {
         Node *node = &graph->nodes[i];
-        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, node->force.x, node->force.y);
+        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, 
+            node->force.x, node->force.y);
     }
     free_graph(graph);
 

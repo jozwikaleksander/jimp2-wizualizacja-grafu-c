@@ -1,1 +1,8 @@
 bin/
+*.aux
+*.bcf
+*.listing
+*.log
+*.out
+*.run.xml
+*.synctex.gz
