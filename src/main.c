@@ -17,11 +17,12 @@ int main(int argc, char **argv) {
     double minimum_force =  0.1; //miensz za nia->stop
     int max_iterations = 10000;
     // CZY INT?
-    double ideal_len = 5.0; //do tej długości będą dążyć sprzężyny 
+    double ideal_len = 10.0; //do tej długości będą dążyć sprzężyny 
     int c = 2;
     double spring_const =1.0;
     int width = 500;
     int height = 500;
+    double cooling = 0.97;
 
     srand(time(NULL));
 
@@ -100,10 +101,10 @@ int main(int argc, char **argv) {
     
     switch(algorithm) {
         case 0:
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c);
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
             break;
         default:
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c);
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
             break;
     }
 
