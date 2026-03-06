@@ -33,7 +33,10 @@ double count_vector_length(Vector a);
 double distance (Vector a, Vector b); //Euclidean distance(odłegłość)
 
 /** 
-@TODO: OPISAĆ FUNKCJĘ
+ * @brief Funkcja tworzy wektor na podstawie dwoch punktow pobranych z 2 innych wektorow
+ * @param a - wektor poczatkowy
+ * @param b - wektor koncowy
+ * @return utworzony wektor
 */
 Vector vector_from_points(Vector a, Vector b);
 

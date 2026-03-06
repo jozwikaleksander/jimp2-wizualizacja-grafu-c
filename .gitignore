@@ -8,3 +8,5 @@ bin/
 *.synctex.gz
 output.bin
 output*.txt
+.vscode/
+.vscode/*

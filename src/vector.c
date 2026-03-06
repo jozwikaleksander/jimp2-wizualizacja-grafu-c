@@ -26,16 +26,19 @@ double count_vector_length(Vector a){
  * @brief Funkcja oblicza odleglosc pomiedzy dwoma wektorami
  * @param a - pierwszy wektor
  * @param b - drugi wektor
- * @return zwraca wartosc odleglosci pomiedzy dwoma wektorami o typie double
+ * @return wartosc odleglosci pomiedzy dwoma wektorami o typie double
 */
 double distance (Vector a, Vector b){
     return sqrt(pow(b.x-a.x,2)+pow(b.y-a.y,2));
 }
 
 /** 
-@TODO: OPISAĆ FUNKCJĘ
+ * @brief Funkcja tworzy wektor na podstawie dwoch punktow pobranych z 2 innych wektorow
+ * @param a - wektor poczatkowy
+ * @param b - wektor koncowy
+ * @return utworzony wektor
 */
-Vector vector_from_points(Vector a, Vector b){ //daje vector z 2 punktów    OD A(POCZĄTEK) DO B(KONIEC)
+Vector vector_from_points(Vector a, Vector b){
     Vector new;
     new.x = b.x-a.x;
     new.y = b.y-a.y;
