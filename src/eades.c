@@ -1,6 +1,16 @@
 #include "eades.h"
 #include "graph.h"
 
+/**
+ * @brief Funkcja algorytmu Eades do zmiany pozycji wierzchołków
+ * @param graph - wskaznik na graf
+ * @param minimum_force - minimalna dopuszczalna wartość siły
+ * @param max_iterations - maksymalna ilość iteracji
+ * @param ideal_len - do tej długości będą dążyć krawędzie
+ * @param spring_const -  używane do obliczenia sił przyciągania
+ * @param c - używana do obliczenia sił odpychania
+ * @param cooling - współczynnik "ochłodzenia" - stopniowo zwolnia pracę sił
+*/
 void eades_algorithm(Graph *graph, 
     double minimum_force, int max_iterations, 
     double ideal_len, double spring_const, int c, double cooling)
@@ -44,6 +54,13 @@ void eades_algorithm(Graph *graph,
 
 }
 
+/**
+ * @brief Funkcja podliczenia sił odchyłenia
+ * @param u - wskaźnik na pierwszy wierzchołek
+ * @param v - wskaźnik na drugi wierzchołek
+ * @param c - używana do obliczenia sił odpychania
+ * @param cooling - współczynnik "ochłodzenia" - stopniowo zwalnia pracę sił
+*/
 void compute_repulive(Node *u, Node *v, int c, double cooling){
     Vector repulsive; //vector siły odpychania
     double d=distance(u->position,v->position);
@@ -60,7 +77,14 @@ void compute_repulive(Node *u, Node *v, int c, double cooling){
     v->force = add_vectors(v->force, mult_by_num(negative(repulsive), cooling)); 
 }
 
-
+/**
+ * @brief Funkcja podliczenia sił przyciągania
+ * @param graph - wskaźnik na graf
+ * @param e - wskaźnik na krawędź
+ * @param spring_const -  używane do obliczenia sił przyciągania
+ * @param ideal_len - długość do której dążą krawędzie
+ * @param cooling - współczynnik "ochłodzenia" - stopniowo zwalnia pracę sił
+*/
 void compute_attract(Graph *graph, Edge *e, double spring_const, double ideal_len, double cooling){
     Node *u = &graph->nodes[e->u]; //2 wierzchołki nałeżające do tej krawiędzi
     Node *v = &graph->nodes[e->v];
