@@ -37,16 +37,22 @@
 	\begin{enumerate}
 		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eades'a i algorytmu.
 		\item Wczytywanie grafu z pliku tekstowego.
-		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu.
+		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
 	\end{enumerate}
 	\subsection{Lista dostępnych flag}
-	\begin{enumerate}
-		\item \texttt{-a} - wybór algorytmu rozmieszczania wierzchołków. Dostępne wartości: e, eades;
-		\item \texttt{-t} - typ pliku wyjściowego. Dostepne wartości: t, txt, b, bin;
-		\item \texttt{-o} - nazwa pliku wyjściowego. Domyślnie: \texttt{output.txt} - dla pliku tekstowego i 
-		\texttt{output.bin} - dla pliku binarnego.
-		\item \texttt{-s} - ziarno używane dla początkowego rozmieszczenia wierzchołków.  Wartość musi być nieujemna.
-	\end{enumerate}
+	\begin{tabularx}{\textwidth}{| X | X | X |}
+		\hline
+		Nazwa flagi & Opis & Dostępne wartości\\
+		\hline
+		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades\\
+		\hline
+		-t & typ pliku wyjściowego & t, txt, b, bin\\
+		\hline
+		-o & nazwa pliku wyjściowego & -\\
+		\hline
+		-s &  ziarno używane dla początkowego rozmieszczenia wierzchołków & Nieujemna liczba całkowita \\
+		\hline
+	\end{tabularx}
 	\subsection{Formaty danych wejściowych}
 	Dane wejściowe mają następujący format:
 	\begin{mylisting}

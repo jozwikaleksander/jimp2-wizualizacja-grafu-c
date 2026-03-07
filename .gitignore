@@ -6,6 +6,7 @@ bin/
 *.out
 *.run.xml
 *.synctex.gz
+*.synctex*
 output.bin
 output*.txt
 .vscode/
