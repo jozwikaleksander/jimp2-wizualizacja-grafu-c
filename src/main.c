@@ -7,6 +7,7 @@
 #include "eades.h"
 #include "graph.h"
 #include "output.h"
+#include "tuttes.h"
 
 int main(int argc, char **argv) {
     // Zmienne dla parametrow wykonania
