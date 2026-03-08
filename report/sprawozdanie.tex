@@ -31,29 +31,35 @@
 	\section{Dokumentacja funkcjonalna}
 	\subsection{Cel projektu}
 	Celem projektu jest stworzenie programu w języku C, który służy do automatycznego i estetycznego rozmieszczania
-	wierzchołków grafu planarnego w przestrzenii dwuwymiarowej.
+	wierzchołków grafu planarnego w przestrzenii dwuwymiarowej, z wykorzystaniem algortmu Eades'a lub twierdzenia 
+	Tuttes'a w zależności od wyboru użytkownika. Program działa w trybie nieinteraktywnym/wsadowym.
 	\subsection{Funkcjonalności programu}
-	Program posiada nastepujące funkcje:
+	Program oferuje następujące funkcjonalności:
 	\begin{enumerate}
-		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eades'a i algorytmu.
+		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eades'a oraz twierdzenia Tuttes'a.
 		\item Wczytywanie grafu z pliku tekstowego.
 		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
+		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
 	\end{enumerate}
+	\subsection{Sposób działania algorytmów}
+	TODO
 	\subsection{Lista dostępnych flag}
 	\begin{tabularx}{\textwidth}{| X | X | X |}
 		\hline
 		Nazwa flagi & Opis & Dostępne wartości\\
 		\hline
-		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades\\
+		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades, t, tuttes\\
 		\hline
 		-t & typ pliku wyjściowego & t, txt, b, bin\\
 		\hline
 		-o & nazwa pliku wyjściowego & -\\
 		\hline
-		-s &  ziarno używane dla początkowego rozmieszczenia wierzchołków & Nieujemna liczba całkowita \\
+		-s & ziarno używane dla początkowego rozmieszczenia wierzchołków & Nieujemna liczba całkowita \\
 		\hline
 	\end{tabularx}
-	\subsection{Formaty danych wejściowych}
+	\subsection{Sposób wykonania programu}
+	TODO
+	\subsection{Dane wejściowe}
 	Dane wejściowe mają następujący format:
 	\begin{mylisting}
 <nazwa_krawedzi> <wierzcholek_A> <wierzcholek_B> <waga_krawedzi>	
@@ -66,5 +72,51 @@ BC   2  3  1
 CD   3  4  1
 DB   4  2  1.407
 	\end{mylisting}
+	\subsection{Dane wyjściowe}
+	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. Dane w pliku tekstowym zapisywane
+	są w nastepującym formacie:
+	\begin{mylisting}
+<numer_wierzcholka> <wspolrzedna_x> <wspolrzedna_y>
+	\end{mylisting}
+	Na przykład:
+	\begin{mylisting}
+0 272.000000 272.000000
+1 248.000000 248.000000
+2 49.000000 49.000000
+3 112.000000 112.000000
+4 90.000000 90.000000
+	\end{mylisting}
+	\subsection{Komunikaty błędów}
+	W przypadku napotkania błędu program zwraca następujące komunikaty.
+
+	\begin{tabularx}{\textwidth}{| X | X |}
+		\hline
+		Komunikat & Opis komunikatu\\
+		\hline
+		\texttt{BŁĄD: Podano nie prawidłowy algorytm.} & Komunikat wyświetlany jest kiedy wpisana wartość flagi 
+		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eades'a.\\
+		\hline
+		\texttt{BŁĄD: Podano nie prawidłowy typ pliku wyjściowego.} & Komunikat wyświetlany jest kiedy wpisana wartość 
+		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego.\\
+		\hline
+		\texttt{BŁĄD: Podano nie poprawne ziarno. Ziarno musi być nieujemne.} & Jeżeli podane ziarno jest mniejsze od 
+		0. Program sam wybiera ziarno.\\
+		\hline
+		\texttt{BŁĄD: Opcja -X wymaga podania wartości!} & Jeżeli nie podano wartości dla parametru który wybrano. 
+		Program przerywa działanie.\\
+		\hline
+		\texttt{BŁĄD: Nieznana opcja -X} & Jeżeli podano nie znany parametr. Program ignoruje parametr.\\
+		\hline
+		\texttt{BŁĄD: Nie udało się otworzyć pliku.} & Jeżeli nie udało się otworzyć pliku o podanej nazwie.
+		Program przerywa działanie.\\
+		\hline
+		\texttt{BŁĄD: Nie udało się wczytać grafu.} & Jeżeli nie udało się wczytać grafu z otwartego pliku.
+		Program przerywa działanie.\\
+		\hline
+		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Jeżeli nie udało się zapisac do pliku tekstowego o 
+		podanej nazwie. Program przerywa działanie. \\
+		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Jeżeli nie udało się zapisać do pliku binarnego o
+		podanej nazwie. Program przerywa działanie.
+	\end{tabularx}
 	
 \end{document}

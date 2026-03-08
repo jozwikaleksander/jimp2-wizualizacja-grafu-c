@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     // ----------------------------
 
     // Wczytanie parametrow wykonania
-    while((opt = getopt(argc, argv, ":a:t:s:")) != -1) 
+    while((opt = getopt(argc, argv, ":a:t:s:o:")) != -1) 
     {
         switch(opt) 
             { 
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
                     algorithm = atoi(optarg);
                     if(algorithm < 0 || algorithm > 1) {
                         fprintf(stderr, "BŁĄD: Podano nie prawidłowy algorytm.\n");
-                        return EXIT_FAILURE;
+                        algorithm = 0;
                     }
                     break;
                 case 't':
@@ -52,31 +52,27 @@ int main(int argc, char **argv) {
                         output_type = OUTPUT_TXT;
                     } else {
                         fprintf(stderr, "BŁĄD: Podano nie prawidłowy typ pliku wyjściowego.\n");
-                        return EXIT_FAILURE;
+                        output_type = OUTPUT_TXT;
                     }
                     break;
                 case 'o':
                     output_name = strdup(optarg);
-                    if(strcmp(output_name, "")){
-                        fprintf(stderr, "BŁĄD: Podano nie prawidłową nazwę pliku wyjściowego.\n");
-                        return EXIT_FAILURE;
-                    }
                     break;
                 case 's':
                     
                     seed = atoi(optarg);
-                    if(seed < 0){
+                    if(seed < 0)
                         fprintf(stderr,
                             "BŁĄD: Podano nie poprawne ziarno. Ziarno musi być większe od 0.\n");
-                        return EXIT_FAILURE;
-                    }
-                    wasSeedProvided = 1;
+                    else
+                        wasSeedProvided = 1;
                     break;
                 case ':': 
-                    printf("Opcja -%c wymaga podania wartości!\n", optopt); 
+                    fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
+                    return EXIT_FAILURE;
                     break; 
                 case '?': 
-                    printf("Nieznana opcja: -%c\n", optopt);
+                    fprintf(stderr,"BŁĄD: Nieznana opcja -%c\n", optopt);
                     break; 
         } 
     }
