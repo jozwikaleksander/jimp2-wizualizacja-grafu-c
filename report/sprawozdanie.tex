@@ -4,7 +4,7 @@
 \input{preamble.tex}
 
 \colorlet{accent}{jimp}
-\title{Wyznaczanie współrzędnych wezłów dla wizualnej reprezentacji grafu planarnego w języku C}
+\title{Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C}
 \author{\authoricon Aleksander Jóźwik}
 
 \definecolor{zalety}{HTML}{a6d189}
@@ -16,11 +16,11 @@
 		\hline
 		\multicolumn{2}{|c|}{PW}\\
 		\hline
-        Temat & Wyznaczanie współrzędnych wezłów dla wizualnej reprezentacji grafu planarnego w języku C\\
+        Temat & Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C\\
 		\hline
         Autor & Aleksander Jóźwik, Anastasiya Kryvetskaya\\
         \hline
-        Sprawdzający & mgr. inż. Aleksander Zamojski \\
+        Sprawdzający & mgr inż. Aleksander Zamojski \\
         \hline
         Data i godzina & 05/03/2026 \\
 		\hline
@@ -31,12 +31,12 @@
 	\section{Dokumentacja funkcjonalna}
 	\subsection{Cel projektu}
 	Celem projektu jest stworzenie programu w języku C, który służy do automatycznego i estetycznego rozmieszczania
-	wierzchołków grafu planarnego w przestrzenii dwuwymiarowej, z wykorzystaniem algortmu Eades'a lub twierdzenia 
-	Tuttes'a w zależności od wyboru użytkownika. Program działa w trybie nieinteraktywnym/wsadowym.
+	wierzchołków grafu planarnego w przestrzeni dwuwymiarowej, z wykorzystaniem algorytmu Eadesa lub twierdzenia 
+	Tuttego w zależności od wyboru użytkownika. Program działa w trybie nieinteraktywnym/wsadowym.
 	\subsection{Funkcjonalności programu}
 	Program oferuje następujące funkcjonalności:
 	\begin{enumerate}
-		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eades'a oraz twierdzenia Tuttes'a.
+		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eadesa oraz twierdzenia Tuttego.
 		\item Wczytywanie grafu z pliku tekstowego.
 		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
 		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
@@ -58,7 +58,22 @@
 		\hline
 	\end{tabularx}
 	\subsection{Sposób wykonania programu}
-	TODO
+	Schemat wywołania programu wygląda w nastepujący sposób:
+	\begin{mylisting}
+./bin/main <plik_wejsciowy> <flagi>
+	\end{mylisting}
+	Na przykład:
+	\begin{mylisting}
+./bin/main examples/graph_1.txt -t b -o output.bin -s 1234 -a t
+	\end{mylisting}
+	Powyższa komenda wywoła program w następujący sposób:
+	\begin{enumerate}
+		\item Program odczyta graf z pliku \texttt{graph\_1.txt}.
+		\item Wynik programu zostanie zapisany do pliku binarnego (flaga \texttt{-t}).
+		\item Rezultat zostanie zapisany do pliku \texttt{output.bin} (flaga \texttt{-o}).
+		\item Program użyje do początkowego rozmieszczenia wierzchołków ziarna \texttt{1234} (flaga \texttt{-s}).
+		\item Program użyje twierdzenia Tuttego do rozmieszczenia wierzchołków (flaga \texttt{-a}).
+	\end{enumerate}
 	\subsection{Dane wejściowe}
 	Dane wejściowe mają następujący format:
 	\begin{mylisting}
@@ -73,7 +88,10 @@ CD   3  4  1
 DB   4  2  1.407
 	\end{mylisting}
 	\subsection{Dane wyjściowe}
-	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. Dane w pliku tekstowym zapisywane
+	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. 
+	
+	\subsubsection{Plik tekstowy}
+	Dane w pliku tekstowym zapisywane
 	są w nastepującym formacie:
 	\begin{mylisting}
 <numer_wierzcholka> <wspolrzedna_x> <wspolrzedna_y>
@@ -86,6 +104,14 @@ DB   4  2  1.407
 3 112.000000 112.000000
 4 90.000000 90.000000
 	\end{mylisting}
+	\subsubsection{Plik binarny}
+	Dane w pliku binarnym zapisywane są w następującej kolejności:
+	\begin{enumerate}
+		\item Ilość wierzchołków
+		\item Identyfikator wierzchołka
+		\item Pozycja wierzchołka
+	\end{enumerate}
+	Kroki 2 i 3 powtarzane są dla każdego wierzchołka grafu.
 	\subsection{Komunikaty błędów}
 	W przypadku napotkania błędu program zwraca następujące komunikaty.
 
@@ -93,19 +119,19 @@ DB   4  2  1.407
 		\hline
 		Komunikat & Opis komunikatu\\
 		\hline
-		\texttt{BŁĄD: Podano nie prawidłowy algorytm.} & Komunikat wyświetlany jest kiedy wpisana wartość flagi 
-		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eades'a.\\
+		\texttt{BŁĄD: Podano nieprawidłowy algorytm.} & Komunikat wyświetlany jest kiedy wpisana wartość flagi 
+		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eadesa.\\
 		\hline
-		\texttt{BŁĄD: Podano nie prawidłowy typ pliku wyjściowego.} & Komunikat wyświetlany jest kiedy wpisana wartość 
+		\texttt{BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.} & Komunikat wyświetlany jest kiedy wpisana wartość 
 		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego.\\
 		\hline
-		\texttt{BŁĄD: Podano nie poprawne ziarno. Ziarno musi być nieujemne.} & Jeżeli podane ziarno jest mniejsze od 
+		\texttt{BŁĄD: Podano niepoprawne ziarno. Ziarno musi być nieujemne.} & Jeżeli podane ziarno jest mniejsze od 
 		0. Program sam wybiera ziarno.\\
 		\hline
 		\texttt{BŁĄD: Opcja -X wymaga podania wartości!} & Jeżeli nie podano wartości dla parametru który wybrano. 
 		Program przerywa działanie.\\
 		\hline
-		\texttt{BŁĄD: Nieznana opcja -X} & Jeżeli podano nie znany parametr. Program ignoruje parametr.\\
+		\texttt{BŁĄD: Nieznana opcja -X} & Jeżeli podano nieznany parametr. Program ignoruje parametr.\\
 		\hline
 		\texttt{BŁĄD: Nie udało się otworzyć pliku.} & Jeżeli nie udało się otworzyć pliku o podanej nazwie.
 		Program przerywa działanie.\\
@@ -113,10 +139,12 @@ DB   4  2  1.407
 		\texttt{BŁĄD: Nie udało się wczytać grafu.} & Jeżeli nie udało się wczytać grafu z otwartego pliku.
 		Program przerywa działanie.\\
 		\hline
-		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Jeżeli nie udało się zapisac do pliku tekstowego o 
+		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Jeżeli nie udało się zapisać do pliku tekstowego o 
 		podanej nazwie. Program przerywa działanie. \\
-		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Jeżeli nie udało się zapisać do pliku binarnego o
-		podanej nazwie. Program przerywa działanie.
+		\hline
+		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Jeżeli nie udało się zapisać do pliku binarnego o
+		podanej nazwie. Program przerywa działanie. \\
+		\hline
 	\end{tabularx}
 	
 \end{document}

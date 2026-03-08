@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
                 case 'a':
                     algorithm = atoi(optarg);
                     if(algorithm < 0 || algorithm > 1) {
-                        fprintf(stderr, "BŁĄD: Podano nie prawidłowy algorytm.\n");
+                        fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
                         algorithm = 0;
                     }
                     break;
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
                     } else if(strcmp(optarg, "t") == 0 || strcmp(optarg, "txt") == 0){
                         output_type = OUTPUT_TXT;
                     } else {
-                        fprintf(stderr, "BŁĄD: Podano nie prawidłowy typ pliku wyjściowego.\n");
+                        fprintf(stderr, "BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.\n");
                         output_type = OUTPUT_TXT;
                     }
                     break;
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
                     seed = atoi(optarg);
                     if(seed < 0)
                         fprintf(stderr,
-                            "BŁĄD: Podano nie poprawne ziarno. Ziarno musi być większe od 0.\n");
+                            "BŁĄD: Podano niepoprawne ziarno. Ziarno musi być większe od 0.\n");
                     else
                         wasSeedProvided = 1;
                     break;
