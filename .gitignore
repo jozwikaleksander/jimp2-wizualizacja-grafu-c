@@ -11,3 +11,4 @@ output.bin
 output*.txt
 .vscode/
 .vscode/*
+report/_minted/*
