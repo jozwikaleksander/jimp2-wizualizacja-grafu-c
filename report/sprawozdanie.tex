@@ -41,8 +41,54 @@
 		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
 		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
 	\end{enumerate}
+		\clearpage
 	\subsection{Sposób działania algorytmów}
-	TODO
+	\subsubsection{Algorytm sprzenżynowy Eadesa}
+	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania, 
+	\begin{mylisting}
+SpringEmbedder(G, minimalna_sila, maks_iteracji)
+//minimalna_siła = bardzo mała wartość ogranicza dziłanie algorytmu i ostanawia pracę
+//kiedy maksymalna znalezniona siła jest mniejsza za minimalna_siła
+t = 0
+max_sila = duza_wartosc // maksymalna siła działająca na jeden z wierzchołków
+
+while (t < maks_iteracji AND max_sila > minimalna_sila)
+
+    dla każdego wierzchołka v w G
+        oblicz siły odpychania od wszystkich innych wierzchołków
+
+    dla każdej krawędzi (u, v) w G
+        oblicz siłę przyciągania między u i v
+
+    dla każdego wierzchołka v w G
+        zaktualizuj pozycję v na podstawie działającej siły
+        zaktualizuj max_sila
+
+    t = t + 1
+
+end while
+\end{mylisting}
+\subsubsection{Algorytm Tuttesa}
+	Ten algorytm działa szukając taką pozycję dla każdego wierzchołku, żeby był średnią swoich sąsiadów,
+	\begin{mylisting}
+TutteEmbedding(G)
+
+wybierz wierzchołki zewnętrznej ściany grafu
+ustaw ich pozycje na okręgu
+
+dla każdego pozostałego wierzchołka v
+    zapisz równanie: pozycja v = średnia pozycji sąsiadów v
+
+zbuduj układ równań liniowych dla współrzędnych x i y
+
+rozwiąż układ równań
+
+dla każdego wierzchołka v
+    ustaw jego pozycję według otrzymanego rozwiązania
+
+	\end{mylisting}
+
+
 	\subsection{Lista dostępnych flag}
 	\begin{tabularx}{\textwidth}{| X | X | X |}
 		\hline
