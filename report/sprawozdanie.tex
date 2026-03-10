@@ -73,13 +73,26 @@ Formuła dla siły odpychania:
 f_{\mathrm{rep}}(p_u,p_v) =
 \frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
 \]
+\begin{itemize}
+    \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
+    \item $c_{\mathrm{rep}}$ -- stała określająca siłę odpychania
+    \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
+    \item $\|\cdot\|$ -- norma euklidesowa wektora
+\end{itemize}
 Formuła dla siły przyciągania:
 \[
-f_{\mathrm{spring}}(p_u,p_v) =
+f_{\mathrm{attr}}(p_u,p_v) =
 c_{\mathrm{spring}} \cdot
 \log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
 \cdot \vec{p_u p_v}
 \]
+\begin{itemize}
+    \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
+    \item $c_{\mathrm{spring}}$ -- stała określająca siłę sprężyny
+    \item $\ell$ -- długość optymalna krawędzi
+    \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
+    \item $\|\cdot\|$ -- norma euklidesowa wektora
+\end{itemize}
 \subsubsection{Algorytm Tuttesa}
 	Ten algorytm działa szukając taką pozycję dla każdego wierzchołku, żeby był średnią swoich sąsiadów,
 	\begin{mylisting}
@@ -102,6 +115,13 @@ dla każdego wierzchołka v
 	\[
 p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
 \]
+\begin{itemize}
+    \item $p_v$ -- pozycja wierzchołka $v$ na płaszczyźnie
+    \item $p_u$ -- pozycja sąsiada $u$ wierzchołka $v$
+    \item $N(v)$ -- zbiór sąsiadów wierzchołka $v$
+    \item $\deg(v)$ -- stopień wierzchołka $v$ (liczba jego sąsiadów)
+    \item $\sum$ -- suma po wszystkich sąsiadach wierzchołka $v$
+\end{itemize}
 Równania liniowe dla współżędnych:
 \[
 x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
@@ -109,6 +129,12 @@ x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
 \[
 y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
 \]
+\begin{itemize}
+    \item $x_v, y_v$ -- współrzędne wierzchołka $v$
+    \item $x_u, y_u$ -- współrzędne sąsiada $u$ wierzchołka $v$
+    \item $N(v)$ -- zbiór sąsiadów wierzchołka $v$
+    \item $\deg(v)$ -- stopień wierzchołka $v$
+\end{itemize}
 
 
 	\subsection{Lista dostępnych flag}
