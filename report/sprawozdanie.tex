@@ -68,6 +68,18 @@ while (t < maks_iteracji AND max_sila > minimalna_sila)
 
 end while
 \end{mylisting}
+Formuła dla siły odpychania:
+\[
+f_{\mathrm{rep}}(p_u,p_v) =
+\frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
+\]
+Formuła dla siły przyciągania:
+\[
+f_{\mathrm{spring}}(p_u,p_v) =
+c_{\mathrm{spring}} \cdot
+\log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
+\cdot \vec{p_u p_v}
+\]
 \subsubsection{Algorytm Tuttesa}
 	Ten algorytm działa szukając taką pozycję dla każdego wierzchołku, żeby był średnią swoich sąsiadów,
 	\begin{mylisting}
@@ -85,8 +97,18 @@ rozwiąż układ równań
 
 dla każdego wierzchołka v
     ustaw jego pozycję według otrzymanego rozwiązania
-
 	\end{mylisting}
+	Warunek barycentryczny :
+	\[
+p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
+\]
+Równania liniowe dla współżędnych:
+\[
+x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
+\]
+\[
+y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
+\]
 
 
 	\subsection{Lista dostępnych flag}
