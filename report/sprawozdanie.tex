@@ -69,10 +69,10 @@ while (t < maks_iteracji AND max_sila > minimalna_sila)
 end while
 \end{mylisting}
 Formuła dla siły odpychania:
-\[
-f_{\mathrm{rep}}(p_u,p_v) =
-\frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
-\]
+\begin{equation}
+	f_{\mathrm{rep}}(p_u,p_v) =
+	\frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
+\end{equation}
 \begin{itemize}
     \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
     \item $c_{\mathrm{rep}}$ -- stała określająca siłę odpychania
@@ -80,12 +80,12 @@ f_{\mathrm{rep}}(p_u,p_v) =
     \item $\|\cdot\|$ -- norma euklidesowa wektora
 \end{itemize}
 Formuła dla siły przyciągania:
-\[
-f_{\mathrm{attr}}(p_u,p_v) =
-c_{\mathrm{spring}} \cdot
-\log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
-\cdot \vec{p_u p_v}
-\]
+\begin{equation}
+	f_{\mathrm{attr}}(p_u,p_v) =
+	c_{\mathrm{spring}} \cdot
+	\log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
+	\cdot \vec{p_u p_v}
+\end{equation}
 \begin{itemize}
     \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
     \item $c_{\mathrm{spring}}$ -- stała określająca siłę sprężyny
@@ -111,10 +111,12 @@ rozwiąż układ równań
 dla każdego wierzchołka v
     ustaw jego pozycję według otrzymanego rozwiązania
 	\end{mylisting}
-	Warunek barycentryczny :
-	\[
-p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
-\]
+
+Warunek barycentryczny :
+\begin{equation}
+	p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
+\end{equation}
+Gdzie:
 \begin{itemize}
     \item $p_v$ -- pozycja wierzchołka $v$ na płaszczyźnie
     \item $p_u$ -- pozycja sąsiada $u$ wierzchołka $v$
@@ -122,13 +124,13 @@ p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
     \item $\deg(v)$ -- stopień wierzchołka $v$ (liczba jego sąsiadów)
     \item $\sum$ -- suma po wszystkich sąsiadach wierzchołka $v$
 \end{itemize}
-Równania liniowe dla współżędnych:
-\[
+Równania liniowe dla współrzędnych:
+\begin{equation}
 x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
-\]
-\[
+\end{equation}
+\begin{equation}
 y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
-\]
+\end{equation}
 \begin{itemize}
     \item $x_v, y_v$ -- współrzędne wierzchołka $v$
     \item $x_u, y_u$ -- współrzędne sąsiada $u$ wierzchołka $v$
