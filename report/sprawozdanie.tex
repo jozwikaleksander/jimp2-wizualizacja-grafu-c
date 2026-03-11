@@ -41,7 +41,6 @@
 		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
 		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
 	\end{enumerate}
-		\clearpage
 	\subsection{Sposób działania algorytmów}
 	\subsubsection{Algorytm sprzenżynowy Eadesa}
 	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania, 
@@ -68,24 +67,26 @@ while (t < maks_iteracji AND max_sila > minimalna_sila)
 
 end while
 \end{mylisting}
-Formuła dla siły odpychania:
+\textbf{Formuła dla siły odpychania:}
 \begin{equation}
 	f_{\mathrm{rep}}(p_u,p_v) =
 	\frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
 \end{equation}
+Gdzie:
 \begin{itemize}
     \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
     \item $c_{\mathrm{rep}}$ -- stała określająca siłę odpychania
     \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
     \item $\|\cdot\|$ -- norma euklidesowa wektora
 \end{itemize}
-Formuła dla siły przyciągania:
+\textbf{Formuła dla siły przyciągania:}
 \begin{equation}
 	f_{\mathrm{attr}}(p_u,p_v) =
 	c_{\mathrm{spring}} \cdot
 	\log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
 	\cdot \vec{p_u p_v}
 \end{equation}
+Gdzie:
 \begin{itemize}
     \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
     \item $c_{\mathrm{spring}}$ -- stała określająca siłę sprężyny
@@ -112,7 +113,7 @@ dla każdego wierzchołka v
     ustaw jego pozycję według otrzymanego rozwiązania
 	\end{mylisting}
 
-Warunek barycentryczny :
+\textbf{Warunek barycentryczny:}
 \begin{equation}
 	p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
 \end{equation}
@@ -124,13 +125,14 @@ Gdzie:
     \item $\deg(v)$ -- stopień wierzchołka $v$ (liczba jego sąsiadów)
     \item $\sum$ -- suma po wszystkich sąsiadach wierzchołka $v$
 \end{itemize}
-Równania liniowe dla współrzędnych:
+\textbf{Równania liniowe dla współrzędnych:}
 \begin{equation}
 x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
 \end{equation}
 \begin{equation}
 y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
 \end{equation}
+Gdzie:
 \begin{itemize}
     \item $x_v, y_v$ -- współrzędne wierzchołka $v$
     \item $x_u, y_u$ -- współrzędne sąsiada $u$ wierzchołka $v$
@@ -175,7 +177,6 @@ y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
 	\begin{mylisting}
 <nazwa_krawędzi> <wierzchołek_A> <wierzchołek_B> <waga_krawędzi>	
 	\end{mylisting}
-	\clearpage
 	Na przykład:
 	\begin{mylisting}
 AB   1  2  1
