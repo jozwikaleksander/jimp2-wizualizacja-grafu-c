@@ -42,12 +42,12 @@
 		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
 	\end{enumerate}
 	\subsection{Sposób działania algorytmów}
-	\subsubsection{Algorytm sprzenżynowy Eadesa}
+	\subsubsection{Algorytm sprężynowy Eadesa}
 	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania, 
 	\begin{mylisting}
 SpringEmbedder(G, minimalna_sila, maks_iteracji)
-//minimalna_siła = bardzo mała wartość ogranicza dziłanie algorytmu i ostanawia pracę
-//kiedy maksymalna znalezniona siła jest mniejsza za minimalna_siła
+//minimalna_siła = bardzo mała wartość ogranicza działanie algorytmu i zatrzymuje pracę
+//kiedy maksymalna znalezniona siła jest mniejsza niż minimalna_siła
 t = 0
 max_sila = duza_wartosc // maksymalna siła działająca na jeden z wierzchołków
 
@@ -94,8 +94,8 @@ Gdzie:
     \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
     \item $\|\cdot\|$ -- norma euklidesowa wektora
 \end{itemize}
-\subsubsection{Algorytm Tuttesa}
-	Ten algorytm działa szukając taką pozycję dla każdego wierzchołku, żeby był średnią swoich sąsiadów,
+\subsubsection{Twierdzenia Tuttego}
+	Ten algorytm działa szukając takiej pozycję dla każdego wierzchołku, aby jego współrzędne były średnią arytmetyczną pozycji jego sąsiadów.
 	\begin{mylisting}
 TutteEmbedding(G)
 
@@ -204,7 +204,7 @@ DB   4  2  1.407
 	\subsubsection{Plik binarny}
 	Dane w pliku binarnym zapisywane są w następującej kolejności:
 	\begin{enumerate}
-		\item Ilość wierzchołków
+		\item Liczba wierzchołków
 		\item Identyfikator wierzchołka
 		\item Pozycja wierzchołka
 	\end{enumerate}
