@@ -4,8 +4,6 @@
 \input{preamble.tex}
 
 \colorlet{accent}{jimp}
-\title{Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C}
-\author{\authoricon Aleksander Jóźwik}
 
 \definecolor{zalety}{HTML}{a6d189}
 \definecolor{wady}{HTML}{e78284}
@@ -43,11 +41,11 @@
 	\end{enumerate}
 	\subsection{Sposób działania algorytmów}
 	\subsubsection{Algorytm sprężynowy Eadesa}
-	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania, 
+	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania.
 	\begin{mylisting}
 SpringEmbedder(G, minimalna_sila, maks_iteracji)
-//minimalna_siła = bardzo mała wartość ogranicza działanie algorytmu i zatrzymuje pracę
-//kiedy maksymalna znalezniona siła jest mniejsza niż minimalna_siła
+//minimalna_sila = bardzo mała wartość ogranicza działanie algorytmu i zatrzymuje pracę
+//kiedy maksymalna znaleziona siła jest mniejsza niż minimalna_sila
 t = 0
 max_sila = duza_wartosc // maksymalna siła działająca na jeden z wierzchołków
 
@@ -94,8 +92,8 @@ Gdzie:
     \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
     \item $\|\cdot\|$ -- norma euklidesowa wektora
 \end{itemize}
-\subsubsection{Twierdzenia Tuttego}
-	Ten algorytm działa szukając takiej pozycję dla każdego wierzchołku, aby jego współrzędne były średnią arytmetyczną pozycji jego sąsiadów.
+\subsubsection{Twierdzenie Tuttego}
+	Ten algorytm działa szukając takiej pozycji dla każdego wierzchołka, aby jego współrzędne były średnią arytmetyczną pozycji jego sąsiadów.
 	\begin{mylisting}
 TutteEmbedding(G)
 
@@ -146,7 +144,7 @@ Gdzie:
 		\hline
 		Nazwa flagi & Opis & Dostępne wartości\\
 		\hline
-		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades, t, tuttes\\
+		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades, t, tutte\\
 		\hline
 		-t & typ pliku wyjściowego & t, txt, b, bin\\
 		\hline
@@ -156,7 +154,7 @@ Gdzie:
 		\hline
 	\end{tabularx}
 	\subsection{Sposób wykonania programu}
-	Schemat wywołania programu wygląda w nastepujący sposób:
+	Schemat wywołania programu wygląda w następujący sposób:
 	\begin{mylisting}
 ./bin/main <plik_wejściowy> <flagi>
 	\end{mylisting}
@@ -184,63 +182,63 @@ BC   2  3  1
 CD   3  4  1
 DB   4  2  1.407
 	\end{mylisting}
+
+	Uwaga: Waga krawędzi nie jest używana przez algorytmy.
 	\subsection{Dane wyjściowe}
 	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. 
 	
 	\subsubsection{Plik tekstowy}
-	Dane w pliku tekstowym zapisywane
-	są w nastepującym formacie:
+	Dane w pliku tekstowym są zapisywane w następującym formacie:
 	\begin{mylisting}
 <numer_wierzchołka> <współrzędna_x> <współrzędna_y>
 	\end{mylisting}
 	Na przykład:
 	\begin{mylisting}
-0 272.000000 272.000000
-1 248.000000 248.000000
-2 49.000000 49.000000
-3 112.000000 112.000000
-4 90.000000 90.000000
+1 288.000000 288.000000
+2 254.000000 254.000000
+3 307.000000 307.000000
+4 101.000000 101.000000
 	\end{mylisting}
 	\subsubsection{Plik binarny}
 	Dane w pliku binarnym zapisywane są w następującej kolejności:
 	\begin{enumerate}
-		\item Liczba wierzchołków
-		\item Identyfikator wierzchołka
-		\item Pozycja wierzchołka
+		\item Liczba wierzchołków - zmienna typu \texttt{int}
+		\item Identyfikator wierzchołka - zmienna typu \texttt{int}
+		\item Pozycja wierzchołka - zmienne dla współrzędnych X i Y typu \texttt{double}
 	\end{enumerate}
 	Kroki 2 i 3 powtarzane są dla każdego wierzchołka grafu.
 	\subsection{Komunikaty błędów}
 	W przypadku napotkania błędu program zwraca następujące komunikaty.
 
-	\begin{tabularx}{\textwidth}{| X | X |}
+	\begin{tabularx}{\textwidth}{| X | X | X |}
 		\hline
-		Komunikat & Opis komunikatu\\
+		Komunikat & Opis komunikatu & Kod powrotu\\
 		\hline
-		\texttt{BŁĄD: Podano nieprawidłowy algorytm.} & Komunikat wyświetlany jest kiedy wpisana wartość flagi 
-		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eadesa.\\
+		\texttt{BŁĄD: Podano nieprawidłowy algorytm.} & Wyświetlany, gdy wpisana wartość flagi 
+		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eadesa. & -\\
 		\hline
-		\texttt{BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.} & Komunikat wyświetlany jest kiedy wpisana wartość 
-		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego.\\
+		\texttt{BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.} & Wyświetlany, gdy wpisana wartość 
+		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego. & -\\
 		\hline
-		\texttt{BŁĄD: Podano niepoprawne ziarno. Ziarno musi być nieujemne.} & Jeżeli podane ziarno jest mniejsze od 
-		0. Program sam wybiera ziarno.\\
+		\texttt{BŁĄD: Podano niepoprawne ziarno. Ziarno musi być nieujemne.} & Wyświetlany, gdy podane ziarno jest mniejsze od 
+		0. Program sam wybiera ziarno. & -\\
 		\hline
-		\texttt{BŁĄD: Opcja -X wymaga podania wartości!} & Jeżeli nie podano wartości dla parametru który wybrano. 
-		Program przerywa działanie.\\
+		\texttt{BŁĄD: Opcja -X wymaga podania wartości!} & Wyświetlany, gdy nie podano wartości dla parametru, który wybrano. 
+		Program przerywa działanie. & 1\\
 		\hline
-		\texttt{BŁĄD: Nieznana opcja -X} & Jeżeli podano nieznany parametr. Program ignoruje parametr.\\
+		\texttt{BŁĄD: Nieznana opcja -X} & Wyświetlany, gdy podano nieznany parametr. Program ignoruje parametr. & -\\
 		\hline
-		\texttt{BŁĄD: Nie udało się otworzyć pliku.} & Jeżeli nie udało się otworzyć pliku o podanej nazwie.
-		Program przerywa działanie.\\
+		\texttt{BŁĄD: Nie udało się otworzyć pliku.} & Wyświetlany, gdy nie udało się otworzyć pliku o podanej nazwie.
+		Program przerywa działanie. & 2\\
 		\hline
-		\texttt{BŁĄD: Nie udało się wczytać grafu.} & Jeżeli nie udało się wczytać grafu z otwartego pliku.
-		Program przerywa działanie.\\
+		\texttt{BŁĄD: Nie udało się wczytać grafu.} & Wyświetlany, gdy nie udało się wczytać grafu z otwartego pliku.
+		Program przerywa działanie. & 3\\
 		\hline
-		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Jeżeli nie udało się zapisać do pliku tekstowego o 
-		podanej nazwie. Program przerywa działanie. \\
+		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Wyświetlany, gdy nie udało się zapisać do pliku tekstowego o 
+		podanej nazwie. Program przerywa działanie. & 4\\
 		\hline
-		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Jeżeli nie udało się zapisać do pliku binarnego o
-		podanej nazwie. Program przerywa działanie. \\
+		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Wyświetlany, gdy nie udało się zapisać do pliku binarnego o
+		podanej nazwie. Program przerywa działanie. & 5\\
 		\hline
 	\end{tabularx}
 	

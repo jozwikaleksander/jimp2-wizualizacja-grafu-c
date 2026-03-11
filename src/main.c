@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     // Wypisanie wierzcholkow grafu
     for(int i = 0; i < graph->num_nodes; i++) {
         Node *node = &graph->nodes[i];
-        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i, node->position.x, node->position.y, 
+        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",i+1, node->position.x, node->position.y, 
             node->force.x, node->force.y);
     }
     

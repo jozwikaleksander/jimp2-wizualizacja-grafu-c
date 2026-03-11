@@ -92,7 +92,7 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
         int max_index = (u > v) ? u : v;
 
-        resize_nodes(graph, max_index, width ,height);
+        resize_nodes(graph, max_index-1, width ,height);
 
         add_edge(graph, u, v, weight, buff);
     }
