@@ -5,33 +5,22 @@
 
 \colorlet{accent}{jimp}
 
+\title{Dokumentacja funkcjonalna - Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C}
+\author{\authoricon Aleksander Jóźwik, Anastasiya Kryvetskaya}
+\date{\dateicon \today}
+
 \definecolor{zalety}{HTML}{a6d189}
 \definecolor{wady}{HTML}{e78284}
 
 \begin{document}
 	\noindent
-	\begin{tabularx}{\textwidth}{|X|X|}
-		\hline
-		\multicolumn{2}{|c|}{PW}\\
-		\hline
-        Temat & Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C\\
-		\hline
-        Autor & Aleksander Jóźwik, Anastasiya Kryvetskaya\\
-        \hline
-        Sprawdzający & mgr inż. Aleksander Zamojski \\
-        \hline
-        Data i godzina & 05/03/2026 \\
-		\hline
-        Numer rewizji & R1 \\
-        \hline
-	\end{tabularx}
+	\maketitle
 
-	\section{Dokumentacja funkcjonalna}
-	\subsection{Cel projektu}
+	\section{Cel projektu}
 	Celem projektu jest stworzenie programu w języku C, który służy do automatycznego i estetycznego rozmieszczania
 	wierzchołków grafu planarnego w przestrzeni dwuwymiarowej, z wykorzystaniem algorytmu Eadesa lub twierdzenia 
 	Tuttego w zależności od wyboru użytkownika. Program działa w trybie nieinteraktywnym/wsadowym.
-	\subsection{Funkcjonalności programu}
+	\section{Funkcjonalności programu}
 	Program oferuje następujące funkcjonalności:
 	\begin{enumerate}
 		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eadesa oraz twierdzenia Tuttego.
@@ -39,8 +28,8 @@
 		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
 		\item Kontrolowanie parametrów wykonania algorytmu za pomocą argumentów linii poleceń.
 	\end{enumerate}
-	\subsection{Sposób działania algorytmów}
-	\subsubsection{Algorytm sprężynowy Eadesa}
+	\section{Sposób działania algorytmów}
+	\subsection{Algorytm sprężynowy Eadesa}
 	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania.
 	\begin{mylisting}
 SpringEmbedder(G, minimalna_sila, maks_iteracji)
@@ -92,7 +81,7 @@ Gdzie:
     \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
     \item $\|\cdot\|$ -- norma euklidesowa wektora
 \end{itemize}
-\subsubsection{Twierdzenie Tuttego}
+\subsection{Twierdzenie Tuttego}
 	Ten algorytm działa szukając takiej pozycji dla każdego wierzchołka, aby jego współrzędne były średnią arytmetyczną pozycji jego sąsiadów.
 	\begin{mylisting}
 TutteEmbedding(G)
@@ -139,7 +128,7 @@ Gdzie:
 \end{itemize}
 
 
-	\subsection{Lista dostępnych flag}
+	\section{Lista dostępnych flag}
 	\begin{tabularx}{\textwidth}{| X | X | X |}
 		\hline
 		Nazwa flagi & Opis & Dostępne wartości\\
@@ -153,7 +142,7 @@ Gdzie:
 		-s & ziarno używane dla początkowego rozmieszczenia wierzchołków & Nieujemna liczba całkowita \\
 		\hline
 	\end{tabularx}
-	\subsection{Sposób wykonania programu}
+	\section{Sposób wykonania programu}
 	Schemat wywołania programu wygląda w następujący sposób:
 	\begin{mylisting}
 ./bin/main <plik_wejściowy> <flagi>
@@ -170,7 +159,7 @@ Gdzie:
 		\item Program użyje do początkowego rozmieszczenia wierzchołków ziarna \texttt{1234} (flaga \texttt{-s}).
 		\item Program użyje twierdzenia Tuttego do rozmieszczenia wierzchołków (flaga \texttt{-a}).
 	\end{enumerate}
-	\subsection{Dane wejściowe}
+	\section{Dane wejściowe}
 	Dane wejściowe mają następujący format:
 	\begin{mylisting}
 <nazwa_krawędzi> <wierzchołek_A> <wierzchołek_B> <waga_krawędzi>	
@@ -184,10 +173,10 @@ DB   4  2  1.407
 	\end{mylisting}
 
 	Uwaga: Waga krawędzi nie jest używana przez algorytmy.
-	\subsection{Dane wyjściowe}
+	\section{Dane wyjściowe}
 	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. 
 	
-	\subsubsection{Plik tekstowy}
+	\subsection{Plik tekstowy}
 	Dane w pliku tekstowym są zapisywane w następującym formacie:
 	\begin{mylisting}
 <numer_wierzchołka> <współrzędna_x> <współrzędna_y>
@@ -199,7 +188,8 @@ DB   4  2  1.407
 3 307.000000 307.000000
 4 101.000000 101.000000
 	\end{mylisting}
-	\subsubsection{Plik binarny}
+	\clearpage
+	\subsection{Plik binarny}
 	Dane w pliku binarnym zapisywane są w następującej kolejności:
 	\begin{enumerate}
 		\item Liczba wierzchołków - zmienna typu \texttt{int}
@@ -207,10 +197,10 @@ DB   4  2  1.407
 		\item Pozycja wierzchołka - zmienne dla współrzędnych X i Y typu \texttt{double}
 	\end{enumerate}
 	Kroki 2 i 3 powtarzane są dla każdego wierzchołka grafu.
-	\subsection{Komunikaty błędów}
+	\section{Komunikaty błędów}
 	W przypadku napotkania błędu program zwraca następujące komunikaty.
 
-	\begin{tabularx}{\textwidth}{| X | X | X |}
+	\begin{tabularx}{\textwidth}{| X | X | c |}
 		\hline
 		Komunikat & Opis komunikatu & Kod powrotu\\
 		\hline
