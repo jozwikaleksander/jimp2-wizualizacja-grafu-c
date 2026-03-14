@@ -7,8 +7,9 @@ bin/
 *.run.xml
 *.synctex.gz
 *.synctex*
+*.toc
 output.bin
 output*.txt
 .vscode/
 .vscode/*
-report/_minted
+*_minted
