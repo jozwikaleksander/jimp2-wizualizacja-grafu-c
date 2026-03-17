@@ -4,6 +4,11 @@
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
 
+int is_potentially_planar(Graph *graph) {
+    if (graph->num_nodes < 3) return 0;
+    return graph->num_edges <= 3 * graph->num_nodes - 6;
+}
+
 /** 
 * @brief Dodaje nowa krawedz do grafu
 * @param graph - wskaznik na strukture grafu
@@ -117,6 +122,14 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
 
         add_edge(graph, u, v, weight, buff);
     }
+
+    if(is_potentially_planar(graph) != 0) {
+        printf("BŁĄD: Graf nie jest planarny.\n");
+        free_graph(graph);
+        exit(5);
+        return NULL;
+    }
+
     return graph;
 }
 
