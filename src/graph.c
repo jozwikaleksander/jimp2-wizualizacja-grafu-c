@@ -1,13 +1,11 @@
 #include "graph.h"
+#include "validation.h"
 #include <string.h>
 #include <stdio.h>
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
 
-int is_potentially_planar(Graph *graph) {
-    if (graph->num_nodes < 3) return 0;
-    return graph->num_edges <= 3 * graph->num_nodes - 6;
-}
+
 
 /** 
 * @brief Dodaje nowa krawedz do grafu
@@ -25,7 +23,7 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
 
         if(graph->edges == NULL) {
             fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
-            exit(7);
+            exit(8);
         }
     }
 
@@ -41,31 +39,31 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
 /**
  * @brief Funkcja sprawdza czy wierzchołek o podanym identyfikatorze istnieje w tablicy wierzchołków
  * @param graph  - wskaźnik na strukturę grafu
- * @param index  - indeks wierzchołka
- * @return int - 1 jeżeli znaleziono, 0 jeżeli nie znaleziono
+ * @param index  - identyfikator wierzchołka
+ * @return int - indeks w tablicy jeżeli znaleziono, -1 jeżeli nie znaleziono
  */
 int find_node(Graph *graph, int index) {
     for(int i = 0; i < graph->num_nodes; i++)
         if(graph->nodes[i].id == index)
-            return 1;
-    return 0;
+            return i;
+    return -1;
 }
 
 /**
  * @brief Funkcja dodaje wierzcholek do tablicy wierzcholkow
  * @param graph - wskaznik na strukture grafu
- * @param index - indeks wierzcholka
+ * @param index - identyfikator wierzcholka
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
 */
-void add_node(Graph *graph, int index, int width, int height){
+void add_node(Graph *graph, uint index, int width, int height){
     if(graph->num_nodes >= graph->capacity_nodes) {
         graph->capacity_nodes *= 2;
         graph->nodes = realloc(graph->nodes,graph->capacity_nodes * sizeof(Node));
 
         if(graph->nodes == NULL) {
             fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
-            exit(7);
+            exit(8);
         }
     }
 
@@ -105,25 +103,27 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     graph->capacity_edges = EDGELIST_SIZE;
     graph->capacity_nodes = NODELIST_SIZE;
 
-    if(!graph->edges){
-        free(graph);
-        return NULL;
-    }
-
     char buff[256];
     int u = 0;
     int v = 0;
     double weight = 0.0;
     while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
-        if(find_node(graph, u) == 0)
+        int u_idx = find_node(graph, u);
+        if(u_idx == -1) {
             add_node(graph, u, width, height);
-        if(find_node(graph, v) == 0)
+            u_idx = graph->num_nodes - 1;
+        }
+        
+        int v_idx = find_node(graph, v);
+        if(v_idx == -1) {
             add_node(graph, v, width, height);
+            v_idx = graph->num_nodes - 1;
+        }
 
-        add_edge(graph, u, v, weight, buff);
+        add_edge(graph, u_idx, v_idx, weight, buff);
     }
 
-    if(is_potentially_planar(graph) != 0) {
+    if(is_graph_planar(graph) != 1) {
         printf("BŁĄD: Graf nie jest planarny.\n");
         free_graph(graph);
         exit(5);

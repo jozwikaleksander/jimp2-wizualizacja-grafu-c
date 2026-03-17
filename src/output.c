@@ -10,16 +10,13 @@
 int save_to_txt(Graph *graph, char *output_name) {
     if(!graph) return 1;
 
-    if (output_name == NULL) {
-        output_name = malloc(sizeof(char) * 32);
-        output_name = OUTPUT_NAME_TXT;
-    }
+    char *final_name = output_name ? output_name : OUTPUT_NAME_TXT;
 
-    FILE *file = fopen(output_name,"w");
+    FILE *file = fopen(final_name,"w");
     if(!file) return 1;
 
     for(int i = 0; i < graph->num_nodes; i++) {
-        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.x);
+        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.y);
     }
     fclose(file);
     return 0;
@@ -34,12 +31,9 @@ int save_to_txt(Graph *graph, char *output_name) {
 int save_to_bin(Graph *graph, char *output_name) {
     if(!graph) return 1;
 
-    if (output_name == NULL) {
-        output_name = malloc(sizeof(char) * 32);
-        output_name = OUTPUT_NAME_BIN;
-    }
+    char *final_name = output_name ? output_name : OUTPUT_NAME_BIN;
 
-    FILE *file = fopen(output_name,"wb");
+    FILE *file = fopen(final_name,"wb");
     if(!file) return 1;
 
     fwrite(&graph->num_nodes,sizeof(int),1,file);
@@ -47,7 +41,7 @@ int save_to_bin(Graph *graph, char *output_name) {
         int index = graph->nodes[i].id;
         fwrite(&(index),sizeof(int),1,file);
         fwrite(&graph->nodes[i].position.x,sizeof(double),1,file);
-        fwrite(&graph->nodes[i].position.y,sizeof(int),1,file);
+        fwrite(&graph->nodes[i].position.y,sizeof(double),1,file);
     }
     fclose(file);
     return 0;

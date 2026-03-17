@@ -101,7 +101,7 @@ DB   4  2  1.407
 		\texttt{BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.} & Wyświetlany, gdy wpisana wartość 
 		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego. & -\\
 		\hline
-		\texttt{BŁĄD: Podano nieprawidłowe wymiary obszaru.} & Wyświetlany, jeżeli wpisana wysokość lub szerokość nie 
+		\texttt{BŁĄD: Podano nieprawidłową szerokość/wysokość obszaru (wartość musi być większa od 0). Wybieram domyślną wartość = 100} & Wyświetlany, jeżeli wpisana wysokość lub szerokość nie 
 		jest liczbą całkowitą lub nie jest > 0. Program wybiera domyślne wartości. & -\\
 		\hline
 		\texttt{BŁĄD: Podano niepoprawne ziarno. Ziarno musi być nieujemne.} & Wyświetlany, gdy podane ziarno jest mniejsze od 
@@ -128,6 +128,8 @@ DB   4  2  1.407
 		\hline
 		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Wyświetlany, gdy nie udało się zapisać do pliku binarnego o
 		podanej nazwie. Program przerywa działanie. & 7\\
+		\hline
+		\texttt{BŁĄD: Nie udało się zrealokować pamięci.} & Wyświetlany, gdy w czasie tworzenia grafu nie udało się zrealokować dynamicznej tablicy danych. & 8\\
 		\hline
 	\end{tabularx}
 

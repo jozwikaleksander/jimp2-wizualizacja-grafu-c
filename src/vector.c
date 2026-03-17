@@ -19,7 +19,7 @@ Vector add_vectors (Vector a, Vector b){
  * @return zwraca wartosc dlugosci wektora o typie double
 */
 double count_vector_length(Vector a){
-    return sqrt(pow(a.x,2) + pow(a.y,2));
+    return sqrt(a.x * a.x + a.y * a.y);
 }
 
 /**
@@ -29,7 +29,9 @@ double count_vector_length(Vector a){
  * @return wartosc odleglosci pomiedzy dwoma wektorami o typie double
 */
 double distance (Vector a, Vector b){
-    return sqrt(pow(b.x-a.x,2)+pow(b.y-a.y,2));
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
+    return sqrt(dx * dx + dy * dy);
 }
 
 /** 

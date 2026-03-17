@@ -19,10 +19,11 @@ int main(int argc, char **argv) {
     
     int seed = 0;
     int wasSeedProvided = 0;
-    int width = 500;
-    int height = 500;
+    int width = 100;
+    int height = 100;
 
     //te wartości dobra byłoby umieć znieniać przez linię poleceń
+    // TO DO: Te zmienne trzeba opisać, ponieważ nie wiadomo jak je wytłumaczyć w argumentach linii poleceń
     double minimum_force =  0.1; //miensz za nia->stop
     int max_iterations = 10000;
     double ideal_len = 10.0; //do tej długości będą dążyć sprzężyny 
@@ -33,14 +34,17 @@ int main(int argc, char **argv) {
     // ----------------------------
 
     // Wczytanie parametrow wykonania
-    while((opt = getopt(argc, argv, ":a:t:s:o:")) != -1) 
+    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:")) != -1) 
     {
         switch(opt) 
             { 
                 // Wybor algorytmu
                 case 'a':
-                    algorithm = atoi(optarg);
-                    if(algorithm < 0 || algorithm > 1) {
+                    if (strcmp(optarg, "t") == 0 || strcmp(optarg, "tutte") == 0) {
+                        algorithm = 1; // 1 for Tutte
+                    } else if (strcmp(optarg, "e") == 0 || strcmp(optarg, "eades") == 0) {
+                        algorithm = 0; // 0 for Eades
+                    } else {
                         fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
                         algorithm = 0;
                     }
@@ -66,6 +70,23 @@ int main(int argc, char **argv) {
                             "BŁĄD: Podano niepoprawne ziarno. Ziarno musi być większe od 0.\n");
                     else
                         wasSeedProvided = 1;
+                    break;
+                case 'w':
+                            
+                    width = atoi(optarg);
+                    if(width <= 0) {
+                        fprintf(stderr,
+                            "BŁĄD: Podano nieprawidłową szerokość obszaru (wartość musi być większa od 0). Wybieram domyślną wartość = 100.\n");
+                        width = 100;
+                    }
+                    break;
+                case 'h':
+                    height = atoi(optarg);
+                    if(height <= 0) {
+                        fprintf(stderr,
+                            "BŁĄD: Podano nieprawidłową wysokość obszaru (wartość musi być większa od 0). Wybieram domyślną wartość = 100.\n");
+                        height = 100;
+                    }
                     break;
                 case ':': 
                     fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
@@ -98,19 +119,6 @@ int main(int argc, char **argv) {
     if(graph == NULL) {
         fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
     }
-
-    // Wypisanie krawedzi grafu
-    for(int i = 0; i < graph->num_edges; i++) {
-        Edge *current_edge = &graph->edges[i];
-        printf("Krawędź: %s, Indeks u: %d, Indeks v: %d, Waga: %lg\n",current_edge->name, current_edge->u, 
-            current_edge->v, current_edge->weight);
-    }
-    // Wypisanie wierzcholkow grafu
-    for(int i = 0; i < graph->num_nodes; i++) {
-        Node *node = &graph->nodes[i];
-        printf("Indeks: %d, X: %lg, Y: %lg, Siła X: %lg, Siła Y: %lg\n",graph->nodes[i].id, node->position.x, node->position.y, 
-            node->force.x, node->force.y);
-    }
     
     // Obsluga wyboru algorytmu z linii polecen
     switch(algorithm) {
@@ -118,6 +126,7 @@ int main(int argc, char **argv) {
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
             break;
         default:
+            // TODO: Wykonać funkcje dla tw Tuttego
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
             break;
     }
@@ -137,6 +146,9 @@ int main(int argc, char **argv) {
             }
             break;
     }
+
+    free(output_name);
+    fclose(graph_file);
 
     printf("Pomyślnie zapisano informacje o %d wierzcholkach do pliku.\n", graph->num_nodes);
     free_graph(graph);

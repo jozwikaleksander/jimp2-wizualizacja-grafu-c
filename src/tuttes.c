@@ -4,3 +4,4 @@
 #include <stdlib.h>
 
 
+// TODO: Zrobić funkcje dla tw Tuttego

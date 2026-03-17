@@ -29,9 +29,8 @@ void eades_algorithm(Graph *graph, double minimum_force, int max_iterations, dou
  * @param u - wskaźnik na pierwszy wierzchołek
  * @param v - wskaźnik na drugi wierzchołek
  * @param c - używana do obliczenia sił odpychania
- * @param cooling - współczynnik "ochłodzenia" - stopniowo zwalnia pracę sił
 */
-void compute_repulive(Node *u, Node *v, int c, double cooling);
+void compute_repulive(Node *u, Node *v, int c);
 
 /**
  * @brief Funkcja podliczenia sił przyciągania
@@ -39,8 +38,7 @@ void compute_repulive(Node *u, Node *v, int c, double cooling);
  * @param e - wskaźnik na krawędź
  * @param spring_const -  używane do obliczenia sił przyciągania
  * @param ideal_len - długość do której dążą krawędzie
- * @param cooling - współczynnik "ochłodzenia" - stopniowo zwalnia pracę sił
 */
-void compute_attract(Graph *graph, Edge *e, double spring_const, double ideal_len, double cooling);
+void compute_attract(Graph *graph, Edge *e, double spring_const, double ideal_len);
 
 #endif
