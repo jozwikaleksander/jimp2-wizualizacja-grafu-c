@@ -15,11 +15,13 @@ typedef struct {
 typedef struct {
     Vector position;
     Vector force;
+    uint id;
 } Node;
 
 typedef struct{
-    int num_nodes;
     Node *nodes;
+    int num_nodes;
+    int capacity_nodes;
     
     Edge *edges;
     int num_edges;

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #define EDGELIST_SIZE 16
-
+#define NODELIST_SIZE 16
 
 /** 
 * @brief Dodaje nowa krawedz do grafu
@@ -19,8 +19,8 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
         graph->edges = realloc(graph->edges,graph->capacity_edges * sizeof(Edge));
 
         if(graph->edges == NULL) {
-            fprintf(stderr, "BŁĄD: Nie udało się zrealokowac pamięci.\n");
-            exit(1);
+            fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
+            exit(7);
         }
     }
 
@@ -34,26 +34,44 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
 }
 
 /**
- * @brief Funkcja zwieksza rozmiar dynamicznej tablicy wierzcholkow
+ * @brief Funkcja sprawdza czy wierzchołek o podanym identyfikatorze istnieje w tablicy wierzchołków
+ * @param graph  - wskaźnik na strukturę grafu
+ * @param index  - indeks wierzchołka
+ * @return int - 1 jeżeli znaleziono, 0 jeżeli nie znaleziono
+ */
+int find_node(Graph *graph, int index) {
+    for(int i = 0; i < graph->num_nodes; i++)
+        if(graph->nodes[i].id == index)
+            return 1;
+    return 0;
+}
+
+/**
+ * @brief Funkcja dodaje wierzcholek do tablicy wierzcholkow
  * @param graph - wskaznik na strukture grafu
- * @param max_index - maksymalny indeks wierzcholka
+ * @param index - indeks wierzcholka
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
 */
-void resize_nodes(Graph *graph, int max_index, int width, int height) {
-    if(max_index >= graph->num_nodes){
-        int old_amount = graph->num_nodes;
+void add_node(Graph *graph, int index, int width, int height){
+    if(graph->num_nodes >= graph->capacity_nodes) {
+        graph->capacity_nodes *= 2;
+        graph->nodes = realloc(graph->nodes,graph->capacity_nodes * sizeof(Node));
 
-        graph->num_nodes = max_index + 1;
-        graph->nodes = realloc(graph->nodes, graph->num_nodes * sizeof(Node));
-
-        for(int i = old_amount; i < graph->num_nodes; i++) {
-            graph->nodes[i].position.x = rand() % (width + 1);
-            graph->nodes[i].position.y = rand() % (height + 1);;
-            graph->nodes[i].force.x = 0;
-            graph->nodes[i].force.y = 0;
+        if(graph->nodes == NULL) {
+            fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
+            exit(7);
         }
     }
+
+    // Tworzenie nowego wierzchołka
+    Node *new_node = &graph->nodes[graph->num_nodes];
+    new_node->position.x = rand() % (width + 1);
+    new_node->position.y = rand() % (height + 1);
+    new_node->force.x = 0;
+    new_node->force.y = 0;
+    new_node->id = index;
+    graph->num_nodes++;
 }
 
 /**
@@ -70,6 +88,7 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     if(!graph) return NULL;
 
     graph->edges = malloc(EDGELIST_SIZE * sizeof(Edge));
+    graph->nodes = malloc(NODELIST_SIZE * sizeof(Node));
 
     if(!graph->edges){
         free(graph);
@@ -79,6 +98,7 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     graph->num_nodes = 0;
     graph->num_edges = 0;
     graph->capacity_edges = EDGELIST_SIZE;
+    graph->capacity_nodes = NODELIST_SIZE;
 
     if(!graph->edges){
         free(graph);
@@ -90,9 +110,10 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     int v = 0;
     double weight = 0.0;
     while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
-        int max_index = (u > v) ? u : v;
-
-        resize_nodes(graph, max_index-1, width ,height);
+        if(find_node(graph, u) == 0)
+            add_node(graph, u, width, height);
+        if(find_node(graph, v) == 0)
+            add_node(graph, v, width, height);
 
         add_edge(graph, u, v, weight, buff);
     }

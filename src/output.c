@@ -19,7 +19,7 @@ int save_to_txt(Graph *graph, char *output_name) {
     if(!file) return 1;
 
     for(int i = 0; i < graph->num_nodes; i++) {
-        fprintf(file, "%d %lf %lf\n", i+1, graph->nodes[i].position.x, graph->nodes[i].position.x);
+        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.x);
     }
     fclose(file);
     return 0;
@@ -44,7 +44,7 @@ int save_to_bin(Graph *graph, char *output_name) {
 
     fwrite(&graph->num_nodes,sizeof(int),1,file);
     for(int i = 0; i < graph->num_nodes; i++) {
-        int index = i+1;
+        int index = graph->nodes[i].id;
         fwrite(&(index),sizeof(int),1,file);
         fwrite(&graph->nodes[i].position.x,sizeof(double),1,file);
         fwrite(&graph->nodes[i].position.y,sizeof(int),1,file);
