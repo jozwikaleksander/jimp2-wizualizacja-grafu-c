@@ -1,0 +1,194 @@
+% =============================================================================
+% DOCUMENT SETUP & LANGUAGE
+% =============================================================================
+
+\usepackage{polyglossia}
+\setmainlanguage{polish}
+
+% =============================================================================
+% FONT
+% =============================================================================
+\usepackage{fontspec}
+\newfontfamily{\nerdfont}{Arimo Nerd Font}
+\setsansfont{Arimo Nerd Font}
+\setmonofont{Iosevka Nerd Font}
+\renewcommand{\familydefault}{\sfdefault}
+
+% =============================================================================
+% COLORS
+% =============================================================================
+\usepackage{xcolor} % Driver for color support
+\definecolor{accent}{HTML}{8839ef} % Main accent color
+\definecolor{codegray}{rgb}{0.95,0.95,0.95} % Background for code blocks
+\definecolor{commentgreen}{rgb}{0,0.4,0}    % Color for comments in code
+\definecolor{keywordblue}{rgb}{0,0,0.6}     % Color for keywords in code
+\definecolor{sysop}{HTML}{ed7c50}
+\definecolor{fizyka}{HTML}{8839ef}
+\definecolor{jimp}{HTML}{289bc9}
+\definecolor{podstawyinformatyki}{HTML}{1e66f5}
+
+% =============================================================================
+% PAGE LAYOUT
+% =============================================================================
+\usepackage[a4paper, margin=2.5cm]{geometry} % Page dimensions
+\usepackage{titlesec} % For customizing section titles
+
+% Adjust spacing for section titles
+\titlespacing*{\section}{0pt}{1ex}{1ex}
+\titlespacing*{\subsection}{0pt}{0.5ex}{0.5ex}
+
+% =============================================================================
+% GRAPHICS, FIGURES & BOXES
+% =============================================================================
+\usepackage{graphicx}   % For including images
+\usepackage{float}      % Improved float control (e.g., [H] placement)
+\usepackage[most, minted]{tcolorbox} % For creating colored boxes
+\usepackage{subcaption} % For subfigures
+
+% =============================================================================
+% TABLES
+% =============================================================================
+\usepackage{tabularx}   % For tables with adjustable-width columns
+\usepackage{colortbl}   % For colored table cells
+\usepackage{booktabs}   % For high-quality table rules
+\usepackage{array}      % Enhanced array and tabular environments
+
+% Adjust table row height and column separation
+\renewcommand{\arraystretch}{1.25} 
+\setlength{\tabcolsep}{10pt}
+
+% =============================================================================
+% CODE LISTINGS
+% =============================================================================
+\usepackage{listings} % For typesetting code
+
+\renewcommand{\theFancyVerbLine}{\tiny\ttfamily\color{gray}\arabic{FancyVerbLine}}
+
+\newtcblisting{mylisting}{
+    arc=2mm,
+    top=2mm,
+    bottom=2mm,
+    left=5mm,
+    right=2mm,
+    boxrule=0.5pt,
+    colback=codegray,
+    colframe=accent,
+    listing only,
+    listing engine=minted,
+    minted language=c,
+    minted options={
+        fontfamily=tt,
+        fontsize=\footnotesize,
+        breaklines=true,
+        linenos=true,
+        numbersep=5pt,
+        tabsize=4
+    },
+    breakable,
+}
+% =============================================================================
+% BIBLIOGRAPHY & HYPERLINKS
+% =============================================================================
+\usepackage[backend=biber]{biblatex}
+\addbibresource{bibliography.bib} % Bibliography database file
+
+\usepackage{hyperref} % For hyperlinks and PDF metadata
+\usepackage{xurl}     % For handling long URLs
+
+\hypersetup{
+	colorlinks=true,
+	allcolors=black % Set all link colors to black
+}
+
+% =============================================================================
+% CUSTOM COMMANDS & ENVIRONMENTS
+% =============================================================================
+
+% --- Custom Section Boxes ---
+% Uses tcolorbox to create styled boxes for section titles.
+\newcommand{\mysectionbox}[1]{%
+	\begin{tcolorbox}[
+		enhanced, colback=accent, colframe=accent, boxrule=1pt, arc=2mm
+		]
+		\color{white}\thesection\hspace{1em}#1
+	\end{tcolorbox}%
+}
+
+\newcommand{\mysubsectionbox}[1]{%
+	\begin{tcolorbox}[
+		enhanced, colback=accent!60, colframe=accent!60, arc=2mm, boxrule=1pt
+		]
+		\color{black}\thesubsection\hspace{1em}#1
+	\end{tcolorbox}%
+}
+
+\newcommand{\mysubsubsectionbox}[1]{%
+	\begin{tcolorbox}[
+		enhanced, colback=accent!20, colframe=accent!20, arc=2mm, boxrule=1pt
+		]
+		\color{black}\thesubsubsection\hspace{1em}#1
+	\end{tcolorbox}%
+}
+
+% Box for unnumbered sections (e.g., Bibliography)
+\newcommand{\mysectionboxstar}[1]{
+	\begin{tcolorbox}[
+		enhanced, colback=accent, colframe=accent, boxrule=1pt, arc=2mm
+		]
+		\color{white}#1
+	\end{tcolorbox}%
+}
+
+% --- Framed Figures ---
+% Creates a figure with a colored frame and shadow.
+\newcommand{\framedfigure}[4]{%
+	\begin{figure}[H]
+		\centering
+		\begin{tcolorbox}[
+			enhanced, colframe=accent, colback=white, boxrule=1.5pt,
+			sharp corners, boxsep=0pt, left=0pt, right=0pt, top=0pt, bottom=0pt,
+			hbox, drop shadow
+			]
+			\includegraphics[width=#2]{#1}
+		\end{tcolorbox}
+		\caption{#3}
+		\label{#4}
+	\end{figure}
+}
+
+% Creates a subfigure with a colored frame and shadow.
+\newcommand{\framedsubfigure}[4]{%
+	\begin{subfigure}{#2}
+		\centering
+		\begin{tcolorbox}[
+			enhanced, colframe=accent, colback=white, boxrule=1.5pt,
+			sharp corners, boxsep=0pt, left=0pt, right=0pt, top=0pt, bottom=0pt,
+			hbox, drop shadow
+			]
+			\includegraphics[width=\linewidth]{#1}
+		\end{tcolorbox}
+		\caption{#3}
+		\label{#4}
+	\end{subfigure}
+}
+
+% =============================================================================
+% TITLE FORMATTING
+% =============================================================================
+% Apply the custom boxes to section titles.
+\titleformat{\section}{\normalfont}{}{0pt}{\mysectionbox}[]
+\titleformat{\subsection}{\normalfont}{}{0pt}{\mysubsectionbox}[]
+\titleformat{\subsubsection}{\normalfont}{}{0pt}{\mysubsubsectionbox}[]
+\titleformat{name=\section, numberless}{\normalfont}{}{0pt}{\mysectionboxstar}[]
+
+% =============================================================================
+% OTHER SETTINGS
+% =============================================================================
+
+% Author icon
+\newcommand{\authoricon}{{\nerdfont\textcolor{accent}{ \space}}}
+
+% Date icon
+\newcommand{\dateicon}{{\nerdfont\textcolor{accent}{ \space}}}
+
+\usepackage{parskip}
