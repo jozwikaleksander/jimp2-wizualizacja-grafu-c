@@ -61,7 +61,7 @@ void eades_algorithm(Graph *graph,
 }
 
 /**
- * @brief Funkcja podliczenia sił odchyłenia
+ * @brief Funkcja do obliczenia sił odchyłenia
  * @param u - wskaźnik na pierwszy wierzchołek
  * @param v - wskaźnik na drugi wierzchołek
  * @param c - używana do obliczenia sił odpychania
@@ -86,7 +86,7 @@ void compute_repulive(Node *u, Node *v, int c) {
 }
 
 /**
- * @brief Funkcja podliczenia sił przyciągania
+ * @brief Funkcja obliczająca siłę przyciągania
  * @param graph - wskaźnik na graf
  * @param e - wskaźnik na krawędź
  * @param spring_const -  używane do obliczenia sił przyciągania

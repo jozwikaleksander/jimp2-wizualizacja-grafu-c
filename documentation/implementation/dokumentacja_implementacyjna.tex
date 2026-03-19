@@ -5,12 +5,10 @@
 
 \colorlet{accent}{jimp}
 
-\title{Dokumentacja implementacyjna - Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C}
+\title{Dokumentacja implementacyjna - Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego 
+w języku C}
 \author{\authoricon Aleksander Jóźwik, Anastasiya Kryvetskaya}
 \date{\dateicon \today}
-
-\definecolor{zalety}{HTML}{a6d189}
-\definecolor{wady}{HTML}{e78284}
 
 \begin{document}
 	\noindent
@@ -18,5 +16,36 @@
 
 	\tableofcontents
 	\clearpage
+
+	\section{Podział programu na moduły}
+
+	\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/Podział na pliki.png}
+    \caption{Diagram podziału programu na pliki}
+    \label{fig:diagram_podzialu}
+	\end{figure}
+
+	Program został podzielony na 6 modułów z których każdy składa się z pliku C i pliku nagłówkowego. Moduły to:
+	\begin{itemize}
+		\item \texttt{graph} - odpowiada za zdefniowanie struktur dla grafu, tworzenie grafu bazując na wczytanym pliku, 
+		zarządzanie pamięcią zaalokowaną dla struktur grafu.
+		\item \texttt{validation} - odpowiada za sprawdzenie czy graf jest spójny i planarny.
+		\item \texttt{eades} - odpowiada za uruchomienie funkcji implementującej algorytm Eadesa.
+		\item \texttt{tuttes} - odpowiada za uruchomienie funkcji iplementującej twierdzenie Tuttego.
+		\item \texttt{vector} - odpowiada za wykonywanie operacji na wektorach.
+		\item \texttt{output} - odpowiada za zapisywanie informacji o pozycji wierzchołków do pliku tekstowego lub binarnego.
+	\end{itemize}
+
+	\section{Schemat wykonania programu}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{assets/Diagram blokowy.png}
+		\caption{Diagram blokowy ilustrujący sposób działania programu}
+		\label{fig:diagram_blokowy}
+	\end{figure}
+
+	\section{Opis głównego pliku}
 
 \end{document}
