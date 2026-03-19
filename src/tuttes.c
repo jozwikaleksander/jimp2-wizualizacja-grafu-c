@@ -4,4 +4,10 @@
 #include <stdlib.h>
 
 
-// TODO: Zrobić funkcje dla tw Tuttego
+void tuttes_algorythm(Graph *graph){
+    //znaleznienie deg(u)
+    
+
+
+
+}

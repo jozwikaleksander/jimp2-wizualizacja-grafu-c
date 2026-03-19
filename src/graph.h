@@ -45,4 +45,12 @@ int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height);
 */
 void free_graph(Graph *graph);
 
+/**
+ * @brief Tworzy list sąsiedstwa dla grafu
+ * @param graph - wskaźnik na hraf
+ * @return lista sąsiedstwa - przechowywa indeksy wierzchołków w graph->nodes
+ */
+
+uint adjacency_list(Graph *graph);
+
 #endif

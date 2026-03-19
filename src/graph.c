@@ -162,3 +162,48 @@ void free_graph(Graph *graph) {
         free(graph);
     }
 }
+
+
+/**
+ * @brief Tworzy listę sąsiedstwa dla grafu
+ * @param graph - wskaźnik na graf
+ * @return lista sąsiedstwa
+ */
+
+uint adjacency_list(Graph *graph){
+    int n_nodes = graph->num_nodes;
+    int n_edges = graph->num_edges;
+    uint adj_list[n_nodes][n_nodes];
+    int deg[n_nodes];
+    for (int i = 0; i < n_nodes; i++)
+        deg[i] = 0;
+    for (int i = 0; i<n_edges;i++){ //Iteracja po edges
+            Node u = graph->edges->u;
+            Node v = graph->edges->v;
+
+            adj_list[u][deg[u]] = v;
+            deg[u]++;
+
+            adj_list[v][deg[v]] = u;
+            deg[v]++;
+
+    return adj_list;
+
+    ///add struct for deg and adj_list
+            
+
+
+    
+
+
+
+}
+}
+
+void print_adj_list ( Graph *graph int adj_list){
+    int n = graph->num_nodes; 
+    for (int i = 0; i<n ; i++  ){
+        for (int i = 0; i<n ; i++  ){
+    }
+}
+}

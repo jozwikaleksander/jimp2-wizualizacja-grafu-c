@@ -5,6 +5,10 @@
 #include "stdlib.h"
 
 
+void tuttes_algorithm(Graph *graph);
+
+
+
 
 
 
