@@ -8,6 +8,8 @@
 #include "graph.h"
 #include "output.h"
 #include "tuttes.h"
+#include "error.h"
+#include "validation.h"
 
 int main(int argc, char **argv) {
     // Zmienne dla parametrow wykonania
@@ -22,19 +24,18 @@ int main(int argc, char **argv) {
     int width = 100;
     int height = 100;
 
-    //te wartości dobra byłoby umieć znieniać przez linię poleceń
-    // TO DO: Te zmienne trzeba opisać, ponieważ nie wiadomo jak je wytłumaczyć w argumentach linii poleceń
-    double minimum_force =  0.1; //miensz za nia->stop
+    // Parametry algorytmu Eadesa z wartościami domyślnymi
+    double minimum_force = 0.1;
     int max_iterations = 10000;
-    double ideal_len = 10.0; //do tej długości będą dążyć sprzężyny 
-    int c = 2;
-    double spring_const =1.0;
+    double ideal_len = 10.0;
+    double repulsion_const = 2.0;
+    double spring_const = 1.0;
     double cooling = 0.97;
     
     // ----------------------------
 
     // Wczytanie parametrow wykonania
-    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:")) != -1) 
+    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:m:i:l:k:c:C:")) != -1) 
     {
         switch(opt) 
             { 
@@ -88,6 +89,25 @@ int main(int argc, char **argv) {
                         height = 100;
                     }
                     break;
+                // Parametry Eadesa
+                case 'm':
+                    minimum_force = atof(optarg);
+                    break;
+                case 'i':
+                    max_iterations = atoi(optarg);
+                    break;
+                case 'l':
+                    ideal_len = atof(optarg);
+                    break;
+                case 'k':
+                    spring_const = atof(optarg);
+                    break;
+                case 'c':
+                    repulsion_const = atof(optarg);
+                    break;
+                case 'C':
+                    cooling = atof(optarg);
+                    break;
                 case ':': 
                     fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
                     return EXIT_FAILURE;
@@ -105,7 +125,7 @@ int main(int argc, char **argv) {
 
     if (graph_file == NULL) {
         fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
-        return EXIT_FAILURE;
+        return ERR_FILE_OPEN;
     }
 
     // Sprawdzenie czy ziarno zostalo podano jako argument linii polecen
@@ -115,19 +135,44 @@ int main(int argc, char **argv) {
         srand(time(NULL));
 
     // Stworzenie grafu na podstawie pliku
-    Graph *graph = load_graph(graph_file, width, height);
-    if(graph == NULL) {
+    Graph *graph = NULL;
+    int load_graph_status = load_graph(&graph, graph_file, width, height);
+    if(load_graph_status == ERR_GRAPH_LOAD) {
         fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_GRAPH_LOAD;
+    }
+    else if (load_graph_status == ERR_MEMORY_ALLOC) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_MEMORY_ALLOC;
+    }
+
+    int validation_result = is_graph_valid(graph);
+    switch(validation_result) {
+        case ERR_GRAPH_NOT_CONNECTED:
+            fprintf(stderr,"BŁĄD: Graf nie jest spójny.\n");
+            return validation_result;
+        case ERR_GRAPH_NOT_PLANAR:
+            fprintf(stderr,"BŁĄD: Graf nie jest planarny.\n");
+            return validation_result;
+        case ERR_MEMORY_ALLOC:
+            fprintf(stderr, "BŁĄD: Błąd alokacji pamięci podczas walidacji grafu.\n");
+            return validation_result;
+        default:
+            break;
     }
     
     // Obsluga wyboru algorytmu z linii polecen
     switch(algorithm) {
         case 0:
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         default:
             // TODO: Wykonać funkcje dla tw Tuttego
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, c, cooling);
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
     }
 
@@ -136,13 +181,13 @@ int main(int argc, char **argv) {
         case OUTPUT_TXT:
             if(save_to_txt(graph, output_name) == 1){
                 fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku tekstowego.\n");
-                return EXIT_FAILURE;
+                return ERR_SAVE_TEXT_FAILED;
             }
             break;
         case OUTPUT_BIN:
             if(save_to_bin(graph, output_name) == 1){
                 fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku binarnego.\n");
-                return EXIT_FAILURE;
+                return ERR_SAVE_BINARY_FAILED;
             }
             break;
     }

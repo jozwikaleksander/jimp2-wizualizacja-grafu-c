@@ -70,6 +70,20 @@
 		\hline
 		-h & wysokość obszaru & Dodatnia liczba całkowita. & 100 \\
 		\hline
+		\multicolumn{4}{|c|}{Parametry algorytmu Eadesa} \\
+		\hline
+		-m & Minimalna siła, poniżej której algorytm się zatrzymuje & Liczba zmiennoprzecinkowa & 0.1 \\
+		\hline
+		-i & Maksymalna liczba iteracji algorytmu & Liczba całkowita & 10000 \\
+		\hline
+		-l & Idealna długość krawędzi (sprężyny) & Liczba zmiennoprzecinkowa & 10.0 \\
+		\hline
+		-k & Stała sprężystości (siła przyciągania) & Liczba zmiennoprzecinkowa & 1.0 \\
+		\hline
+		-c & Stała odpychania & Liczba zmiennoprzecinkowa & 2.0 \\
+		\hline
+		-C & Współczynnik chłodzenia (spowalnia siły w czasie) & Liczba zmiennoprzecinkowa & 0.97 \\
+		\hline
 	\end{tabularx}
 
 	Program nie wymaga podania żadnych flag do wykonania.
@@ -129,7 +143,7 @@ DB   4  2  1.407
 		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Wyświetlany, gdy nie udało się zapisać do pliku binarnego o
 		podanej nazwie. Program przerywa działanie. & 7\\
 		\hline
-		\texttt{BŁĄD: Nie udało się zrealokować pamięci.} & Wyświetlany, gdy w czasie tworzenia grafu nie udało się zrealokować dynamicznej tablicy danych. & 8\\
+		\texttt{BŁĄD: Nie udało się zaalokować pamięci.} & Wyświetlany, gdy nie udało się zaalokować pamięci. & 8\\
 		\hline
 	\end{tabularx}
 

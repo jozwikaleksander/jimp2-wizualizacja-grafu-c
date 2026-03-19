@@ -1,6 +1,7 @@
 #include "graph.h"
-#include "validation.h"
+#include <stdlib.h>
 #include <string.h>
+#include "error.h"
 #include <stdio.h>
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
@@ -15,16 +16,17 @@
 * @param weight - waga krawedzi
 * @param name - etykieta krawedzi
 */
-void add_edge(Graph *graph, int u, int v, double weight, char *name) {
+int add_edge(Graph *graph, int u, int v, double weight, char *name) {
     // Sprawdzenie, czy należy powiększyć miejsce
     if(graph->num_edges >= graph->capacity_edges) {
-        graph->capacity_edges *= 2;
-        graph->edges = realloc(graph->edges,graph->capacity_edges * sizeof(Edge));
+        size_t new_capacity = graph->capacity_edges * 2;
+        Edge *new_edges = realloc(graph->edges, new_capacity * sizeof(Edge));
 
-        if(graph->edges == NULL) {
-            fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
-            exit(8);
+        if(new_edges == NULL) {
+            return ERR_MEMORY_ALLOC;
         }
+        graph->edges = new_edges;
+        graph->capacity_edges = new_capacity;
     }
 
     // Tworzenie nowej krawędzi
@@ -34,6 +36,7 @@ void add_edge(Graph *graph, int u, int v, double weight, char *name) {
     new_edge->weight = weight;
     new_edge->name = strdup(name);
     graph->num_edges++;
+    return 0;
 }
 
 /**
@@ -56,15 +59,16 @@ int find_node(Graph *graph, int index) {
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
 */
-void add_node(Graph *graph, uint index, int width, int height){
+int add_node(Graph *graph, uint index, int width, int height){
     if(graph->num_nodes >= graph->capacity_nodes) {
-        graph->capacity_nodes *= 2;
-        graph->nodes = realloc(graph->nodes,graph->capacity_nodes * sizeof(Node));
+        size_t new_capacity = graph->capacity_nodes * 2;
+        Node *new_nodes = realloc(graph->nodes, new_capacity * sizeof(Node));
 
-        if(graph->nodes == NULL) {
-            fprintf(stderr, "BŁĄD: Nie udało się zrealokować pamięci.\n");
-            exit(8);
+        if(new_nodes == NULL) {
+            return ERR_MEMORY_ALLOC;
         }
+        graph->nodes = new_nodes;
+        graph->capacity_nodes = new_capacity;
     }
 
     // Tworzenie nowego wierzchołka
@@ -75,27 +79,32 @@ void add_node(Graph *graph, uint index, int width, int height){
     new_node->force.y = 0;
     new_node->id = index;
     graph->num_nodes++;
+    return 0;
 }
 
 /**
  * @brief Funkcja tworzy graf na podstawie wczytanego pliku
+ * @param graph_ptr - wskaźnik na wskaźnik, gdzie zostanie zapisany adres nowego grafu
  * @param graph_file - wskaznik do pliku
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
- * @return wskaznik na stworzony graf
-*/
-Graph *load_graph(FILE *graph_file, int width, int height) {
-    if(!graph_file) return NULL;
+ * @return 0 w przypadku sukcesu, lub kod błędu w przypadku niepowodzenia.
+ */
+int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height) {
+    if(!graph_file) return ERR_FILE_OPEN;
     
     Graph *graph = malloc(sizeof(Graph));
-    if(!graph) return NULL;
+    if(!graph) return ERR_MEMORY_ALLOC;
 
     graph->edges = malloc(EDGELIST_SIZE * sizeof(Edge));
     graph->nodes = malloc(NODELIST_SIZE * sizeof(Node));
 
-    if(!graph->edges){
+    if(!graph->edges || !graph->nodes){
+        free(graph->edges);
+        free(graph->nodes);
         free(graph);
-        return NULL;
+        *graph_ptr = NULL;
+        return ERR_MEMORY_ALLOC;
     }
 
     graph->num_nodes = 0;
@@ -110,27 +119,32 @@ Graph *load_graph(FILE *graph_file, int width, int height) {
     while(fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
         int u_idx = find_node(graph, u);
         if(u_idx == -1) {
-            add_node(graph, u, width, height);
+            if(add_node(graph, u, width, height) == ERR_MEMORY_ALLOC){
+                free_graph(graph);
+                *graph_ptr = NULL;
+                return ERR_MEMORY_ALLOC;
+            }
             u_idx = graph->num_nodes - 1;
         }
         
         int v_idx = find_node(graph, v);
         if(v_idx == -1) {
-            add_node(graph, v, width, height);
+            if(add_node(graph, v, width, height) == ERR_MEMORY_ALLOC){
+                free_graph(graph);
+                *graph_ptr = NULL;
+                return ERR_MEMORY_ALLOC;
+            }
             v_idx = graph->num_nodes - 1;
         }
 
-        add_edge(graph, u_idx, v_idx, weight, buff);
+        if(add_edge(graph, u_idx, v_idx, weight, buff) == ERR_MEMORY_ALLOC){
+            free_graph(graph);
+            *graph_ptr = NULL;
+            return ERR_MEMORY_ALLOC;
+        }
     }
-
-    if(is_graph_planar(graph) != 1) {
-        printf("BŁĄD: Graf nie jest planarny.\n");
-        free_graph(graph);
-        exit(5);
-        return NULL;
-    }
-
-    return graph;
+    *graph_ptr = graph;
+    return 0;
 }
 
 /**
