@@ -17,30 +17,30 @@ void eades_algorithm(Graph *graph,
 {
     int t = 0;
     double max_force_magnitude = 1.0;
-    double temperature = 1.0; // Współczynnik kroku, który maleje w czasie
+    double temperature = 1.0;
 
     while(t < max_iterations && max_force_magnitude > minimum_force) {
         max_force_magnitude = 0.0;
 
-        // 1. Wyzeruj siły dla bieżącej iteracji
+        // Wyzeruj siły dla bieżącej iteracji
         for(int i = 0; i < graph->num_nodes; i++) {
             graph->nodes[i].force.x = 0;
             graph->nodes[i].force.y = 0;
         }
 
-        // 2. Oblicz siły odpychania między wszystkimi parami wierzchołków
+        // Oblicz siły odpychania między wszystkimi parami wierzchołków
         for(int i = 0; i < graph->num_nodes; i++) {
             for(int j = i + 1; j < graph->num_nodes; j++) {
                 compute_repulive(&graph->nodes[i], &graph->nodes[j], c);
             }
         }
 
-        // 3. Oblicz siły przyciągania wzdłuż krawędzi
+        // Oblicz siły przyciągania wzdłuż krawędzi
         for(int i = 0; i < graph->num_edges; i++) {
             compute_attract(graph, &graph->edges[i], spring_const, ideal_len);
         }
 
-        // 4. Zaktualizuj pozycje wierzchołków i znajdź maksymalną siłę
+        // Zaktualizuj pozycje wierzchołków i znajdź maksymalną siłę
         for(int i = 0; i < graph->num_nodes; i++) {
             Node *node = &graph->nodes[i];
             double current_force_magnitude = count_vector_length(node->force);
@@ -54,7 +54,7 @@ void eades_algorithm(Graph *graph,
             node->position = add_vectors(node->position, displacement);
         }
 
-        // 5. "Schładzaj" system
+        // Schładzanie
         temperature *= cooling;
         t++;
     }
