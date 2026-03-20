@@ -175,40 +175,35 @@ void free_graph(Graph *graph) {
  * @return lista sąsiedstwa
  */
 
-uint adjacency_list(Graph *graph){
+
+  void build_adj_list(Graph* graph, uint** adj_list, int* deg) {
     int n_nodes = graph->num_nodes;
     int n_edges = graph->num_edges;
-    uint adj_list[n_nodes][n_nodes];
-    int deg[n_nodes];
+
+    // Zapełnienie deg
     for (int i = 0; i < n_nodes; i++)
         deg[i] = 0;
-    for (int i = 0; i<n_edges;i++){ //Iteracja po edges
-            Node u = graph->edges->u;
-            Node v = graph->edges->v;
 
-            adj_list[u][deg[u]] = v;
-            deg[u]++;
+    // Zapełnienie adj_list
+    for (int i = 0; i < n_edges; i++) {
+        int u = graph->edges[i].u;
+        int v = graph->edges[i].v;
 
-            adj_list[v][deg[v]] = u;
-            deg[v]++;
-
-    return adj_list;
-
-    ///add struct for deg and adj_list
-            
-
-
-    
-
-
-
-}
-}
-
-void print_adj_list ( Graph *graph int adj_list){
-    int n = graph->num_nodes; 
-    for (int i = 0; i<n ; i++  ){
-        for (int i = 0; i<n ; i++  ){
+        adj_list[u][deg[u]++] = v;
+        adj_list[v][deg[v]++] = u;
     }
 }
+
+void print_adj_list ( Graph *graph,uint** adj_list, int* deg ){
+    for(int u = 0; u < graph->num_nodes; u++){
+        printf("Sąsiedzi dla %d: ", u);
+        for(int i = 0; i < deg[u]; i++)
+            printf("%d ", adj_list[u][i]);
+        printf("\n");
+    }
+}
+
+void free_adj_list(Graph *graph, uint** adj_list){
+    for(int i = 0; i < graph->num_nodes; i++)
+        free(adj_list[i]);
 }

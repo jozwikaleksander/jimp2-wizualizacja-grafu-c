@@ -3,6 +3,9 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "tuttes.h"
+#include "vector.h"
+#include "graph.h"
 
 
 void tuttes_algorithm(Graph *graph);
