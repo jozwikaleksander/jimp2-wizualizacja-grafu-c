@@ -61,7 +61,7 @@ Vector mult_by_num(Vector a, double n){
 
 
 /**
- * @brief Funkcja zwraca ten vector z wartościami pomnożynymi przez -1
+ * @brief Funkcja zwraca wektor z wartościami pomnożonymi przez -1
  * @param a - wektor
  * @return nowy zmieniony wektor
 */

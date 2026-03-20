@@ -227,6 +227,115 @@ W zależności od wybranego typu pliku program zapisuje dane wyjściowe.
 \end{mylisting}
 Na koniec program zwalnia pamięć, zamyka pliki i wyświetla komunikat o pomyślnym zapisaniu danych.
 \section{Opis poszczególnych modułów}
-\subsection{Moduł graph}
+\subsection{Moduł \texttt{vector}}
+Moduł udostepnia funkcję służące do wykonywania operacji na wektorach, a także definiuje ich strukture. Funkcje tego
+modułu wykorzystywane są przez moduł \texttt{eades} i \texttt{tuttes}.
 
+\subsubsection{Struktury}
+\begin{mylisting}
+typedef struct {
+    double x;
+    double y;
+} Vector;
+\end{mylisting}
+Struktura wektora składa się dwóch liczb zmiennoprzecinkowych dla współrzędnych x i y.
+\subsubsection{Funkcja \texttt{add\_vectors}}
+\begin{mylisting}
+Vector add_vectors (Vector a, Vector b){
+    a.x += b.x;
+    a.y += b.y;
+    return a;
+}
+\end{mylisting}
+Funkcja dodaje do siebie dwa wektory.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{a} - pierwszy wektor
+    \item \texttt{b} - drugi wektor
+\end{itemize}
+Funkcja zwraca zmieniony pierwszy wektor.
+
+\subsubsection{Funkcja \texttt{count\_vector\_length}}
+\begin{mylisting}
+double count_vector_length(Vector a){
+    return sqrt(a.x * a.x + a.y * a.y);
+}
+\end{mylisting}
+Funkcja oblicza długość wektora.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+\end{itemize}
+Funkcja zwraca długość wektora jako wartość typu \texttt{double}.
+
+\subsubsection{Funkcja \texttt{distance}}
+\begin{mylisting}
+double distance (Vector a, Vector b){
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
+    return sqrt(dx * dx + dy * dy);
+}
+\end{mylisting}
+Funkcja oblicza odległość między dwoma wektorami.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - pierwszy wektor
+    \item b - drugi wektor
+\end{itemize}
+Funkcja zwraca odległość między wektorami jako wartość typu \texttt{double}.
+
+\subsubsection{Funkcja \texttt{vector\_from\_points}}
+\begin{mylisting}
+Vector vector_from_points(Vector a, Vector b){
+    Vector new;
+    new.x = b.x-a.x;
+    new.y = b.y-a.y;
+    return new;
+}
+\end{mylisting}
+Funkcja tworzy wektor na podstawie współrzędnych dwóch innych wektorów.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - pierwszy wektor
+    \item b - drugi wektor
+\end{itemize}
+Funkcja zwraca nowy wektor.
+
+\subsubsection{Funkcja \texttt{mult\_by\_num}}
+\begin{mylisting}
+    Vector mult_by_num(Vector a, double n){
+    a.x *=n;
+    a.y *=n;
+    return a;
+}
+\end{mylisting}
+Funkcja mnoży wektor przez skalar.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+    \item n - wartośc liczbowa typu \texttt{double}
+\end{itemize}
+Funkcja zwraca zmieniony wektor.
+
+\subsubsection{Funkcja \texttt{negative}}
+\begin{mylisting}
+Vector negative(Vector a){
+    Vector new;
+    new.x = -a.x;
+    new.y= -a.y;
+    return new;
+}
+\end{mylisting}
+Funkcja zmienia znak współrzędnych wektora.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+\end{itemize}
+Funkcja zwraca nowy wektor.
 \end{document}
