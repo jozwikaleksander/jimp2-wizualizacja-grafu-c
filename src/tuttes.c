@@ -17,6 +17,7 @@ void tuttes_algorythm(Graph *graph){
     for (int i = 0; i < graph->num_nodes; i++)
         adj_list[i] = (uint*)malloc(graph->num_nodes * sizeof(uint));
 
+    build_adj_list(graph, adj_list, deg);
 
 
 }
