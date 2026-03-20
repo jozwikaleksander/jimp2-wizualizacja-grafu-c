@@ -82,14 +82,7 @@ int add_node(Graph *graph, uint index, int width, int height){
     return 0;
 }
 
-/**
- * @brief Funkcja tworzy graf na podstawie wczytanego pliku
- * @param graph_file - wskaznik do pliku
- * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
- * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
- * @param out_code - kod błedu
- * @return Wskaźnik na strukturę grafu
- */
+
 Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
     if(!graph_file){
         *out_code = ERR_FILE_OPEN;
@@ -176,7 +169,7 @@ void free_graph(Graph *graph) {
  */
 
 
-  void build_adj_list(Graph* graph, uint** adj_list, int* deg) {
+  int build_adj_list(Graph* graph, uint** adj_list, int* deg) {
     int n_nodes = graph->num_nodes;
     int n_edges = graph->num_edges;
 
@@ -192,13 +185,14 @@ void free_graph(Graph *graph) {
         adj_list[u][deg[u]++] = v;
         adj_list[v][deg[v]++] = u;
     }
+    return EXIT_SUCCESS;
 }
 
 void print_adj_list ( Graph *graph,uint** adj_list, int* deg ){
     for(int u = 0; u < graph->num_nodes; u++){
-        printf("Sąsiedzi dla %d: ", u);
+        printf("Sąsiedzi dla %d: ", u+1);
         for(int i = 0; i < deg[u]; i++)
-            printf("%d ", adj_list[u][i]);
+            printf("%d ", adj_list[u][i]+1);
         printf("\n");
     }
 }
@@ -206,4 +200,9 @@ void print_adj_list ( Graph *graph,uint** adj_list, int* deg ){
 void free_adj_list(Graph *graph, uint** adj_list){
     for(int i = 0; i < graph->num_nodes; i++)
         free(adj_list[i]);
+}
+
+void free_deg(Graph*graph, int *deg){
+   
+    free(deg);
 }

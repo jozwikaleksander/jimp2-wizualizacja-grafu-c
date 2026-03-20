@@ -51,8 +51,9 @@ void free_graph(Graph *graph);
  * @return lista sąsiedstwa - przechowywa indeksy wierzchołków w graph->nodes
  */
 
-void build_adj_list(Graph* graph, uint** adj_list, int* deg);
+int build_adj_list(Graph* graph, uint** adj_list, int* deg);
 void print_adj_list ( Graph *graph,uint** adj_list, int* deg );
 void free_adj_list(Graph *graph, uint** adj_list);
+void free_deg(Graph *graph, int* deg);
 
 #endif

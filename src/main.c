@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         case TUTTES_ALGORITHM:
-            // TODO: Wykonać funkcje dla tw Tuttego
+            tuttes_algorithm(graph);
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         default:

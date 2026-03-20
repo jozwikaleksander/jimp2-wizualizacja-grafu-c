@@ -8,7 +8,7 @@
 #include "graph.h"
 
 
-void tuttes_algorithm(Graph *graph);
+int tuttes_algorithm(Graph *graph);
 
 
 
