@@ -206,3 +206,22 @@ void free_deg(Graph*graph, int *deg){
    
     free(deg);
 }
+
+void dfs_rec(Graph *graph, uint** adj_list, int *idx, int start, int visited[], int dfs_res[]){
+    visited[start] = 1;
+    dfs_res[(*idx)++] = start;
+    for (int i = 0; i < graph->num_nodes; i++) {
+        if (adj_list[start][i] && visited[i] == 0)
+            dfs_rec( graph, adj_list,idx,  i, visited, dfs_res);
+    }
+    
+
+}
+void find_outer_face(Graph *graph, uint** adj_list, int dfs_res[]) {
+    int visited[graph->num_nodes];
+    for (int i=0; i<graph->num_nodes; i++)
+        visited[i] = 0;
+
+    int idx = 0;
+    dfs_rec(graph, adj_list,&idx,  0, visited, dfs_res);
+}

@@ -55,5 +55,6 @@ int build_adj_list(Graph* graph, uint** adj_list, int* deg);
 void print_adj_list ( Graph *graph,uint** adj_list, int* deg );
 void free_adj_list(Graph *graph, uint** adj_list);
 void free_deg(Graph *graph, int* deg);
+int dfs_res(Graph *graph, uint** adj_list, int *idx, int start, int visited[], int dfs_res);
 
 #endif
