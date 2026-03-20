@@ -84,17 +84,23 @@ int add_node(Graph *graph, uint index, int width, int height){
 
 /**
  * @brief Funkcja tworzy graf na podstawie wczytanego pliku
- * @param graph_ptr - wskaźnik na wskaźnik, gdzie zostanie zapisany adres nowego grafu
  * @param graph_file - wskaznik do pliku
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
- * @return 0 w przypadku sukcesu, lub kod błędu w przypadku niepowodzenia.
+ * @param out_code - kod błedu
+ * @return Wskaźnik na strukturę grafu
  */
-int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height) {
-    if(!graph_file) return ERR_FILE_OPEN;
+Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
+    if(!graph_file){
+        *out_code = ERR_FILE_OPEN;
+        return NULL;
+    }
     
     Graph *graph = malloc(sizeof(Graph));
-    if(!graph) return ERR_MEMORY_ALLOC;
+    if(!graph){
+        *out_code = ERR_MEMORY_ALLOC;
+        return NULL;
+    };
 
     graph->edges = malloc(EDGELIST_SIZE * sizeof(Edge));
     graph->nodes = malloc(NODELIST_SIZE * sizeof(Node));
@@ -103,8 +109,8 @@ int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height) {
         free(graph->edges);
         free(graph->nodes);
         free(graph);
-        *graph_ptr = NULL;
-        return ERR_MEMORY_ALLOC;
+        *out_code = ERR_MEMORY_ALLOC;
+        return NULL;
     }
 
     graph->num_nodes = 0;
@@ -121,8 +127,8 @@ int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height) {
         if(u_idx == -1) {
             if(add_node(graph, u, width, height) == ERR_MEMORY_ALLOC){
                 free_graph(graph);
-                *graph_ptr = NULL;
-                return ERR_MEMORY_ALLOC;
+                *out_code = ERR_MEMORY_ALLOC;
+                return NULL;
             }
             u_idx = graph->num_nodes - 1;
         }
@@ -131,20 +137,19 @@ int load_graph(Graph **graph_ptr, FILE *graph_file, int width, int height) {
         if(v_idx == -1) {
             if(add_node(graph, v, width, height) == ERR_MEMORY_ALLOC){
                 free_graph(graph);
-                *graph_ptr = NULL;
-                return ERR_MEMORY_ALLOC;
+                *out_code = ERR_MEMORY_ALLOC;
+                return NULL;
             }
             v_idx = graph->num_nodes - 1;
         }
 
         if(add_edge(graph, u_idx, v_idx, weight, buff) == ERR_MEMORY_ALLOC){
             free_graph(graph);
-            *graph_ptr = NULL;
-            return ERR_MEMORY_ALLOC;
+            *out_code = ERR_MEMORY_ALLOC;
+            return NULL;
         }
     }
-    *graph_ptr = graph;
-    return 0;
+    return graph;
 }
 
 /**

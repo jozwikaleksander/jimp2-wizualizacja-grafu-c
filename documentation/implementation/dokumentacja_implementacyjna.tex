@@ -17,6 +17,15 @@ w języku C}
 	\tableofcontents
 	\clearpage
 
+	\section{Schemat blokowy działania programu}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{assets/Diagram blokowy.png}
+		\caption{Diagram blokowy ilustrujący sposób działania programu}
+		\label{fig:diagram_blokowy}
+	\end{figure}
+
 	\section{Podział programu na moduły}
 
 	\begin{figure}[H]
@@ -37,15 +46,187 @@ w języku C}
 		\item \texttt{output} - odpowiada za zapisywanie informacji o pozycji wierzchołków do pliku tekstowego lub binarnego.
 	\end{itemize}
 
-	\section{Schemat wykonania programu}
-
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=0.6\textwidth]{assets/Diagram blokowy.png}
-		\caption{Diagram blokowy ilustrujący sposób działania programu}
-		\label{fig:diagram_blokowy}
-	\end{figure}
-
 	\section{Opis głównego pliku}
+	Plik \texttt{main.c} zarządza przebiegiem programu oraz odpowiada za wczytywanie parametrów wykonania programu z linii poleceń.
+
+	\begin{mylisting}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+
+#include "eades.h"
+#include "graph.h"
+#include "output.h"
+#include "tuttes.h"
+#include "error.h"
+#include "validation.h"
+	\end{mylisting}
+Na początku program włącza pliki nagłówkowe.
+
+\begin{mylisting}
+int main(int argc, char **argv) {
+\end{mylisting}
+Funkcja \texttt{main} przyjmuje ilość argumentów oraz tablicę argumentów z linii poleceń.
+
+\begin{mylisting}
+	// Zmienne dla parametrow wykonania
+    int algorithm = 0;
+    int output_type = OUTPUT_TXT;
+    char *output_name = NULL;
+    int opt;
+    FILE *graph_file = NULL;
+    
+    int seed = 0;
+    int wasSeedProvided = 0;
+    int width = 100;
+    int height = 100;
+
+    // Parametry algorytmu Eadesa z wartościami domyślnymi
+    double minimum_force = 0.1;
+    int max_iterations = 10000;
+    double ideal_len = 10.0;
+    double repulsion_const = 2.0;
+    double spring_const = 1.0;
+    double cooling = 0.97;
+\end{mylisting}
+Następnie inicjalizowane są zmienne potrzebne do pracy programu.
+\begin{mylisting}
+	// Wczytanie parametrow wykonania
+    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:m:i:l:k:c:C:")) != -1) 
+    {
+        switch(opt) 
+            { 
+                // Wybor algorytmu
+                case 'a':
+                    if (strcmp(optarg, "t") == 0 || strcmp(optarg, "tutte") == 0) {
+                        algorithm = TUTTES_ALGORITHM; // 1 for Tutte
+                    } else if (strcmp(optarg, "e") == 0 || strcmp(optarg, "eades") == 0) {
+                        algorithm = EADES_ALGORITHM; // 0 for Eades
+                    } else {
+                        fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
+                        algorithm = EADES_ALGORITHM;
+                    }
+                    break;
+				
+					[Kolejne flagi pominięto ...]
+
+				case ':': 
+                    fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
+                    return EXIT_FAILURE;
+                    break; 
+                case '?': 
+                    fprintf(stderr,"BŁĄD: Nieznana opcja -%c\n", optopt);
+                    break; 
+            } 
+    }
+\end{mylisting}
+W kolejnym kroku program korzysta z pętli \texttt{while} oraz funkcji \texttt{getopt} do wczytywania parametrów wykonania programu. Poprzez instrukcję \texttt{switch} funkcja sprawdza czy kolejne flagi i przyporządkowuje ich wartości do zmiennych. Pokazano jedynie kilka najważniejszych przypadków.
+\begin{mylisting}
+	// Wczytanie pliku o nazwie wprowadzonej z linii poleceń
+    if (optind < argc) {
+        graph_file = fopen(argv[optind], "r");
+    }
+\end{mylisting}
+Następnie \texttt{main} sprawdza czy podano dodatkowy parametr, którym jest nazwa pliku, jeżeli tak to plik jest zostaje wczytany.
+\begin{mylisting}
+	if (graph_file == NULL) {
+        fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
+        return ERR_FILE_OPEN;
+    }
+\end{mylisting}
+Program sprawdza czy plik został otworzony, jeśli nie to wyświetla komunikat o błędzie i zwraca kod.
+\begin{mylisting}
+	// Sprawdzenie czy ziarno zostało podano jako argument linii poleceń
+    if(wasSeedProvided == 1)
+        srand(seed);
+    else
+        srand(time(NULL));
+\end{mylisting}
+Jeżeli nie podano ziarna, program wybiera je samodzielnie, bazując na aktualnym czasie.
+\begin{mylisting}
+	// Stworzenie grafu na podstawie pliku
+    int load_graph_status = 0;
+    Graph *graph = load_graph(graph_file, width, height, &load_graph_status);
+    if(load_graph_status == ERR_GRAPH_LOAD) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_GRAPH_LOAD;
+    }
+    else if (load_graph_status == ERR_MEMORY_ALLOC) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_MEMORY_ALLOC;
+    }
+\end{mylisting}
+W tej części tworzony jest graf na podstawie otwartego pliku.
+\begin{mylisting}
+	int validation_result = is_graph_valid(graph);
+    switch(validation_result) {
+        case ERR_GRAPH_NOT_CONNECTED:
+            fprintf(stderr,"BŁĄD: Graf nie jest spójny.\n");
+            return validation_result;
+        case ERR_GRAPH_NOT_PLANAR:
+            fprintf(stderr,"BŁĄD: Graf nie jest planarny.\n");
+            return validation_result;
+        case ERR_MEMORY_ALLOC:
+            fprintf(stderr, "BŁĄD: Błąd alokacji pamięci podczas walidacji grafu.\n");
+            return validation_result;
+        default:
+            break;
+    }
+\end{mylisting}
+Następnie graf zostaje sprawdzony pod kątem spójności i planarności.
+\begin{mylisting}
+	// Obsluga wyboru algorytmu z linii polecen
+    switch(algorithm) {
+        case EADES_ALGORITHM:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+        case TUTTES_ALGORITHM:
+            // TODO: Wykonać funkcje dla tw Tuttego
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+        default:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+    }
+\end{mylisting}
+Na podstawie wyboru użytkownika uruchomiony zostaje określony algorytm.
+\begin{mylisting}
+	// Obsluga zapisu do wybranego typu pliku
+    switch(output_type) {
+        case OUTPUT_TXT:
+            if(save_to_txt(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku tekstowego.\n");
+                return ERR_SAVE_TEXT_FAILED;
+            }
+            break;
+        case OUTPUT_BIN:
+            if(save_to_bin(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku binarnego.\n");
+                return ERR_SAVE_BINARY_FAILED;
+            }
+            break;
+    }
+\end{mylisting}
+W zależności od wybranego typu pliku program zapisuje dane wyjściowe.
+
+\begin{mylisting}
+	free(output_name);
+    fclose(graph_file);
+
+    printf("Pomyślnie zapisano informacje o %d wierzcholkach do pliku.\n", graph->num_nodes);
+    free_graph(graph);
+
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Na koniec program zwalnia pamięć, zamyka pliki i wyświetla komunikat o pomyślnym zapisaniu danych.
+\section{Opis poszczególnych modułów}
+\subsection{Moduł graph}
 
 \end{document}

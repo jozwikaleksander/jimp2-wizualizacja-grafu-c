@@ -11,6 +11,9 @@
 #include "error.h"
 #include "validation.h"
 
+#define EADES_ALGORITHM 0
+#define TUTTES_ALGORITHM 1
+
 int main(int argc, char **argv) {
     // Zmienne dla parametrow wykonania
     int algorithm = 0;
@@ -42,12 +45,12 @@ int main(int argc, char **argv) {
                 // Wybor algorytmu
                 case 'a':
                     if (strcmp(optarg, "t") == 0 || strcmp(optarg, "tutte") == 0) {
-                        algorithm = 1; // 1 for Tutte
+                        algorithm = TUTTES_ALGORITHM; // 1 for Tutte
                     } else if (strcmp(optarg, "e") == 0 || strcmp(optarg, "eades") == 0) {
-                        algorithm = 0; // 0 for Eades
+                        algorithm = EADES_ALGORITHM; // 0 for Eades
                     } else {
                         fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
-                        algorithm = 0;
+                        algorithm = EADES_ALGORITHM;
                     }
                     break;
                 case 't':
@@ -128,15 +131,15 @@ int main(int argc, char **argv) {
         return ERR_FILE_OPEN;
     }
 
-    // Sprawdzenie czy ziarno zostalo podano jako argument linii polecen
+    // Sprawdzenie czy ziarno zostało podano jako argument linii poleceń
     if(wasSeedProvided == 1)
         srand(seed);
     else
         srand(time(NULL));
 
     // Stworzenie grafu na podstawie pliku
-    Graph *graph = NULL;
-    int load_graph_status = load_graph(&graph, graph_file, width, height);
+    int load_graph_status = 0;
+    Graph *graph = load_graph(graph_file, width, height, &load_graph_status);
     if(load_graph_status == ERR_GRAPH_LOAD) {
         fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
         fclose(graph_file);
@@ -167,11 +170,14 @@ int main(int argc, char **argv) {
     
     // Obsluga wyboru algorytmu z linii polecen
     switch(algorithm) {
-        case 0:
+        case EADES_ALGORITHM:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+        case TUTTES_ALGORITHM:
+            // TODO: Wykonać funkcje dla tw Tuttego
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         default:
-            // TODO: Wykonać funkcje dla tw Tuttego
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
     }
