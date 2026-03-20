@@ -1,5 +1,6 @@
 #include "output.h"
 #include <stdio.h>
+#include <stdint.h>
 
 /**
  * @brief Zapisuje informacje na temat wierzcholkow grafu do pliku tekstowego
@@ -35,13 +36,17 @@ int save_to_bin(Graph *graph, char *output_name) {
 
     FILE *file = fopen(final_name,"wb");
     if(!file) return 1;
-
-    fwrite(&graph->num_nodes,sizeof(int),1,file);
+    
+    uint32_t num_nodes = (uint32_t) graph->num_nodes;
+    fwrite(&num_nodes,sizeof(uint32_t),1,file);
     for(int i = 0; i < graph->num_nodes; i++) {
-        int index = graph->nodes[i].id;
-        fwrite(&(index),sizeof(int),1,file);
-        fwrite(&graph->nodes[i].position.x,sizeof(double),1,file);
-        fwrite(&graph->nodes[i].position.y,sizeof(double),1,file);
+        uint32_t index = (uint32_t) graph->nodes[i].id;
+        float x = (float) graph->nodes[i].position.x;
+        float y = (float) graph->nodes[i].position.y;
+
+        fwrite(&index,sizeof(uint32_t),1,file);
+        fwrite(&x,sizeof(float),1,file);
+        fwrite(&y,sizeof(float),1,file);
     }
     fclose(file);
     return 0;
