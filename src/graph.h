@@ -30,12 +30,12 @@ typedef struct{
 } Graph;
 
 /**
- * @brief Funkcja tworzy graf na podstawie wczytanego pliku.
- * @param graph_ptr - wskaźnik na wskaźnik, gdzie zostanie zapisany adres nowego grafu.
- * @param graph_file - wskaźnik do otwartego pliku z danymi grafu.
+ * @brief Funkcja tworzy graf na podstawie wczytanego pliku
+ * @param graph_file - wskaznik do pliku
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
- * @return 0 w przypadku sukcesu, lub kod błędu w przypadku niepowodzenia.
+ * @param out_code - kod błedu
+ * @return Wskaźnik na strukturę grafu
  */
 Graph *load_graph(FILE *graph_file, int width, int height, int *out_code);
 
