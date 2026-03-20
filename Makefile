@@ -3,3 +3,6 @@ all:
 
 test:
 	./bin/main examples/graph_1.txt
+
+clean:
+	rm -f *.bin *.txt
