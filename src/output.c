@@ -1,6 +1,4 @@
 #include "output.h"
-#include <stdio.h>
-#include <stdint.h>
 
 /**
  * @brief Zapisuje informacje na temat wierzcholkow grafu do pliku tekstowego

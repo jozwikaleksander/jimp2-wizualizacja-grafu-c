@@ -1,8 +1,5 @@
 #include "graph.h"
-#include "error.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
 
