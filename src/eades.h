@@ -2,7 +2,7 @@
 #ifndef _EADES_H_
 #define _EADES_H_
 
-#include "math.h"
+#include <math.h>
 
 #include "graph.h"
 #include "vector.h"

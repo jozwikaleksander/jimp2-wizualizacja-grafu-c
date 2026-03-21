@@ -1,6 +1,9 @@
 #ifndef _OUTPUT_H_
 #define _OUTPUT_H_
 
+#include <stdio.h>
+#include <stdint.h>
+
 #include "graph.h"
 
 #define OUTPUT_NAME_TXT "output.txt"

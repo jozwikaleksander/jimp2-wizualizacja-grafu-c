@@ -1,8 +1,4 @@
 #include "validation.h"
-#include <stdbool.h>
-#include "error.h"
-#include "graph.h"
-#include <planarity/graph.h>
 
 /**
  * @brief Funkcja, sprawdza czy podany graf spełnia warunek konieczny planarności.

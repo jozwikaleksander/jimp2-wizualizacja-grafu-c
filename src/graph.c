@@ -196,7 +196,7 @@ void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
 void free_adj_list(Graph *graph, uint **adj_list) {
     for (int i = 0; i < graph->num_nodes; i++)
         free(adj_list[i]);
-    free(adj_list)
+    free(adj_list);
 }
 
 void free_deg(int *deg) {

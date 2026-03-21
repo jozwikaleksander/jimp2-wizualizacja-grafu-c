@@ -1,5 +1,4 @@
 #include "eades.h"
-#include "graph.h"
 
 /**
  * @brief Funkcja algorytmu Eades do zmiany pozycji wierzchołków
