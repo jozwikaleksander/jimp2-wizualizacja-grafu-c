@@ -32,7 +32,7 @@ int tuttes_algorithm(Graph *graph){
 
 
     free_adj_list(graph, adj_list);
-    free_deg(graph, deg);
+    free_deg(deg);
 
     return EXIT_SUCCESS;
 
