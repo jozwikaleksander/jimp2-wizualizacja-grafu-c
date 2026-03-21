@@ -8,3 +8,4 @@
 #define ERR_SAVE_TEXT_FAILED     6  /* Nie udało się zapisać do pliku tekstowego */
 #define ERR_SAVE_BINARY_FAILED   7  /* Nie udało się zapisać do pliku binarnego */
 #define ERR_MEMORY_ALLOC         8  /* Nie udało się zaalokować pamięci */
+#define ERR_ADJ_LIST             9  /* Nie udało się zbudować listy sąsiedztwa */

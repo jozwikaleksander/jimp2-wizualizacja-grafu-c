@@ -1,6 +1,7 @@
 #include "validation.h"
 #include <stdbool.h>
 #include "error.h"
+#include "graph.h"
 #include <planarity/graph.h>
 
 /**
@@ -14,92 +15,56 @@ int is_potentially_planar(Graph *graph) {
 }
 
 /**
- * @brief Funkcja znajdująca korzeń drzewa
- * @param parent 
- * @param i 
- * @return int 
+ * @brief Funkcja, sprawdza czy graf jest spójny stosując algorytm DFS.
+ * @param graph - wskaźnik na strukturę grafu
+ * @return int - 1 jeżeli graf jest spójny, 0 jeżeli nie jest
  */
-int find_root(int *parent, int i) {
-    if(parent[i] == i) { // Jeżeli znaleźliśmy korzeń to go zwracamy
-        return i;
-    }
-    return parent[i] = find_root(parent, parent[i]); // Jeżeli nie to szukamy dalej idąc w górę
-}
-
-/**
- * @brief Łączy dwa rozłączne zbiory (wierzchołki x i y) w jeden zbiór.
- * * Funkcja wykorzystuje optymalizację "Union by Rank" (łączenie według rangi),
- * aby zminimalizować wysokość drzew w strukturze. Mniejsze drzewo jest zawsze
- * dołączane jako poddrzewo korzenia większego drzewa.
- * @param parent Tablica reprezentująca rodziców poszczególnych wierzchołków.
- * @param rank Tablica przechowująca rangi (przybliżone wysokości) drzew.
- * @param x Indeks pierwszego wierzchołka do połączenia.
- * @param y Indeks drugiego wierzchołka do połączenia.
- */
-void union_sets(int *parent, int *rank, int x, int y) {
-    int root_x = find_root(parent, x);
-    int root_y = find_root(parent, y);
-
-    // Łączymy tylko wtedy, gdy wierzchołki są w różnych zbiorach
-    if (root_x != root_y) {
-        // Dołączamy niższe drzewo pod wyższe, aby zminimalizować głębokość
-        if (rank[root_x] < rank[root_y]) {
-            parent[root_x] = root_y;
-        } else if (rank[root_x] > rank[root_y]) {
-            parent[root_y] = root_x;
-        } else {
-            // Jeśli rangi są równe, wybieramy jeden korzeń i zwiększamy jego rangę
-            parent[root_y] = root_x;
-            rank[root_x]++;
-        }
-    }
-}
-
-/**
- * @brief Funkcja sprawdza czy graf jest spójny
- * @return int - zwraca 1 jeżeli spójny, 0 jeżeli niespójny i -1 w przypadku błędu alokacji
-**/
 int is_graph_connected(Graph *graph) {
-    // Puste grafy lub grafy z 1 wierzchołkiem są z definicji spójne
-    if(graph->num_nodes <= 1)
-        return 1;
+    if(graph->num_nodes == 0) return 1;
 
-    int *parent = (int *)malloc(graph->num_nodes * sizeof(int));
-    int *rank = (int *)calloc(graph->num_nodes, sizeof(int));
+    // Alokoacja pamięci
+    int *visited = (int*)calloc(graph->num_nodes, sizeof(int));
+    int *dfs_res = (int*)malloc(graph->num_nodes * sizeof(int));
+    uint **adj_list = (uint**)malloc(graph->num_nodes * sizeof(uint*));
+    int *deg = (int*)malloc(graph->num_nodes * sizeof(int));
+    int idx = 0;
+    int is_connected = 0;
 
-    if(parent == NULL || rank == NULL) {
-        printf("BŁĄD: Nie udało się zaalokować pamięci.\n");
-        return -1;
+    // Sprawdzenie czy udało się zaalokować pamięć
+    if (visited == NULL || dfs_res == NULL || adj_list == NULL || deg == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        if (visited) free(visited);
+        if (dfs_res) free(dfs_res);
+        if (adj_list) free(adj_list);
+        if (deg) free(deg);
+        return ERR_MEMORY_ALLOC;
+    }
+    
+    // Alokacja pamieci dla elementów listy sąsiedztwa
+    for (int i = 0; i < graph->num_nodes; i++)
+        adj_list[i] = (uint*)malloc(graph->num_nodes * sizeof(uint));
+
+    // Zbudowanie listy sąsiedztwa
+    int result_adj_list = build_adj_list(graph, adj_list, deg);
+    
+    // Sprawdzenie czy udało się zbudować
+    if (result_adj_list != 0){
+        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
+    } else {
+        // Uruchomienie DFS
+        dfs_rec(graph, adj_list, deg, &idx, 0, visited,dfs_res);
+        // Jeżeli indeks po wykonaniu DFS jest równy ilości wierzchołków to graf jest spójny
+        if(idx == graph->num_nodes)
+            is_connected = 1;
     }
 
-    // Inicjalizacja. Na początku każdy wierzchołek jest niepołączoną wyspą.
-    for(int i = 0; i < graph->num_nodes; i++) {
-        parent[i] = i;
-    }
+    // Zwolnienie pamięci
+    free_adj_list(graph, adj_list);
+    free_deg(deg);
+    free(visited);
+    free(dfs_res);
 
-    int successful_unions = 0;
-
-    for(int i = 0; i < graph->num_edges; i++) {
-        int u = graph->edges[i].u;
-        int v = graph->edges[i].v;
-
-        // Sprawdzanie czy indeksy wierzchołków mieszczą się w odpowiednim zakresie
-        if (u >= 0 && u < graph->num_nodes && v >= 0 && v < graph->num_nodes) {
-            int root_u = find_root(parent, u);
-            int root_v = find_root(parent, v);
-
-            if(root_u != root_v) {
-                union_sets(parent,rank, root_u, root_v);
-                successful_unions++;
-            }
-        }
-    }
-    // Dealokacja pamięci
-    free(parent);
-    free(rank);
-
-    // Graf jest spójny, jeżeli udało się wykonać V-1 połączeń łączących różne zbiory.
-    return successful_unions == (graph->num_nodes - 1);
+    return is_connected;
 }
 
 /**

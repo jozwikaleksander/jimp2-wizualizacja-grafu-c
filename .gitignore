@@ -13,3 +13,4 @@ output*.txt
 .vscode/
 .vscode/*
 *_minted
+.clang-format
