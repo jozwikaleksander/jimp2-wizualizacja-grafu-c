@@ -480,4 +480,75 @@ int is_graph_planar(Graph *graph) {
 \end{itemize}
 Funkcja zwraca liczbę całkowitą int równą 1 dla grafu planarnego lub 0 dla nieplanarnego.
 
+\subsection{Moduł \texttt{output}}
+Moduł ten odpowiada za wypisywania danych do pliku tekstowego lub binarnego.
+
+\subsubsection{Funkcja \texttt{save\_to\_text}}
+\begin{mylisting}
+int save_to_txt(Graph *graph, char *output_name) {
+    if(!graph) return 1;
+
+    char *final_name = output_name ? output_name : OUTPUT_NAME_TXT;
+
+    FILE *file = fopen(final_name,"w");
+    if(!file) return 1;
+
+    for(int i = 0; i < graph->num_nodes; i++) {
+        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.y);
+    }
+    fclose(file);
+    return 0;
+}
+\end{mylisting}
+
+Funkcja ta odpowiada za wypisywanie informacji o wierzchołkach grafu do pliku tekstowego o wybranej nazwie. Jeżeli nazwa
+nie została podana to zostaje ona ustawiona na domyślną ("output.txt"). Plik tekstowy jest zgodny z formatem ustalony
+w dokumentacji funkcjonalnej.
+\begin{mylisting}
+<numer_wierzchołka> <współrzędna_x> <współrzędna_y>
+\end{mylisting}
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnika na strukturę grafu 
+    \item output\_name - nazwa pliku wyjściowego
+\end{itemize}
+Funkcja zwraca liczbę całkowitą równą 1 jeżeli operacja się niepowiodła i 0 jeżeli się powiodła.
+
+\subsubsection{Funkcja \texttt{save\_to\_bin}}
+\begin{mylisting}
+int save_to_bin(Graph *graph, char *output_name) {
+    if(!graph) return 1;
+
+    char *final_name = output_name ? output_name : OUTPUT_NAME_BIN;
+
+    FILE *file = fopen(final_name,"wb");
+    if(!file) return 1;
+    
+    uint32_t num_nodes = (uint32_t) graph->num_nodes;
+    fwrite(&num_nodes,sizeof(uint32_t),1,file);
+    for(int i = 0; i < graph->num_nodes; i++) {
+        uint32_t index = (uint32_t) graph->nodes[i].id;
+        float x = (float) graph->nodes[i].position.x;
+        float y = (float) graph->nodes[i].position.y;
+
+        fwrite(&index,sizeof(uint32_t),1,file);
+        fwrite(&x,sizeof(float),1,file);
+        fwrite(&y,sizeof(float),1,file);
+    }
+    fclose(file);
+    return 0;
+}
+\end{mylisting}
+Funkcja \texttt{save\_to\_bin} służy do wypisywania danych do pliku binarnego. Podobnie jak dla poprzedniej funkcji, jeżeli
+nazwa pliku nie została podana to jest ona ustawiona na domyślną ("output.bin"). Dane są zapisywane w kolejności i typie zdefniowanym
+w dokumentacji funkcjonalnej. 
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnika na strukturę grafu 
+    \item output\_name - nazwa pliku wyjściowego
+\end{itemize}
+Funkcja zwraca liczbę całkowitą równą 1 jeżeli operacja się niepowiodła i 0 jeżeli się powiodła.
+
 \end{document}

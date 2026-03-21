@@ -12,7 +12,7 @@
 #define OUTPUT_BIN 1
 
 /**
- * @brief Zapisuje informacje na temat wierzcholkow grafu do pliku tekstowego
+ * @brief Zapisuje informacje o wierzchołkach grafu do pliku tekstowego
  * @param graph - wskaznik na strukture grafu
  * @param output_name - wskaznik na nazwe pliku
  * @return 0 jezeli udalo sie zapisac, 1 jezeli nie udalo sie
