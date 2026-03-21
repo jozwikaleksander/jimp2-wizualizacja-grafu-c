@@ -175,7 +175,6 @@ int main(int argc, char **argv) {
             break;
         case TUTTES_ALGORITHM:
             tuttes_algorithm(graph);
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         default:
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);

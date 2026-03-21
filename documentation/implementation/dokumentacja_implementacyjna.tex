@@ -187,8 +187,7 @@ Następnie graf zostaje sprawdzony pod kątem spójności i planarności.
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         case TUTTES_ALGORITHM:
-            // TODO: Wykonać funkcje dla tw Tuttego
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            tuttes_algorithm(graph);
             break;
         default:
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
@@ -338,4 +337,147 @@ Funkcja zmienia znak współrzędnych wektora.
     \item a - wektor
 \end{itemize}
 Funkcja zwraca nowy wektor.
+
+\subsection{Moduł \texttt{validation}}
+Moduł ten odpowiada za sprawdzenie grafu pod kątem planarności i spójności po jego wczytaniu z pliku. Moduł składa się z
+4 funkcji, które zostaną opisane poniżej.
+
+\subsubsection{Funkcja \texttt{is\_graph\_valid}}
+\begin{mylisting}
+int is_graph_valid(Graph *graph){
+    if(is_potentially_planar(graph) == 0)
+        return ERR_GRAPH_NOT_PLANAR;
+    else if(is_graph_connected(graph) == 0){
+        return ERR_GRAPH_NOT_CONNECTED;
+    }
+    else if(is_graph_planar(graph) == 0){
+        return ERR_GRAPH_NOT_PLANAR;
+    }
+    return 0;
+}
+\end{mylisting}
+
+Jest to funkcja publiczna używana przez plik \texttt{main.c}, która używa innych funkcji tego modułu w celu weryfikacji grafu
+i w razie potrzeby zwrócenia odpowiednich kodów błędu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu.
+\end{itemize}
+Funkcja zwraca liczbę całkowitą int informującą o rezultacie funkcji.
+
+\subsubsection{Funkcja \texttt{is\_potentially\_planar}}
+\begin{mylisting}
+int is_potentially_planar(Graph *graph) {
+    if (graph->num_nodes < 3) return 1;
+    return graph->num_edges <= 3 * graph->num_nodes - 6;
+}
+\end{mylisting}
+Funkcja ta służy to szybkiego sprawdzenia warunku koniecznego planarności grafu. Pozwala to na szybkie odrzucenie grafów,
+o których wiadomo że nie są planarne.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu.
+\end{itemize}
+Funkcja zwraca liczbę całkowitą int równą 1 dla grafu planarnego lub o innej wartości dla grafu nieplanarnego.
+
+\subsubsection{Funkcja \texttt{is\_graph\_connected}}
+Funkcja ta służy do sprawdzenia czy graf jest spójny za pomocą algorytmu DFS (Depth-first search).
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu.
+\end{itemize}
+Funkcja zwraca liczbę całkowitą int równą 1 dla grafu spójnego lub 0 dla niespójnego.
+
+\begin{mylisting}
+int is_graph_connected(Graph *graph) {
+    if(graph->num_nodes == 0) return 1;
+
+    // Alokacja pamięci
+    int *visited = (int*)calloc(graph->num_nodes, sizeof(int));
+    int *dfs_res = (int*)malloc(graph->num_nodes * sizeof(int));
+    uint **adj_list = (uint**)malloc(graph->num_nodes * sizeof(uint*));
+    int *deg = (int*)malloc(graph->num_nodes * sizeof(int));
+    int idx = 0;
+    int is_connected = 0;
+\end{mylisting}
+Na początku następuje sprawdzenie ilości wierzchołków grafu oraz alokacja pamięci dla potrzebnych zmiennych.
+\begin{mylisting}
+    // Sprawdzenie czy udało się zaalokować pamięć
+    if (visited == NULL || dfs_res == NULL || adj_list == NULL || deg == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        if (visited) free(visited);
+        if (dfs_res) free(dfs_res);
+        if (adj_list) free(adj_list);
+        if (deg) free(deg);
+        return ERR_MEMORY_ALLOC;
+    }
+\end{mylisting}
+Następnie funkcja sprawdza czy udało się zaalokować pamięć.
+\begin{mylisting}
+    // Alokacja pamieci dla elementów listy sąsiedztwa
+    for (int i = 0; i < graph->num_nodes; i++)
+        adj_list[i] = (uint*)malloc(graph->num_nodes * sizeof(uint));
+\end{mylisting}
+Należy również zaalkować pamięć dla elementów listy sąsiedztwa.
+\begin{mylisting}
+    // Zbudowanie listy sąsiedztwa
+    int result_adj_list = build_adj_list(graph, adj_list, deg);
+    
+    // Sprawdzenie czy udało się zbudować
+    if (result_adj_list != 0){
+        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
+    } else {
+        // Uruchomienie DFS
+        dfs_rec(graph, adj_list, deg, &idx, 0, visited,dfs_res);
+        // Jeżeli indeks po wykonaniu DFS jest równy ilości wierzchołków to graf jest spójny
+        if(idx == graph->num_nodes)
+            is_connected = 1;
+    }
+\end{mylisting}
+W kolejnym kroku tworzona jest lista sąsiedztwa na podstawie grafu. Jeżeli operacja się powiodła to uruchomiony zostaje
+algorytm DFS oraz następuje sprawdzenie czy końcowy indeks jest równy ilości wierzchołków co świadczy o spójności grafu.
+\begin{mylisting}
+    // Zwolnienie pamięci
+    free_adj_list(graph, adj_list);
+    free_deg(deg);
+    free(visited);
+    free(dfs_res);
+
+    return is_connected;
+\end{mylisting}
+Na koniec następuje zwolnienie pamięci oraz zwrócenie zmiennej \texttt{is\_connected}.
+
+\subsubsection{Funkcja \texttt{is\_graph\_planar}}
+Funkcja ta wykorzystuje bibliotekę \texttt{planarity} w celu sprawdzenia czy graf jest planarny.
+
+\begin{mylisting}
+int is_graph_planar(Graph *graph) {
+    graphP gp = gp_New();
+
+    if (gp_InitGraph(gp, graph->num_nodes) != OK) {
+        gp_Free(&gp);
+        return false; 
+    }
+
+    // Dodawanie krawędzi
+    gp_AddEdge(gp, index_u, 0, index_v, 0);
+
+    // Uruchomienia funkcji dla sprawdzanie planarności z biblioteki LibPlanarity
+    int is_planar = (gp_Embed(gp, EMBEDFLAGS_PLANAR) == OK);
+
+    // Zwalnianie pamięci
+    gp_Free(&gp);
+    return is_planar;
+}
+\end{mylisting}
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu.
+\end{itemize}
+Funkcja zwraca liczbę całkowitą int równą 1 dla grafu planarnego lub 0 dla nieplanarnego.
+
 \end{document}

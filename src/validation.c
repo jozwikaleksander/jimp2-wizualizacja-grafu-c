@@ -63,22 +63,6 @@ int is_graph_connected(Graph *graph) {
     return is_connected;
 }
 
-/**
- * @brief Funkcja, sprawdza jaki indeks w tabeli nodes ma wierzchołek o podanym identyfikatorze
- * 
- * @param graph - wskaźnik na strukturę grafu
- * @param node_id - identyfikator wierzchołka
- * @return int 
- */
-int find_node_index(Graph *graph, uint node_id) {
-    for (int i = 0; i < graph->num_nodes; i++) {
-        if (graph->nodes[i].id == node_id) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 int is_graph_planar(Graph *graph) {
     graphP gp = gp_New();
 
@@ -89,12 +73,7 @@ int is_graph_planar(Graph *graph) {
 
     // Dodawanie krawędzi
     for(int i = 0; i < graph->num_edges; i++) {
-        int index_u = find_node_index(graph, graph->edges[i].u);
-        int index_v = find_node_index(graph, graph->edges[i].v);
-
-        if(index_u != -1 && index_v != -1) { // Sprawdzenie czy znaleziono indeksy
-            gp_AddEdge(gp, index_u, 0, index_v, 0);        
-        }
+        gp_AddEdge(gp, graph->edges[i].u, 0, graph->edges[i].v, 0);
     }
 
     // Uruchomienia funkcji dla sprawdzanie planarności z biblioteki LibPlanarity
