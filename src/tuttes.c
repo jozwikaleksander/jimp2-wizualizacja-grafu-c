@@ -1,7 +1,18 @@
 #include "tuttes.h"
 
+
+//ZAMINIĆ graph->num_nodes
+
+
 int tuttes_algorithm(Graph *graph) {
     // 1.Stworzenie listy sąsiedstwa
+
+    //1.1 Inicjalizacja potrzebnych narzędzi
+
+    //int start = 0;
+    int idx;
+    int dfs_res [graph->num_nodes]; 
+    
 
     uint **adj_list = (uint **)malloc(graph->num_nodes * sizeof(uint *));
     int *deg = (int *)malloc(graph->num_nodes * sizeof(int));
@@ -22,6 +33,8 @@ int tuttes_algorithm(Graph *graph) {
         return ERR_ADJ_LIST;
     }
     print_adj_list(graph, adj_list, deg);
+    find_outer_face(graph, adj_list, deg, dfs_res, &idx);
+    print_outer_face(dfs_res, idx);
 
     free_adj_list(graph, adj_list);
     free_deg(deg);

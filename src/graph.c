@@ -207,22 +207,31 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
     visited[start] = 1;
     dfs_res[(*idx)++] = start;
 
-    // Iterjumey po ilości sąsiadów dla wierzchołka startowego
+  
     for (int i = 0; i < deg[start]; i++) {
-        // Pobieramy numer sąsiada z listy sąsiadów dla wierzchołka startowego.
+        
         int neighbor = adj_list[start][i];
 
-        // Jeśli sąsiad nie został jeszcze odwiedzony, to staje się on naszym
-        // nowym wierzchołkiem startowym w kolejnym wywołaniu DFS.
+
         if (visited[neighbor] == 0)
             dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
     }
 }
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int dfs_res[]) {
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int dfs_res[], int *idx) {
     int visited[graph->num_nodes];
     for (int i = 0; i < graph->num_nodes; i++)
         visited[i] = 0;
 
-    int idx = 0;
-    dfs_rec(graph, adj_list, deg, &idx, 0, visited, dfs_res);
+    *idx = 0;
+    dfs_rec(graph, adj_list, deg, idx, 2, visited, dfs_res);
+    //int dfs_res_size = sizeof(dfs_res)/sizeof(dfs_res[0]);
+}
+
+void print_outer_face( int dfs_res[], int dfs_res_size){
+    for (int i = 0; i<dfs_res_size; i++){
+        printf( "%d -> ", dfs_res[i]);
+    }
+    printf("\n");
+
+
 }
