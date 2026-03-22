@@ -141,7 +141,7 @@ Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
 }
 
 /**
- * @brief Funkcja zwalnie miejsca zaalokowane dla struktury grafuu
+ * @brief Funkcja zwalnia miejsca zaalokowane dla struktury grafu
  * @param graph - wskaznik na strutkure grafu
  */
 void free_graph(Graph *graph) {
@@ -226,14 +226,21 @@ void free_deg(int *deg) {
  */
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
              int visited[], int dfs_res[]) {
+    //Lista typu: 
+    //[0]:1
+    //[1]:1
+    //[2]:0
+    //gdzie [x] wieszchołek pod indeksem x 0 - nie zwiedzony; 1- zwiedzony
     visited[start] = 1;
-    
+
+    //Lista przechowywająca indeksy zwiedonych wieszchołków - przyjmuje znaczenie start
     dfs_res[(*idx)++] = start;
     
-
+    //Iteracja po wieszchołkach w adj_list
     for (int i = 0; i < deg[start]; i++) {
-        
+        // Jeden z sąsiadów i-tego wierzchołku
         int neighbor = adj_list[start][i];
+        //Jeśli sąsiad nie zwidzony to rekurencyjnie wywylamy funkcje, jako start podajemy idx
         if (visited[neighbor] == 0)
             dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
     }
@@ -251,39 +258,42 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
  * @param cycle_idx - terazniejszy indeks w cycle_res
  * @param found - flaga pokazująca czy znalezlismy rozwiązanie 
  */
-void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
+int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
                   int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found) {
-    
-    if (*found) return; 
+    //Jeśli już znalezliśmy cykl to 
+    if (*found) return EXIT_SUCCESS; 
 
     visited[current] = 1; 
     //printf("DFS teraz w  %d\n", current); pokzuje terazniejszą pozycję algorytmu, nie równo temu co w dfs_res
     
 
-
+    //Iteracja po wieszchołkach w adj_list
     for (int i = 0; i < deg[current]; i++) {
         int neighbor = adj_list[current][i];
-
+        //Jeśli sąsiad jescze nie zwiedzony - przechodzimy dalej i rekurencyjnie zamykamy funkcję
         if (visited[neighbor] == 0) { 
             parent[neighbor] = current;
             dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent, cycle_res, cycle_idx, found);
-            if (*found) return;
+            if (*found) return EXIT_SUCCESS;
         } 
+        //Jeśli sąsiad nie przodek i już zwiedzony, to znalezliśmy cykł i wracamy do początku
         else if (neighbor != parent[current] && visited[neighbor] == 1) {
             *found = 1;
             int v = current;
             while (v != neighbor && v != -1) {
                 cycle_res[(*cycle_idx)++] = v;
+                //Wracanie po poprzednikach 
                 v = parent[v];
                 //printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się, to samo co dfs res, tylko naodwrót
                 //printf("\n");             
                 }
             cycle_res[(*cycle_idx)++] = neighbor;
-            return;
+            return EXIT_SUCCESS;
         }
     }
-    
     visited[current] = 2; 
+    return EXIT_SUCCESS;
+    
 }
 /**
  * @brief Funkcja dla znaleznienia zewnętrznego poligonu(dfs)
@@ -295,12 +305,14 @@ void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current
 
  */
 void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx) {
+    //Inicjalizacja narzędzi
     int n = graph->num_nodes;
     int visited[n];
     int parent[n];
     int found = 0;
-    int dummy_idx = 0;
+    int start = 0;
 
+    //Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[] znaczy że ten wieszchołek nie ma rodzica
     for (int i = 0; i < n; i++) {
         visited[i] = 0;
         parent[i] = -1;
@@ -308,7 +320,7 @@ void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], i
     *cycle_idx = 0;
 
 
-    dfs_rec_face(graph, adj_list, deg, &dummy_idx, 0, visited, parent, cycle_res, cycle_idx, &found);
+    dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res, cycle_idx, &found);
 }
 /**
  * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
@@ -321,11 +333,8 @@ void print_outer_face( int dfs_res[], int dfs_res_size){
     for (int i = 0; i<dfs_res_size; i++){
         printf( "%d", dfs_res[i]);
         printf("->");
-
     }
     printf( "%d", dfs_res[0]);
-
-
     printf("\n");
 
 
