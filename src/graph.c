@@ -222,7 +222,7 @@ void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current
     if (*found) return; 
 
     visited[current] = 1; 
-    printf("DFS teraz w  %d\n", current);
+    //printf("DFS teraz w  %d\n", current); pokzuje terazniejszą pozycję algorytmu, nie równo temu co w dfs_res
     
 
 
@@ -240,7 +240,9 @@ void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current
             while (v != neighbor && v != -1) {
                 cycle_res[(*cycle_idx)++] = v;
                 v = parent[v];
-            }
+                //printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się, to samo co dfs res, tylko naodwrót
+                //printf("\n");             
+                }
             cycle_res[(*cycle_idx)++] = neighbor;
             return;
         }
@@ -270,10 +272,11 @@ void print_outer_face( int dfs_res[], int dfs_res_size){
 
     for (int i = 0; i<dfs_res_size; i++){
         printf( "%d", dfs_res[i]);
-        if(i != dfs_res_size-1 )
-            printf("->");
+        printf("->");
 
     }
+    printf( "%d", dfs_res[0]);
+
 
     printf("\n");
 

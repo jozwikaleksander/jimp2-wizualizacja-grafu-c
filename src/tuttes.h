@@ -7,6 +7,10 @@
 #include "vector.h"
 #include "graph.h"
 
+/**
+ * @brief Funkcja algorytmu Tutes do zmiany pozycji wierzchołków
+ * @return kod pomyłki
+*/
 int tuttes_algorithm(Graph *graph);
 
 #endif

@@ -9,7 +9,7 @@ int tuttes_algorithm(Graph *graph) {
 
     //1.1 Inicjalizacja potrzebnych narzędzi
 
-    //int start = 0;
+
    
     
     
@@ -38,6 +38,7 @@ int tuttes_algorithm(Graph *graph) {
     int dfs_res [graph->num_nodes]; 
     find_outer_face(graph, adj_list, deg, dfs_res, &idx);
     print_outer_face(dfs_res, idx);
+    //print_outer_face(cycle_res, cycle_idx);
 
     free_adj_list(graph, adj_list);
     free_deg(deg);
