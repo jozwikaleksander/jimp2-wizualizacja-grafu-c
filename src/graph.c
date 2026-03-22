@@ -180,6 +180,12 @@ int build_adj_list(Graph *graph, uint **adj_list, int *deg) {
     }
     return EXIT_SUCCESS;
 }
+/**
+ * @brief Funkcja drukuje listę sąsiedstwa na stdout
+ * @param graph - wskaznik do pliku
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
+ */
 
 void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
     for (int u = 0; u < graph->num_nodes; u++) {
@@ -189,19 +195,35 @@ void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
         printf("\n");
     }
 }
-
+/**
+ * @brief Funkcja zwalnia listę sąsiedstwa
+ * @param graph - wskaznik na strutkure grafu
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ */
 void free_adj_list(Graph *graph, uint **adj_list) {
     for (int i = 0; i < graph->num_nodes; i++)
         free(adj_list[i]);
     free(adj_list);
 }
-
+/**
+ * @brief Funkcja zwalnia podaną listę ilości sąsiadów
+ * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
+ */
 void free_deg(int *deg) {
     if (!deg)
         return;
     free(deg);
 }
-
+/**
+ * @brief Funkcja dla znaleznienia ścieżki w grafie
+ * @param graph - wskaznik na strutkure grafu
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
+ * @param idx - ilość zwiedzonych wierzchołków
+ * @param start - terazniejsza pozycja
+ * @param visited - lista poprzednie zwiedzonych wierzchołków
+ * @param dfs_res - lista przechowująca końcową ścieżkę 
+ */
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
              int visited[], int dfs_res[]) {
     visited[start] = 1;
@@ -216,6 +238,19 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
             dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
     }
 }
+/**
+ * @brief Funkcja dla znaleznienia ścieżki w grafie
+ * @param graph - wskaznik na strutkure grafu
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
+ * @param idx - ilość zwiedzonych wierzchołków
+ * @param current - terazniejsza pozycja
+ * @param visited - lista poprzednie zwiedzonych wierzchołków
+ * @param parent - lista przechowująca końcową ścieżkę 
+ * @param cycle_res - lista poprzednie zwiedzonych wierzchołków
+ * @param cycle_idx - terazniejszy indeks w cycle_res
+ * @param found - flaga pokazująca czy znalezlismy rozwiązanie 
+ */
 void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
                   int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found) {
     
@@ -250,7 +285,15 @@ void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current
     
     visited[current] = 2; 
 }
+/**
+ * @brief Funkcja dla znaleznienia zewnętrznego poligonu(dfs)
+ * @param graph - wskaznik na strutkure grafu
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
+ * @param cycle_res - ilość zwiedzonych wierzchołków w cyklu zwracania
+ * @param cycle_idx - terazniejsza pozycja w cyklu zwracania
 
+ */
 void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx) {
     int n = graph->num_nodes;
     int visited[n];
@@ -267,7 +310,12 @@ void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], i
 
     dfs_rec_face(graph, adj_list, deg, &dummy_idx, 0, visited, parent, cycle_res, cycle_idx, &found);
 }
+/**
+ * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
+ * @param dfs_res - wskaznik na strutkure grafu
+ * @param dfs_res_size - wskaznik na listę sąsiedstwa do wydrukowania 
 
+ */
 void print_outer_face( int dfs_res[], int dfs_res_size){
 
     for (int i = 0; i<dfs_res_size; i++){
