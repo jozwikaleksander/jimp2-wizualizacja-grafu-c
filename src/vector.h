@@ -57,4 +57,6 @@ Vector mult_by_num(Vector a, double n);
 
 Vector negative(Vector a); 
 
+void print_list(int list[], int size);
+
 #endif

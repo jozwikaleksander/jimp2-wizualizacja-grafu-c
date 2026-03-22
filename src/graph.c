@@ -1,4 +1,6 @@
 #include "graph.h"
+#include <math.h>
+#include "vector.h"
 
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
@@ -264,7 +266,7 @@ int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
     if (*found) return EXIT_SUCCESS; 
 
     visited[current] = 1; 
-    //printf("DFS teraz w  %d\n", current); pokzuje terazniejszą pozycję algorytmu, nie równo temu co w dfs_res
+    //printf("DFS teraz w  %d\n", current); pokazuje terazniejszą pozycję algorytmu, nie równo temu co w dfs_res
     
 
     //Iteracja po wieszchołkach w adj_list
@@ -337,6 +339,15 @@ void print_outer_face( int dfs_res[], int dfs_res_size){
     printf( "%d", dfs_res[0]);
     printf("\n");
 
+
+
+}
+
+Vector get_center (Graph *graph){
+    Vector center;
+    center.x = round((graph->width)/2);
+    center.y = round((graph->height)/2);
+    return center;
 
 
 }

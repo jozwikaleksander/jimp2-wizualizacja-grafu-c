@@ -28,6 +28,8 @@ typedef struct{
     Edge *edges;
     int num_edges;
     int capacity_edges;
+    int width;
+    int height;
 } Graph;
 
 /**
@@ -115,4 +117,13 @@ void print_outer_face( int dfs_res[], int dfs_res_size);
  */
 int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
                   int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found);
+
+
+/**
+ * @brief Znajduje środek na przestrzeni 
+ * @param graph - graph na przestrzeni którego szukamy środek
+ * @return center - Vector z współżędnymi środku
+ */
+Vector get_center (Graph *graph);
+
 #endif

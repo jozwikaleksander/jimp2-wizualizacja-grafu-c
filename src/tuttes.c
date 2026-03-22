@@ -1,19 +1,19 @@
 #include "tuttes.h"
 
 
-//ZAMINIĆ graph->num_nodes
 
 
 int tuttes_algorithm(Graph *graph) {
     // 1.Stworzenie listy sąsiedstwa
 
     //Inicjalizacja potrzebnych narzędzi
+    int n = graph->num_nodes;
     int idx = 0;
-    int dfs_res [graph->num_nodes]; 
-    uint **adj_list = (uint **)malloc(graph->num_nodes * sizeof(uint *));
-    int *deg = (int *)malloc(graph->num_nodes * sizeof(int));
-    for (int i = 0; i < graph->num_nodes; i++)
-        adj_list[i] = (uint *)malloc(graph->num_nodes * sizeof(uint));
+    int dfs_res [n]; 
+    uint **adj_list = (uint **)malloc(n * sizeof(uint *));
+    int *deg = (int *)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++)
+        adj_list[i] = (uint *)malloc(n * sizeof(uint));
 
     //Sprawdzenie działania allocacji
     if (adj_list == NULL) {
@@ -34,11 +34,42 @@ int tuttes_algorithm(Graph *graph) {
     //Wypisywanie listy sąsiedstwa
     print_adj_list(graph, adj_list, deg);
 
-    //Znaleznienie dowolnego cykłu wierzchołków grafu
+    //2.Znaleznienie dowolnego cykłu wierzchołków grafu
     find_outer_face(graph, adj_list, deg, dfs_res, &idx);
 
     //Wypisywanie cykłu
     print_outer_face(dfs_res, idx);
+
+
+    //3.======================Część obliczeniowa======================
+    int is_fixed[n];
+    for (int i = 0; i<n; i++){
+        is_fixed[i] = 0;
+
+    }
+
+    for (int i = 0; i<idx; i++){
+        
+        is_fixed[dfs_res[i]] = 1;
+
+    }
+    
+    print_list(is_fixed, n);
+
+    Vector center = get_center(graph);
+    printf("Srodek:(%f, %f)\n",center.x, center.y);
+
+
+
+
+
+
+
+
+
+
+
+
    
     //Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);

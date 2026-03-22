@@ -71,3 +71,12 @@ Vector negative(Vector a){
     new.y= -a.y;
     return new;
 }
+
+void print_list(int list[], int size){
+    for (int i = 0; i<size; i++){
+        printf("[%d] - %d ", i,list[i]);
+
+    }
+    printf("\n");
+
+}
