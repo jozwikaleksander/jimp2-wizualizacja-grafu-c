@@ -58,7 +58,8 @@ void free_adj_list(Graph *graph, uint** adj_list);
 void free_deg(int* deg);
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start, int visited[],
              int dfs_res[]);
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int dfs_res[], int *idx);
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx);
 void print_outer_face( int dfs_res[], int dfs_res_size);
-
+void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
+                  int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found);
 #endif

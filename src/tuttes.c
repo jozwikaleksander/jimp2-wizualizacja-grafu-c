@@ -10,8 +10,8 @@ int tuttes_algorithm(Graph *graph) {
     //1.1 Inicjalizacja potrzebnych narzędzi
 
     //int start = 0;
-    int idx;
-    int dfs_res [graph->num_nodes]; 
+   
+    
     
 
     uint **adj_list = (uint **)malloc(graph->num_nodes * sizeof(uint *));
@@ -33,6 +33,9 @@ int tuttes_algorithm(Graph *graph) {
         return ERR_ADJ_LIST;
     }
     print_adj_list(graph, adj_list, deg);
+
+    int idx = 0;
+    int dfs_res [graph->num_nodes]; 
     find_outer_face(graph, adj_list, deg, dfs_res, &idx);
     print_outer_face(dfs_res, idx);
 

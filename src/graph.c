@@ -205,33 +205,79 @@ void free_deg(int *deg) {
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
              int visited[], int dfs_res[]) {
     visited[start] = 1;
+    
     dfs_res[(*idx)++] = start;
+    
 
-  
     for (int i = 0; i < deg[start]; i++) {
         
         int neighbor = adj_list[start][i];
-
-
         if (visited[neighbor] == 0)
             dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
     }
 }
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int dfs_res[], int *idx) {
-    int visited[graph->num_nodes];
-    for (int i = 0; i < graph->num_nodes; i++)
-        visited[i] = 0;
+void dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
+                  int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found) {
+    
+    if (*found) return; 
 
-    *idx = 0;
-    dfs_rec(graph, adj_list, deg, idx, 2, visited, dfs_res);
-    //int dfs_res_size = sizeof(dfs_res)/sizeof(dfs_res[0]);
+    visited[current] = 1; 
+    printf("DFS teraz w  %d\n", current);
+    
+
+
+    for (int i = 0; i < deg[current]; i++) {
+        int neighbor = adj_list[current][i];
+
+        if (visited[neighbor] == 0) { 
+            parent[neighbor] = current;
+            dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent, cycle_res, cycle_idx, found);
+            if (*found) return;
+        } 
+        else if (neighbor != parent[current] && visited[neighbor] == 1) {
+            *found = 1;
+            int v = current;
+            while (v != neighbor && v != -1) {
+                cycle_res[(*cycle_idx)++] = v;
+                v = parent[v];
+            }
+            cycle_res[(*cycle_idx)++] = neighbor;
+            return;
+        }
+    }
+    
+    visited[current] = 2; 
+}
+
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx) {
+    int n = graph->num_nodes;
+    int visited[n];
+    int parent[n];
+    int found = 0;
+    int dummy_idx = 0;
+
+    for (int i = 0; i < n; i++) {
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+    *cycle_idx = 0;
+
+
+    dfs_rec_face(graph, adj_list, deg, &dummy_idx, 0, visited, parent, cycle_res, cycle_idx, &found);
 }
 
 void print_outer_face( int dfs_res[], int dfs_res_size){
+
     for (int i = 0; i<dfs_res_size; i++){
-        printf( "%d -> ", dfs_res[i]);
+        printf( "%d", dfs_res[i]);
+        if(i != dfs_res_size-1 )
+            printf("->");
+
     }
+
     printf("\n");
 
 
+
 }
+
