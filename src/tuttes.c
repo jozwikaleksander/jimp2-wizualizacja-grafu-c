@@ -40,7 +40,7 @@ int tuttes_algorithm(Graph *graph) {
     //Wypisywanie cykłu
     print_outer_face(dfs_res, idx);
    
-
+    //Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
 
