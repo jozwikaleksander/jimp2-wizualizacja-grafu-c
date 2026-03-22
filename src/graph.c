@@ -326,8 +326,8 @@ void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], i
 }
 /**
  * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
- * @param dfs_res - wskaznik na strutkure grafu
- * @param dfs_res_size - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param dfs_res - list z resultatem dfs
+ * @param dfs_res_size - pomiar tej listy
 
  */
 void print_outer_face( int dfs_res[], int dfs_res_size){
@@ -343,12 +343,43 @@ void print_outer_face( int dfs_res[], int dfs_res_size){
 
 }
 
+/**
+ * @brief Znajduje środek na przestrzeni 
+ * @param graph - graph na przestrzeni którego szukamy środek
+ * @return center - Vector z współżędnymi środku
+ */
 Vector get_center (Graph *graph){
     Vector center;
     center.x = round((graph->width)/2);
     center.y = round((graph->height)/2);
     return center;
 
+
+}
+/**
+ * @brief Funkcja dla znałeznienia środku przestrzeni
+ * @param graph - wskaznik na strutkure grafu
+ * @return  center - vektor z współżędznymi środku
+
+ */
+
+void place_on_circle(int outer_faces[], Graph *graph,int k, Vector center){
+    int margin = 20;
+    double radius = fmin(graph->width, graph->height) / 2.0 - margin;
+
+    for (int i = 0; i<k; i++){
+        //Node outer_face = graph->nodes[outer_faces[i]];
+        
+        double angle = 2.0 * M_PI * i / k;
+        printf("%f ", angle);
+        
+        //printf("[%d] - (%f,%f) \n", i,outer_face.position.x, outer_face.position.y  );
+        graph->nodes[outer_faces[i]].position.x = center.x + radius * cos(angle);
+        graph->nodes[outer_faces[i]].position.y = center.y + radius * sin(angle);
+
+
+    }
+    printf("\n");
 
 }
 

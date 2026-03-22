@@ -126,4 +126,6 @@ int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
  */
 Vector get_center (Graph *graph);
 
+void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center);
+
 #endif

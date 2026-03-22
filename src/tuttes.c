@@ -58,6 +58,22 @@ int tuttes_algorithm(Graph *graph) {
 
     Vector center = get_center(graph);
     printf("Srodek:(%f, %f)\n",center.x, center.y);
+    for (int i = 0; i<n; i++){
+        printf("[%d] - (%f,%f) \n", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
+
+    }
+    
+    place_on_circle(dfs_res,graph, idx, center);
+    
+   
+    for (int i = 0; i<n; i++){
+        printf("[%d] - (%f,%f) \n", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
+
+    }
+    printf("\n");
+
+
+   
 
 
 
