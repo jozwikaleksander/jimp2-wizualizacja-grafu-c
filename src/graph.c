@@ -357,29 +357,33 @@ Vector get_center (Graph *graph){
 
 }
 /**
- * @brief Funkcja dla znałeznienia środku przestrzeni
+ * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego centrum
+ * @param outer_faces - lista wirzchołków z zewnętrnego poligonu
  * @param graph - wskaznik na strutkure grafu
- * @return  center - vektor z współżędznymi środku
+ * @param k - ilość wierzchołków do rozstawienia
+ * @param center - vector z współżędnymi środku
 
  */
 
 void place_on_circle(int outer_faces[], Graph *graph,int k, Vector center){
+    //margin to odległość krańca okręga od granicy przestrzeni
     int margin = 20;
+    //radius- promień domyślego okręga na którym rozskładamy wierzchołki
     double radius = fmin(graph->width, graph->height) / 2.0 - margin;
 
+    //Iteracja po wierzchołkach zewnętrznego poligonu
     for (int i = 0; i<k; i++){
-        //Node outer_face = graph->nodes[outer_faces[i]];
         
+        //Kąt pomiędzy kolejnymi wierzchołkami
         double angle = 2.0 * M_PI * i / k;
-        printf("%f ", angle);
-        
-        //printf("[%d] - (%f,%f) \n", i,outer_face.position.x, outer_face.position.y  );
+
+        //Zmiana pozycji wieszchołków
         graph->nodes[outer_faces[i]].position.x = center.x + radius * cos(angle);
         graph->nodes[outer_faces[i]].position.y = center.y + radius * sin(angle);
 
 
     }
-    printf("\n");
+    
 
 }
 

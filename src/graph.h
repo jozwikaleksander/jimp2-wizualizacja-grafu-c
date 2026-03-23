@@ -126,6 +126,14 @@ int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
  */
 Vector get_center (Graph *graph);
 
+/**
+ * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego centrum
+ * @param outer_faces - lista wirzchołków z zewnętrnego poligonu
+ * @param graph - wskaznik na strutkure grafu
+ * @param k - ilość wierzchołków do rozstawienia
+ * @param center - vector z współżędnymi środku
+
+ */
 void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center);
 
 #endif
