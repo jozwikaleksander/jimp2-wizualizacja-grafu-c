@@ -3,7 +3,7 @@
 
 
 
-int tuttes_algorithm(Graph *graph) {
+int tuttes_algorithm(Graph *graph, int max_iterations) {
     // 1.Stworzenie listy sąsiedstwa
 
     //Inicjalizacja potrzebnych narzędzi
@@ -12,8 +12,15 @@ int tuttes_algorithm(Graph *graph) {
     int dfs_res [n]; 
     uint **adj_list = (uint **)malloc(n * sizeof(uint *));
     int *deg = (int *)malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++)
+    Vector new_pos [n];
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    for (int i = 0; i < n; i++){
         adj_list[i] = (uint *)malloc(n * sizeof(uint));
+        
+    }
+
+    double max_change;
 
     //Sprawdzenie działania allocacji
     if (adj_list == NULL) {
@@ -45,53 +52,73 @@ int tuttes_algorithm(Graph *graph) {
     int is_fixed[n];
     for (int i = 0; i<n; i++){
         is_fixed[i] = 0;
-
     }
-
-    for (int i = 0; i<idx; i++){
-        
+    for (int i = 0; i<idx; i++){  
         is_fixed[dfs_res[i]] = 1;
-
     }
-    
-    // print_list(is_fixed, n);
-
     Vector center = get_center(graph);
     printf("Srodek:(%f, %f)\n",center.x, center.y);
-    // for (int i = 0; i<n; i++){
-    //     printf("[%d] - (%f,%f) \n", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
-
-    // }
-    
+    print_nodes_pos(graph, is_fixed);
     place_on_circle(dfs_res,graph, idx, center);
-    
-   
-    // for (int i = 0; i<n; i++){
-    //     printf("[%d] - (%f,%f) \n", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
+    print_nodes_pos(graph, is_fixed);
 
-    // }
-    // printf("\n");
+    int t = 0;
+    max_change = 10.0;
+    while(t < max_iterations && max_change > MINIMUM_CHANGE) {
+        max_change = 0.0;
+        
 
-    
+        for(int i = 0; i < graph->num_nodes; i++) {
+            tutte_iteration(graph,i, is_fixed, adj_list,new_pos,sum_x, sum_y, deg);
 
+            
+        }
+        for(int i = 0; i < graph->num_nodes; i++) {
+            if(is_fixed[i] != 1) {
 
-   
-
-
-
-
-
-
-
-
-
+                graph->nodes[i].position.x = new_pos[i].x;
+                graph->nodes[i].position.y = new_pos[i].y;
+            }
 
 
-
+        }
+        print_nodes_pos(graph, is_fixed);
    
     //Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
 
-    return EXIT_SUCCESS;
 }
+
+return EXIT_SUCCESS;
+}
+
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], double sum_x, double sum_y, int deg[]){
+    for(int j = 0; j <deg[iteration]; j++) {
+                int neighbor = adj_list[iteration][j];
+                printf("%d -> %d ", iteration, neighbor);
+
+                
+                if(is_fixed[iteration] != 1) {
+                    // new_pos[iteration].x = 0;
+                    // new_pos[iteration].y = 0;
+            
+                    sum_x += graph->nodes[neighbor].position.x;
+                    sum_y += graph->nodes[neighbor].position.y;
+            
+                    new_pos[iteration].x = sum_x/deg[iteration];
+                    new_pos[iteration].y = sum_y/deg[iteration];
+            
+            
+                    printf("%f,%f \n", sum_x, sum_y);
+                }
+            }
+    
+
+
+
+
+return EXIT_SUCCESS;
+}
+
+

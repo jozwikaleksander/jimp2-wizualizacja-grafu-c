@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
     double cooling = 0.97;
     
     // ----------------------------
+    // Parametry algorytmu Tuttesa z wartościami domyślnymi
+    
 
     // Wczytanie parametrow wykonania
     while((opt = getopt(argc, argv, ":a:t:s:o:w:h:m:i:l:k:c:C:")) != -1) 
@@ -176,7 +178,7 @@ int main(int argc, char **argv) {
         case TUTTES_ALGORITHM:
             graph-> height = height;
             graph -> width = width;
-            tuttes_algorithm(graph);
+            tuttes_algorithm(graph, max_iterations);
             break;
         default:
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);

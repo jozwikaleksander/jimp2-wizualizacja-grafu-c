@@ -8,6 +8,7 @@
 #include "vector.h"
 #include "error.h"
 
+
 typedef struct {
     int u, v;
     double weight;
@@ -136,4 +137,9 @@ Vector get_center (Graph *graph);
  */
 void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center);
 
+/**
+ * @brief Funkcja wypisuje pozycje wszystkich wierzchołków grafu
+ * @param graph - wskaznik na strutkure grafu
+*/
+void print_nodes_pos(Graph *graph, int is_fixed[] );
 #endif

@@ -191,9 +191,9 @@ int build_adj_list(Graph *graph, uint **adj_list, int *deg) {
 
 void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
     for (int u = 0; u < graph->num_nodes; u++) {
-        printf("Sąsiedzi dla %d: ", u + 1);
+        printf("Sąsiedzi dla %d: ", u );
         for (int i = 0; i < deg[u]; i++)
-            printf("%d ", adj_list[u][i] + 1);
+            printf("%d ", adj_list[u][i]);
         printf("\n");
     }
 }
@@ -385,5 +385,20 @@ void place_on_circle(int outer_faces[], Graph *graph,int k, Vector center){
     }
     
 
+}
+
+
+void print_nodes_pos(Graph *graph , int is_fixed[]){
+    for (int i = 0; i<graph->num_nodes; i++){
+        printf("[%d] - (%f,%f) ", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
+        if (is_fixed[i]==1){
+            printf("-poligon zewnętrzny");
+
+        }
+        printf("\n");
+        
+    }
+    printf("=============================================");
+    printf("\n");
 }
 
