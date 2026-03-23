@@ -15,7 +15,7 @@
  * @return kod pomyłki
 */
 int tuttes_algorithm(Graph *graph, int max_iterations) ;
-int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], double sum_x, double sum_y, int deg[]);
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[],  int deg[]);
 
 #endif
 

@@ -13,8 +13,6 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
     uint **adj_list = (uint **)malloc(n * sizeof(uint *));
     int *deg = (int *)malloc(n * sizeof(int));
     Vector new_pos [n];
-    double sum_x = 0.0;
-    double sum_y = 0.0;
     for (int i = 0; i < n; i++){
         adj_list[i] = (uint *)malloc(n * sizeof(uint));
         
@@ -39,13 +37,13 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
         return ERR_ADJ_LIST;
     }
     //Wypisywanie listy sąsiedstwa
-    print_adj_list(graph, adj_list, deg);
+    //print_adj_list(graph, adj_list, deg);
 
     //2.Znaleznienie dowolnego cykłu wierzchołków grafu
     find_outer_face(graph, adj_list, deg, dfs_res, &idx);
 
     //Wypisywanie cykłu
-    print_outer_face(dfs_res, idx);
+    //print_outer_face(dfs_res, idx);
 
 
     //3.======================Część obliczeniowa======================
@@ -65,16 +63,23 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
     int t = 0;
     max_change = 10.0;
     while(t < max_iterations && max_change > MINIMUM_CHANGE) {
+        
+        t++; 
         max_change = 0.0;
         
 
         for(int i = 0; i < graph->num_nodes; i++) {
-            tutte_iteration(graph,i, is_fixed, adj_list,new_pos,sum_x, sum_y, deg);
+            tutte_iteration(graph,i, is_fixed, adj_list,new_pos, deg);
 
-            
+          
         }
+        
         for(int i = 0; i < graph->num_nodes; i++) {
             if(is_fixed[i] != 1) {
+                double change = distance(new_pos[i],graph->nodes[i].position);
+                if (change >max_change){
+                    max_change = change;
+                }
 
                 graph->nodes[i].position.x = new_pos[i].x;
                 graph->nodes[i].position.y = new_pos[i].y;
@@ -84,34 +89,31 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
         }
         print_nodes_pos(graph, is_fixed);
    
+        
+    }
     //Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
-
-}
+//printf("%d", t);
 
 return EXIT_SUCCESS;
 }
 
-int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], double sum_x, double sum_y, int deg[]){
-    for(int j = 0; j <deg[iteration]; j++) {
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[]){
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    if(is_fixed[iteration] != 1) {
+        for(int j = 0; j <deg[iteration]; j++) {
                 int neighbor = adj_list[iteration][j];
-                printf("%d -> %d ", iteration, neighbor);
-
-                
-                if(is_fixed[iteration] != 1) {
-                    // new_pos[iteration].x = 0;
-                    // new_pos[iteration].y = 0;
+                sum_x += graph->nodes[neighbor].position.x;
+                sum_y += graph->nodes[neighbor].position.y;
             
-                    sum_x += graph->nodes[neighbor].position.x;
-                    sum_y += graph->nodes[neighbor].position.y;
-            
-                    new_pos[iteration].x = sum_x/deg[iteration];
-                    new_pos[iteration].y = sum_y/deg[iteration];
-            
-            
-                    printf("%f,%f \n", sum_x, sum_y);
+                    
+                    
+                    
                 }
+                new_pos[iteration].x = sum_x/deg[iteration];
+                new_pos[iteration].y = sum_y/deg[iteration];
             }
     
 
