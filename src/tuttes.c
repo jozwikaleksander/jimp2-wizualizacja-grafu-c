@@ -50,13 +50,13 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
         return ERR_ADJ_LIST;
     }
     // Wypisywanie listy sąsiedstwa
-    // print_adj_list(graph, adj_list, deg);
+    //print_adj_list(graph, adj_list, deg);
 
     // 2.Znaleznienie dowolnego cykłu wierzchołków grafu
     find_outer_face(graph, adj_list, deg, dfs_res, &idx);
 
-    // Wypisywanie cykłu
-    // print_outer_face(dfs_res, idx);
+    // Wypisywanie poligonu zewnętrznego
+    //print_outer_face(dfs_res, idx);
 
 
     //3.======================Część obliczeniowa======================
@@ -70,10 +70,11 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
     }
     // Ustawienie środka i rozmieszczenie punktów zewnętrznych na okręgu
     Vector center = get_center(graph);
-    printf("Srodek:(%f, %f)\n", center.x, center.y);
-    print_nodes_pos(graph, is_fixed);
+    //Wypisywanie pozycji wierzchołków przed obliczeniami
+    //print_nodes_pos(graph, is_fixed);
     place_on_circle(dfs_res, graph, idx, center);
-    print_nodes_pos(graph, is_fixed);
+    //Wypisywanie pozycji wierzchołków po rozstawianiu wiezchołków poligonu zewnętrznego
+    //print_nodes_pos(graph, is_fixed);
 
     int t = 0;
     max_change = 10.0;
@@ -119,11 +120,11 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
 
 
         
-        print_nodes_pos(graph, is_fixed);
+       
    
         
     
-    //4.4Zwolnienie zaalokowanej pamięci
+    //4.4.Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
 

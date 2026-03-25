@@ -275,13 +275,12 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
 int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
                  int visited[], int parent[], int cycle_res[], int *cycle_idx,
                  int *found) {
-    // Jeśli już znalezliśmy cykl to
+    // Jeśli już znalezliśmy cykl to EXIT_SUCCESS.
     if (*found)
         return EXIT_SUCCESS;
 
     visited[current] = 1;
-    // printf("DFS teraz w  %d\n", current); pokazuje terazniejszą pozycję
-    // algorytmu, nie równo temu co w dfs_res
+
 
     // Iteracja po wieszchołkach w adj_list
     for (int i = 0; i < deg[current]; i++) {
@@ -305,7 +304,7 @@ int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
                 // Wracanie po poprzednikach
                 v = parent[v];
                 // printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się,
-                // to samo co dfs res, tylko naodwrót printf("\n");
+        
             }
             cycle_res[(*cycle_idx)++] = neighbor;
             return EXIT_SUCCESS;
@@ -394,15 +393,15 @@ void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center) {
 
         // Zmiana pozycji wieszchołków
         graph->nodes[outer_faces[i]].position.x =
-            center.x + radius * cos(angle);
+        center.x + radius * cos(angle);
         graph->nodes[outer_faces[i]].position.y =
-            center.y + radius * sin(angle);
+        center.y + radius * sin(angle);
     }
 }
 
 void print_nodes_pos(Graph *graph, int is_fixed[]) {
     for (int i = 0; i < graph->num_nodes; i++) {
-        printf("[%d] - (%f,%f) ", i, graph->nodes[i].position.x,
+        printf("[%d] - (%.3f,%.3f) ", i, graph->nodes[i].position.x,
                graph->nodes[i].position.y);
         if (is_fixed[i] == 1) {
             printf("-poligon zewnętrzny");

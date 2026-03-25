@@ -800,6 +800,305 @@ void free_graph(Graph *graph) {
 Funkcja dealokuje nazwy krawędzi oraz tablice krawędzi i wierzchołków oraz samą strukturę grafu.
 Oto fragment dokumentacji implementacyjnej przygotowany na podstawie dostarczonego kodu, z zachowaniem Twojej składni LaTeX oraz oryginalnych komentarzy.
 
+\clearpage
+
+\subsubsection{Funkcja \texttt{build\_adj\_list}}
+\begin{mylisting}
+int build_adj_list(Graph *graph, uint **adj_list, int *deg) {
+    int n_nodes = graph->num_nodes;
+    int n_edges = graph->num_edges;
+
+    // Zapełnienie deg
+    for (int i = 0; i < n_nodes; i++)
+        deg[i] = 0;
+
+    // Zapełnienie adj_list
+    for (int i = 0; i < n_edges; i++) {
+        int u = graph->edges[i].u;
+        int v = graph->edges[i].v;
+
+        adj_list[u][deg[u]++] = v;
+        adj_list[v][deg[v]++] = u;
+    }
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Funkcja ta przekształca listową reprezentację krawędzi w listę sąsiedztwa, co jest używane przez algorytm tuttesa dla efektywnego poszukiwania sąsiadów.
+ W pierwszym kroku zeruje tablicę stopni wierzchołków, a następnie iteruje po krawędziach, dodając sąsiadów do odpowiednich list.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{graph} - wskaźnik na strukturę grafu.
+    \item \texttt{adj\_list} - tablica dwuwymiarowa przechowująca sąsiadów wierzchołków.
+    \item \texttt{deg} - tablica przechowująca liczbę sąsiadów dla każdego wierzchołka.
+\end{itemize}
+Funkcja zwraca \texttt{EXIT\_SUCCESS} po poprawnym zbudowaniu struktury.
+
+\subsubsection{Funkcja print\_adj\_list }
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+
+\begin{mylisting}
+void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
+    for (int u = 0; u < graph->num_nodes; u++) {
+        printf("Sąsiedzi dla %d: ", u);
+        for (int i = 0; i < deg[u]; i++)
+            printf("%d ", adj_list[u][i]);
+        printf("\n");
+    }
+}
+\end{mylisting}
+Wypisuje kompletną listę sąsiedztwa na standardowe wyjście.
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{adj\_list} - tablica przechowująca sąsiadów.
+\item \texttt{deg} - tablica stopni wierzchołków.
+\end{itemize}
+\clearpage
+Przykład wyjścia:
+\begin{mylisting}
+Sąsiedzi dla 0: 1 
+Sąsiedzi dla 1: 0 2 3 
+Sąsiedzi dla 2: 1 3 
+Sąsiedzi dla 3: 2 1 
+\end{mylisting}
+
+
+\subsubsection{Funkcja print\_outer\_face}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+\begin{mylisting}
+void print_outer_face(int dfs_res[], int dfs_res_size) {
+    for (int i = 0; i < dfs_res_size; i++) {
+        printf("%d", dfs_res[i]);
+        printf("->");
+    }
+    printf("%d", dfs_res[0]);
+    printf("\n");
+}
+\end{mylisting}
+Wizualizuje cykl tworzący zewnętrzny poligon grafu (outer face) w formacie czytelnej ścieżki. 
+Pierwszy i ostatni element zawsze będą takie same, ponieważ jest to presentacja zamknętego cykłu\\ 
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{dfs\_res} - tablica przechowująca indeksy wierzchołków poligonu zewnętrznego.
+\item \texttt{dfs\_res\_size} - liczba elementów w tablicy.
+\end{itemize}
+Przykład wyjścia:
+\begin{mylisting}
+3->2->1->3
+\end{mylisting}
+\subsubsection{Funkcja print\_nodes\_pos}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+\begin{mylisting}
+void print_nodes_pos(Graph *graph, int is_fixed[]) {
+    for (int i = 0; i < graph->num_nodes; i++) {
+        printf("[%d] - (%.3f,%.3f) ", i, graph->nodes[i].position.x,
+               graph->nodes[i].position.y);
+        if (is_fixed[i] == 1) {
+            printf("-poligon zewnętrzny");
+        }
+        printf("\n");
+    }
+    printf("=============================================");
+    printf("\n");
+}
+\end{mylisting}
+Wypisuje współrzędne wszystkich wierzchołków, oznaczając te, które zostały przypisane do poligonu zewnętrznego.\\
+\clearpage
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{is\_fixed} - tablica flag logicznych (1 - wierzchołek stały(z poligonu zewnętrznego ), 0 - ruchomy).
+\end{itemize}
+Przykład wyjścia:
+\begin{mylisting}
+[0] - (30.000,72.000) 
+[1] - (55.000,48.000) -poligon zewnętrzny
+[2] - (100.000,72.000) -poligon zewnętrzny
+[3] - (36.000,28.000) -poligon zewnętrzny
+=============================================
+\end{mylisting}
+
+\subsubsection{Funkcja free\_adj\_list}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury listy sąsiedztwa.
+\begin{mylisting}
+void free_adj_list(Graph *graph, uint **adj_list) {
+    for (int i = 0; i < graph->num_nodes; i++)
+        free(adj_list[i]);
+    free(adj_list);
+}
+\end{mylisting}
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu (używany do określenia liczby wierzchołków).
+\item \texttt{adj\_list} - tablica sąsiadów do usunięcia.
+\end{itemize}
+\subsubsection{Funkcja free\_deg}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury ilości sąsiadów.
+\begin{mylisting}
+void free_deg(int *deg) {
+    if (!deg)
+        return;
+    free(deg);
+}
+\end{mylisting} 
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{deg} - wskaźnik na tablicę stopni wierzchołków.
+\end{itemize}
+\clearpage
+\subsubsection{Funkcja \texttt{dfs\_rec}}
+\begin{mylisting}
+void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
+             int visited[], int dfs_res[]) {
+    // Lista typu: [0]:1, [1]:1, [2]:0 gdzie 0 - nie zwiedzony; 1- zwiedzony
+    visited[start] = 1;
+
+    // Lista przechowująca indeksy zwiedzonych wierzchołków
+    dfs_res[(*idx)++] = start;
+
+    for (int i = 0; i < deg[start]; i++) {
+        int neighbor = adj_list[start][i];
+        if (visited[neighbor] == 0)
+            dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
+    }
+}
+\end{mylisting}
+Standardowa rekurencyjna implementacja przeszukiwania w głąb (DFS), służąca do wyznaczania ścieżki zwiedzania grafu.
+
+\subsubsection{Funkcja \texttt{dfs\_rec\_face}}
+Jest to specjalna wersja algorytmu DFS, której celem jest wykrycie pierwszego napotkanego cyklu w grafie, który posłuży jako zewnętrzny
+ poligon w algorytmie Tutte’a.
+
+\begin{mylisting}
+int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
+                 int visited[], int parent[], int cycle_res[], int *cycle_idx,
+                 int *found) {
+    // Jeśli już znalezliśmy cykl to EXIT_SUCCESS.
+    if (*found)
+        return EXIT_SUCCESS;
+    visited[current] = 1;
+\end{mylisting}
+W następnej pętli otbywa się iteracja po sąsiadach w adj\_list:
+\begin{mylisting}
+    for (int i = 0; i < deg[current]; i++) {
+        int neighbor = adj_list[current][i];
+        // Jeśli sąsiad jescze nie zwiedzony - przechodzimy dalej i
+        // rekurencyjnie zamykamy funkcję
+        if (visited[neighbor] == 0) {
+            parent[neighbor] = current;
+            dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent,
+                         cycle_res, cycle_idx, found);
+            if (*found)
+                return EXIT_SUCCESS;
+        }
+\end{mylisting}
+
+Jeśli sąsiad nie przodek i już zwiedzony, to znalezliśmy cykł i wracamy do początku:
+\begin{mylisting}
+        else if (neighbor != parent[current] && visited[neighbor] == 1) {
+            *found = 1;
+            int v = current;
+            while (v != neighbor && v != -1) {
+                cycle_res[(*cycle_idx)++] = v;
+                // Wracanie po poprzednikach
+                v = parent[v];
+                // printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się,
+            }
+            cycle_res[(*cycle_idx)++] = neighbor;
+            return EXIT_SUCCESS;
+        }
+    }
+    visited[current] = 2;
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Kluczowy mechanizm: jeśli algorytm napotka wierzchołek już zwiedzony, który nie jest bezpośrednim rodzicem aktualnego wierzchołka, oznacza to wykrycie krawędzi powrotnej i domknięcie cyklu. Następuje wtedy odtworzenie ścieżki cyklu za pomocą tablicy \texttt{parent}.
+
+\subsubsection{Funkcja \texttt{find\_outer\_face}}
+\begin{mylisting}
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
+int *cycle_idx) {
+// Inicjalizacja narzędzi
+int n = graph->num_nodes;
+int visited[n];
+int parent[n];
+int found = 0;
+int start = 0;
+
+// Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[]
+// znaczy że ten wieszchołek nie ma rodzica
+for (int i = 0; i < n; i++) {
+    visited[i] = 0;
+    parent[i] = -1;
+}
+*cycle_idx = 0;
+
+dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res,
+             cycle_idx, &found);
+
+}
+\end{mylisting}
+Funkcja ta stanowi punkt wejścia do algorytmu wyznaczania zewnętrznego poligonu. Jej zadaniem jest przygotowanie struktur pomocniczych (tablicy odwiedzin oraz tablicy przodków) i uruchomienie dedykowanego algorytmu przeszukiwania w głąb (\texttt{dfs\_rec\_face}), który zidentyfikuje pierwszy napotkany cykl.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{adj\_list} - dynamiczna tablica dwuwymiarowa (lista sąsiedztwa).
+\item \texttt{deg} - tablica przechowująca stopnie wierzchołków.
+\item \texttt{cycle\_res} - tablica, do której zostaną zapisane indeksy wierzchołków tworzących cykl.
+\item \texttt{cycle\_idx} - wskaźnik na zmienną przechowującą liczbę znalezionych wierzchołków w cyklu.
+\end{itemize}
+\clearpage
+
+\subsubsection{Funkcja \texttt{get\_center}}
+\begin{mylisting}
+Vector get_center(Graph *graph) {
+    Vector center;
+    center.x = round((graph->width) / 2);
+    center.y = round((graph->height) / 2);
+    return center;
+}
+\end{mylisting}
+Funkcja oblicza współrzędne środka obszaru, na którym rysowany jest graf. Wynik jest wyznaczany na podstawie wymiarów (\texttt{width} i \texttt{height}) zapisanych w strukturze grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu zawierającą wymiary obszaru roboczego.
+\end{itemize}
+Funkcja zwraca strukturę \texttt{Vector} zawierającą współrzędne punktu środkowego.
+
+\subsubsection{Funkcja \texttt{place\_on\_circle}}
+\begin{mylisting}
+void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center) {
+    // margin to odległość krańca okręga od granicy przestrzeni
+    int margin = 20;
+    // radius- promień domyślego okręga na którym rozskładamy wierzchołki
+    double radius = fmin(graph->width, graph->height) / 2.0 - margin;
+
+    // Iteracja po wierzchołkach zewnętrznego poligonu
+    for (int i = 0; i < k; i++) {
+
+        // Kąt pomiędzy kolejnymi wierzchołkami
+        double angle = 2.0 * M_PI * i / k;
+
+        // Zmiana pozycji wieszchołków
+        graph->nodes[outer_faces[i]].position.x =
+        center.x + radius * cos(angle);
+        graph->nodes[outer_faces[i]].position.y =
+        center.y + radius * sin(angle);
+    }
+}
+\end{mylisting}
+Funkcja odpowiada za geometryczne rozmieszczenie wierzchołków wyznaczonych jako „poligon zewnętrzny” na okręgu. Jest to kluczowy etap przygotowawczy dla algorytmu Tutte'a, ponieważ unieruchomienie tych wierzchołków w formie wypukłego wielokąta gwarantuje poprawne rozmieszczenie pozostałych punktów wewnątrz.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{outer\_faces} - tablica indeksów wierzchołków do rozmieszczenia.
+\item \texttt{graph} - wskaźnik na strukturę grafu, w której zostaną zaktualizowane pozycje.
+\item \texttt{k} - liczba wierzchołków w wielokącie zewnętrznym.
+\item \texttt{center} - wektor współrzędnych środka, wokół którego budowany jest okrąg.
+\end{itemize}
 \subsection{Moduł \texttt{eades}}
 Moduł ten zawiera implementację algorytmu Eadesa, należącego do grupy algorytmów siłowych (\textit{force-directed graph drawing}). Służy on do automatycznego rozmieszczania wierzchołków grafu w przestrzeni dwuwymiarowej tak, aby krawędzie miały zbliżoną długość, a wierzchołki nie nakładały się na siebie.
 
