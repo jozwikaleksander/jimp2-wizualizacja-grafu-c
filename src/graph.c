@@ -1,6 +1,6 @@
 #include "graph.h"
-#include <math.h>
 #include "vector.h"
+#include <math.h>
 
 #define EDGELIST_SIZE 16
 #define NODELIST_SIZE 16
@@ -185,13 +185,13 @@ int build_adj_list(Graph *graph, uint **adj_list, int *deg) {
 /**
  * @brief Funkcja drukuje listę sąsiedstwa na stdout
  * @param graph - wskaznik do pliku
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  */
 
 void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
     for (int u = 0; u < graph->num_nodes; u++) {
-        printf("Sąsiedzi dla %d: ", u );
+        printf("Sąsiedzi dla %d: ", u);
         for (int i = 0; i < deg[u]; i++)
             printf("%d ", adj_list[u][i]);
         printf("\n");
@@ -200,7 +200,7 @@ void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
 /**
  * @brief Funkcja zwalnia listę sąsiedstwa
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  */
 void free_adj_list(Graph *graph, uint **adj_list) {
     for (int i = 0; i < graph->num_nodes; i++)
@@ -219,30 +219,32 @@ void free_deg(int *deg) {
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param idx - ilość zwiedzonych wierzchołków
  * @param start - terazniejsza pozycja
  * @param visited - lista poprzednie zwiedzonych wierzchołków
- * @param dfs_res - lista przechowująca końcową ścieżkę 
+ * @param dfs_res - lista przechowująca końcową ścieżkę
  */
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
              int visited[], int dfs_res[]) {
-    //Lista typu: 
+    // Lista typu:
     //[0]:1
     //[1]:1
     //[2]:0
-    //gdzie [x] wieszchołek pod indeksem x 0 - nie zwiedzony; 1- zwiedzony
+    // gdzie [x] wieszchołek pod indeksem x 0 - nie zwiedzony; 1- zwiedzony
     visited[start] = 1;
 
-    //Lista przechowywająca indeksy zwiedonych wieszchołków - przyjmuje znaczenie start
+    // Lista przechowywająca indeksy zwiedonych wieszchołków - przyjmuje
+    // znaczenie start
     dfs_res[(*idx)++] = start;
-    
-    //Iteracja po wieszchołkach w adj_list
+
+    // Iteracja po wieszchołkach w adj_list
     for (int i = 0; i < deg[start]; i++) {
         // Jeden z sąsiadów i-tego wierzchołku
         int neighbor = adj_list[start][i];
-        //Jeśli sąsiad nie zwidzony to rekurencyjnie wywylamy funkcje, jako start podajemy idx
+        // Jeśli sąsiad nie zwidzony to rekurencyjnie wywylamy funkcje, jako
+        // start podajemy idx
         if (visited[neighbor] == 0)
             dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
     }
@@ -250,79 +252,86 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param idx - ilość zwiedzonych wierzchołków
  * @param current - terazniejsza pozycja
  * @param visited - lista poprzednie zwiedzonych wierzchołków
- * @param parent - lista przechowująca końcową ścieżkę 
+ * @param parent - lista przechowująca końcową ścieżkę
  * @param cycle_res - lista poprzednie zwiedzonych wierzchołków
  * @param cycle_idx - terazniejszy indeks w cycle_res
- * @param found - flaga pokazująca czy znalezlismy rozwiązanie 
+ * @param found - flaga pokazująca czy znalezlismy rozwiązanie
  */
 int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
-                  int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found) {
-    //Jeśli już znalezliśmy cykl to 
-    if (*found) return EXIT_SUCCESS; 
+                 int visited[], int parent[], int cycle_res[], int *cycle_idx,
+                 int *found) {
+    // Jeśli już znalezliśmy cykl to
+    if (*found)
+        return EXIT_SUCCESS;
 
-    visited[current] = 1; 
-    //printf("DFS teraz w  %d\n", current); pokazuje terazniejszą pozycję algorytmu, nie równo temu co w dfs_res
-    
+    visited[current] = 1;
+    // printf("DFS teraz w  %d\n", current); pokazuje terazniejszą pozycję
+    // algorytmu, nie równo temu co w dfs_res
 
-    //Iteracja po wieszchołkach w adj_list
+    // Iteracja po wieszchołkach w adj_list
     for (int i = 0; i < deg[current]; i++) {
         int neighbor = adj_list[current][i];
-        //Jeśli sąsiad jescze nie zwiedzony - przechodzimy dalej i rekurencyjnie zamykamy funkcję
-        if (visited[neighbor] == 0) { 
+        // Jeśli sąsiad jescze nie zwiedzony - przechodzimy dalej i
+        // rekurencyjnie zamykamy funkcję
+        if (visited[neighbor] == 0) {
             parent[neighbor] = current;
-            dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent, cycle_res, cycle_idx, found);
-            if (*found) return EXIT_SUCCESS;
-        } 
-        //Jeśli sąsiad nie przodek i już zwiedzony, to znalezliśmy cykł i wracamy do początku
+            dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent,
+                         cycle_res, cycle_idx, found);
+            if (*found)
+                return EXIT_SUCCESS;
+        }
+        // Jeśli sąsiad nie przodek i już zwiedzony, to znalezliśmy cykł i
+        // wracamy do początku
         else if (neighbor != parent[current] && visited[neighbor] == 1) {
             *found = 1;
             int v = current;
             while (v != neighbor && v != -1) {
                 cycle_res[(*cycle_idx)++] = v;
-                //Wracanie po poprzednikach 
+                // Wracanie po poprzednikach
                 v = parent[v];
-                //printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się, to samo co dfs res, tylko naodwrót
-                //printf("\n");             
-                }
+                // printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się,
+                // to samo co dfs res, tylko naodwrót printf("\n");
+            }
             cycle_res[(*cycle_idx)++] = neighbor;
             return EXIT_SUCCESS;
         }
     }
-    visited[current] = 2; 
+    visited[current] = 2;
     return EXIT_SUCCESS;
-    
 }
 /**
  * @brief Funkcja dla znaleznienia zewnętrznego poligonu(dfs)
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param cycle_res - ilość zwiedzonych wierzchołków w cyklu zwracania
  * @param cycle_idx - terazniejsza pozycja w cyklu zwracania
 
  */
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx) {
-    //Inicjalizacja narzędzi
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
+                     int *cycle_idx) {
+    // Inicjalizacja narzędzi
     int n = graph->num_nodes;
     int visited[n];
     int parent[n];
     int found = 0;
     int start = 0;
 
-    //Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[] znaczy że ten wieszchołek nie ma rodzica
+    // Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[]
+    // znaczy że ten wieszchołek nie ma rodzica
     for (int i = 0; i < n; i++) {
         visited[i] = 0;
         parent[i] = -1;
     }
     *cycle_idx = 0;
 
-
-    dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res, cycle_idx, &found);
+    dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res,
+                 cycle_idx, &found);
 }
 /**
  * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
@@ -330,34 +339,30 @@ void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], i
  * @param dfs_res_size - pomiar tej listy
 
  */
-void print_outer_face( int dfs_res[], int dfs_res_size){
+void print_outer_face(int dfs_res[], int dfs_res_size) {
 
-    for (int i = 0; i<dfs_res_size; i++){
-        printf( "%d", dfs_res[i]);
+    for (int i = 0; i < dfs_res_size; i++) {
+        printf("%d", dfs_res[i]);
         printf("->");
     }
-    printf( "%d", dfs_res[0]);
+    printf("%d", dfs_res[0]);
     printf("\n");
-
-
-
 }
 
 /**
- * @brief Znajduje środek na przestrzeni 
+ * @brief Znajduje środek na przestrzeni
  * @param graph - graph na przestrzeni którego szukamy środek
  * @return center - Vector z współżędnymi środku
  */
-Vector get_center (Graph *graph){
+Vector get_center(Graph *graph) {
     Vector center;
-    center.x = round((graph->width)/2);
-    center.y = round((graph->height)/2);
+    center.x = round((graph->width) / 2);
+    center.y = round((graph->height) / 2);
     return center;
-
-
 }
 /**
- * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego centrum
+ * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego
+ centrum
  * @param outer_faces - lista wirzchołków z zewnętrnego poligonu
  * @param graph - wskaznik na strutkure grafu
  * @param k - ilość wierzchołków do rozstawienia
@@ -365,40 +370,35 @@ Vector get_center (Graph *graph){
 
  */
 
-void place_on_circle(int outer_faces[], Graph *graph,int k, Vector center){
-    //margin to odległość krańca okręga od granicy przestrzeni
+void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center) {
+    // margin to odległość krańca okręga od granicy przestrzeni
     int margin = 20;
-    //radius- promień domyślego okręga na którym rozskładamy wierzchołki
+    // radius- promień domyślego okręga na którym rozskładamy wierzchołki
     double radius = fmin(graph->width, graph->height) / 2.0 - margin;
 
-    //Iteracja po wierzchołkach zewnętrznego poligonu
-    for (int i = 0; i<k; i++){
-        
-        //Kąt pomiędzy kolejnymi wierzchołkami
+    // Iteracja po wierzchołkach zewnętrznego poligonu
+    for (int i = 0; i < k; i++) {
+
+        // Kąt pomiędzy kolejnymi wierzchołkami
         double angle = 2.0 * M_PI * i / k;
 
-        //Zmiana pozycji wieszchołków
-        graph->nodes[outer_faces[i]].position.x = center.x + radius * cos(angle);
-        graph->nodes[outer_faces[i]].position.y = center.y + radius * sin(angle);
-
-
+        // Zmiana pozycji wieszchołków
+        graph->nodes[outer_faces[i]].position.x =
+            center.x + radius * cos(angle);
+        graph->nodes[outer_faces[i]].position.y =
+            center.y + radius * sin(angle);
     }
-    
-
 }
 
-
-void print_nodes_pos(Graph *graph , int is_fixed[]){
-    for (int i = 0; i<graph->num_nodes; i++){
-        printf("[%d] - (%f,%f) ", i,graph->nodes[i].position.x, graph->nodes[i].position.y  );
-        if (is_fixed[i]==1){
+void print_nodes_pos(Graph *graph, int is_fixed[]) {
+    for (int i = 0; i < graph->num_nodes; i++) {
+        printf("[%d] - (%f,%f) ", i, graph->nodes[i].position.x,
+               graph->nodes[i].position.y);
+        if (is_fixed[i] == 1) {
             printf("-poligon zewnętrzny");
-
         }
         printf("\n");
-        
     }
     printf("=============================================");
     printf("\n");
 }
-

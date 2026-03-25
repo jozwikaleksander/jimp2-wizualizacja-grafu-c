@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vector.h"
 #include "error.h"
-
+#include "vector.h"
 
 typedef struct {
     int u, v;
@@ -21,11 +20,11 @@ typedef struct {
     uint id;
 } Node;
 
-typedef struct{
+typedef struct {
     Node *nodes;
     int num_nodes;
     int capacity_nodes;
-    
+
     Edge *edges;
     int num_edges;
     int capacity_edges;
@@ -46,7 +45,7 @@ Graph *load_graph(FILE *graph_file, int width, int height, int *out_code);
 /**
  * @brief Funkcja zwalnia miejsca zaalokowane dla struktury grafu
  * @param graph - wskaznik na strutkure grafu
-*/
+ */
 void free_graph(Graph *graph);
 
 /**
@@ -55,80 +54,82 @@ void free_graph(Graph *graph);
  * @return lista sąsiedstwa - przechowywa indeksy wierzchołków w graph->nodes
  */
 
-int build_adj_list(Graph* graph, uint** adj_list, int* deg);
+int build_adj_list(Graph *graph, uint **adj_list, int *deg);
 /**
  * @brief Funkcja drukuje listę sąsiedstwa na stdout
  * @param graph - wskaznik do pliku
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  */
-void print_adj_list ( Graph *graph,uint** adj_list, int* deg );
+void print_adj_list(Graph *graph, uint **adj_list, int *deg);
 /**
  * @brief Funkcja zwalnia listę sąsiedstwa
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  */
-void free_adj_list(Graph *graph, uint** adj_list);
+void free_adj_list(Graph *graph, uint **adj_list);
 /**
  * @brief Funkcja zwalnia podaną listę ilości sąsiadów
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  */
-void free_deg(int* deg);
+void free_deg(int *deg);
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param idx - ilość zwiedzonych wierzchołków
  * @param start - terazniejsza pozycja
  * @param visited - lista poprzednie zwiedzonych wierzchołków
- * @param dfs_res - lista przechowująca końcową ścieżkę 
+ * @param dfs_res - lista przechowująca końcową ścieżkę
  */
-void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start, int visited[],
-             int dfs_res[]);
+void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
+             int visited[], int dfs_res[]);
 /**
  * @brief Funkcja dla znaleznienia zewnętrznego poligonu(dfs)
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param cycle_res - ilość zwiedzonych wierzchołków w cyklu zwracania
  * @param cycle_idx - terazniejsza pozycja w cyklu zwracania
 
  */
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[], int *cycle_idx);
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
+                     int *cycle_idx);
 /**
  * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
  * @param dfs_res - wskaznik na strutkure grafu
- * @param dfs_res_size - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param dfs_res_size - wskaznik na listę sąsiedstwa do wydrukowania
 
  */
-void print_outer_face( int dfs_res[], int dfs_res_size);
+void print_outer_face(int dfs_res[], int dfs_res_size);
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu
- * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania 
+ * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  * @param idx - ilość zwiedzonych wierzchołków
  * @param current - terazniejsza pozycja
  * @param visited - lista poprzednie zwiedzonych wierzchołków
- * @param parent - lista przechowująca końcową ścieżkę 
+ * @param parent - lista przechowująca końcową ścieżkę
  * @param cycle_res - lista poprzednie zwiedzonych wierzchołków
  * @param cycle_idx - terazniejszy indeks w cycle_res
- * @param found - flaga pokazująca czy znalezlismy rozwiązanie 
+ * @param found - flaga pokazująca czy znalezlismy rozwiązanie
  */
 int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
-                  int visited[], int parent[], int cycle_res[], int *cycle_idx, int *found);
-
+                 int visited[], int parent[], int cycle_res[], int *cycle_idx,
+                 int *found);
 
 /**
- * @brief Znajduje środek na przestrzeni 
+ * @brief Znajduje środek na przestrzeni
  * @param graph - graph na przestrzeni którego szukamy środek
  * @return center - Vector z współżędnymi środku
  */
-Vector get_center (Graph *graph);
+Vector get_center(Graph *graph);
 
 /**
- * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego centrum
+ * @brief Funkcja dla rozłożenia wierzchołków po okręgu odnośnie podanego
+ centrum
  * @param outer_faces - lista wirzchołków z zewnętrnego poligonu
  * @param graph - wskaznik na strutkure grafu
  * @param k - ilość wierzchołków do rozstawienia
@@ -140,6 +141,6 @@ void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center);
 /**
  * @brief Funkcja wypisuje pozycje wszystkich wierzchołków grafu
  * @param graph - wskaznik na strutkure grafu
-*/
-void print_nodes_pos(Graph *graph, int is_fixed[] );
+ */
+void print_nodes_pos(Graph *graph, int is_fixed[]);
 #endif
