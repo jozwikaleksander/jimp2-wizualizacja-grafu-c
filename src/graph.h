@@ -56,6 +56,7 @@ void free_graph(Graph *graph);
  */
 
 int build_adj_list(Graph *graph, uint **adj_list, int *deg);
+
 /**
  * @brief Funkcja drukuje listę sąsiedstwa na stdout
  * @param graph - wskaznik do pliku
@@ -63,17 +64,20 @@ int build_adj_list(Graph *graph, uint **adj_list, int *deg);
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  */
 void print_adj_list(Graph *graph, uint **adj_list, int *deg);
+
 /**
  * @brief Funkcja zwalnia listę sąsiedstwa
  * @param graph - wskaznik na strutkure grafu
  * @param adj_list - wskaznik na listę sąsiedstwa do wydrukowania
  */
 void free_adj_list(Graph *graph, uint **adj_list);
+
 /**
  * @brief Funkcja zwalnia podaną listę ilości sąsiadów
  * @param deg - lista z ilościami sąsiadów dla każdego wieszchołku
  */
 void free_deg(int *deg);
+
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu
@@ -86,6 +90,7 @@ void free_deg(int *deg);
  */
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
              int visited[], int dfs_res[]);
+
 /**
  * @brief Funkcja dla znaleznienia zewnętrznego poligonu(dfs)
  * @param graph - wskaznik na strutkure grafu
@@ -97,6 +102,7 @@ void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
  */
 void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
                      int *cycle_idx);
+
 /**
  * @brief Funkcja dla drukowania indeksów wierzchołków zewnętrznego poligonu
  * @param dfs_res - wskaznik na strutkure grafu
@@ -104,6 +110,7 @@ void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
 
  */
 void print_outer_face(int dfs_res[], int dfs_res_size);
+
 /**
  * @brief Funkcja dla znaleznienia ścieżki w grafie
  * @param graph - wskaznik na strutkure grafu

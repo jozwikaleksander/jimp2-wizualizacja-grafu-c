@@ -176,8 +176,6 @@ int main(int argc, char **argv) {
             eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
             break;
         case TUTTES_ALGORITHM:
-            graph-> height = height;
-            graph -> width = width;
             tuttes_algorithm(graph, max_iterations);
             break;
         default:
@@ -200,9 +198,6 @@ int main(int argc, char **argv) {
             }
             break;
     }
-    
-    //printf("%d\n", graph -> width);
-
     free(output_name);
     fclose(graph_file);
 
