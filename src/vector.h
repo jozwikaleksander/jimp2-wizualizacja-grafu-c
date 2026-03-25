@@ -71,4 +71,6 @@ void print_list(int list[], int size);
 */
 Vector substract_vectors (Vector a, Vector b);
 
+
+
 #endif

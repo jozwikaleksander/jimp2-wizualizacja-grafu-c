@@ -71,7 +71,11 @@ Vector negative(Vector a){
     new.y= -a.y;
     return new;
 }
-
+/** 
+ * @brief Funkcja wypisuje podany list
+ * @param list - lista do wypisowania
+ * @param size - ilość elementów w liście
+*/
 void print_list(int list[], int size){
     for (int i = 0; i<size; i++){
         printf("[%d] - %d ", i,list[i]);
@@ -92,3 +96,4 @@ Vector substract_vectors (Vector a, Vector b){
     a.y -= b.y;
     return a;
 }
+

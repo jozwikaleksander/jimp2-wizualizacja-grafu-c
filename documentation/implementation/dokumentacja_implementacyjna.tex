@@ -337,6 +337,43 @@ Funkcja zmienia znak współrzędnych wektora.
     \item a - wektor
 \end{itemize}
 Funkcja zwraca nowy wektor.
+\subsubsection{Funkcja \texttt{print\_list}}
+\begin{mylisting}
+
+    void print_list(int list[], int size){
+    for (int i = 0; i<size; i++){
+    printf("[%d] - %d ", i,list[i]);
+
+    }
+    printf("\n");
+
+}
+\end{mylisting}
+Wypisuje zawartoś tablicy liczb całkowitych na 
+standardowe wyjście. Każdy element jest prezentowany wraz z odpowiadającym mu indeksem w formacie \texttt{[indeks] - wartość}.\\
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{list} - tablica liczb całkowitych .
+\item \texttt{size} - liczba elementów znajdujących się w tablicy.
+\end{itemize}
+\clearpage
+\subsubsection{Funkcja \texttt{substract\_vectors}}
+\begin{mylisting}
+
+    Vector substract_vectors (Vector a, Vector b){
+        a.x -= b.x;
+        a.y -= b.y;
+        return a;
+    }
+    \end{mylisting}
+    Funkcja odejmowania dwóch wektorów dwuwymiarowych. Oblicza różnicę współrzędnych x oraz y.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{a} - wektor od którege odejmujemy.
+\item \texttt{b} - wektor który odejmujemy.
+\end{itemize}
+Funkcja zwraca nową strukturę \texttt{Vector} będącą wynikiem operacji a−b.
 
 \subsection{Moduł \texttt{validation}}
 Moduł ten odpowiada za sprawdzenie grafu pod kątem planarności i spójności po jego wczytaniu z pliku. Moduł składa się z
@@ -1229,6 +1266,242 @@ Funkcja oblicza siłę przyciągania wzdłuż krawędzi grafu. Wykorzystuje mode
     \item \texttt{e} - wskaźnik na krawędź, wzdłuż której działa siła.
     \item \texttt{spring\_const} - sztywność „sprężyny”.
     \item \texttt{ideal\_len} - pożądana długość krawędzi.
+\end{itemize}
+
+\subsection{Moduł \texttt{tuttes}}
+Moduł ten zawiera implementację algorytmu Tutte’a (metoda barycentryczna), służącego do wyznaczania planarnego ułożenia grafu. Algorytm opiera się 
+na unieruchomieniu wierzchołków poligonu zewnętrznego na planie wielokąta wypukłego i rozmieszczeniu pozostałych wierzchołków w środkach ciężkości ich sąsiadów.
+
+\subsubsection{Funkcja \texttt{tuttes\_algorithm}}
+Jest to główna funkcja sterująca procesem rozmieszczania grafu. Proces ten został podzielony na fazę przygotowawczą oraz iteracyjną pętlę obliczeniową.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{max\_iterations} - maksymalna liczba kroków algorytmu.
+\end{itemize}
+Funkcja zwraca \texttt{EXIT\_SUCCESS} w przypadku powodzenia lub kod błędu alokacji.
+
+\begin{mylisting}
+int tuttes_algorithm(Graph *graph, int max_iterations) {
+  
+    //Inicjalizacja potrzebnych narzędzi i allokacja
+    int n = graph->num_nodes;
+    int idx = 0;
+    int dfs_res[n];
+    uint **adj_list = (uint **)malloc(n * sizeof(uint *));
+    int *deg = (int *)malloc(n * sizeof(int));
+    Vector new_pos [n];
+
+    for(int i = 0; i < n; i++)
+        new_pos[i] = graph->nodes[i].position;
+    for (int i = 0; i < n; i++){
+        adj_list[i] = (uint *)malloc(n * sizeof(uint));
+    }
+
+    double max_change;
+    double difference = 0.08 * (graph->width + graph->height) / 2.0;
+
+    // Sprawdzenie działania allocacji
+    if (adj_list == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        return ERR_MEMORY_ALLOC;
+    }
+    if (deg == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        return ERR_MEMORY_ALLOC;
+    }
+
+\end{mylisting}
+W pierwszej części funkcja alokuje pamięć na listy sąsiedztwa oraz pomocniczą tablicę \texttt{new\_pos}, która przechowuje nowo obliczone współrzędne przed ich ostatecznym zapisaniem do struktury grafu.
+
+\begin{mylisting}
+// Budowanie listy sąsiedstwa
+    int result_adj_list = build_adj_list(graph, adj_list, deg);
+    if (result_adj_list != 0) {
+        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
+        return ERR_ADJ_LIST;
+    }
+    // Wypisywanie listy sąsiedstwa
+    //print_adj_list(graph, adj_list, deg);
+
+    // 2.Znaleznienie dowolnego cykłu wierzchołków grafu
+    find_outer_face(graph, adj_list, deg, dfs_res, &idx);
+
+    // Wypisywanie poligonu zewnętrznego
+    //print_outer_face(dfs_res, idx);
+
+
+    //3.======================Część obliczeniowa======================
+    // Przygotowanie tablicy wierzchołków poligonu zewnętrznego (fixed)
+    int is_fixed[n];
+    for (int i = 0; i < n; i++) {
+        is_fixed[i] = 0;
+    }
+    for (int i = 0; i < idx; i++) {
+        is_fixed[dfs_res[i]] = 1;
+    }
+    // Ustawienie środka i rozmieszczenie punktów zewnętrznych na okręgu
+    Vector center = get_center(graph);
+    place_on_circle(dfs_res, graph, idx, center);
+
+\end{mylisting}
+Następnie graf jest analizowany w celu znalezienia cyklu (ściany zewnętrznej). Wierzchołki należące do tego cyklu są oznaczane jako \texttt{fixed} (stałe) i rozmieszczane na okręgu za pomocą funkcji \texttt{place\_on\_circle}.
+
+\begin{mylisting}
+//Wypisywanie pozycji wierzchołków po rozstawianiu wiezchołków poligonu zewnętrznego
+    //print_nodes_pos(graph, is_fixed);
+
+    int t = 0;
+    max_change = 10.0;
+    //// 4. Główna pętla obliczeniowa
+    while(t < max_iterations && max_change > MINIMUM_CHANGE) {
+        
+        t++; 
+        max_change = 0.0;
+        
+        //4.1.Liczymy idealne pozycje za pomocą algorytmu Tutte
+        for(int i = 0; i < graph->num_nodes; i++) {
+            tutte_iteration(graph,i, is_fixed, adj_list,new_pos, deg, center);
+
+          
+        }
+
+        //4.2.Itercja po każdej parze nowych koordynat dla wierzchołków, jeśli one mają tę samą pozycję, to rozsuwamy je
+                for (int a = 0;a<n; a++ ){
+                    for(int b =a+1;b<n;b++){
+                        if(have_same_pos(new_pos[a], new_pos[b]) && is_fixed[a] !=1 && is_fixed[b]!=1){
+                            offset(new_pos, a,b, difference);
+                        }
+                    }
+                }
+        //4.3.Sprawdzenie warunku pętli while oraz zapis policzonych pozycji
+        for(int i = 0; i < graph->num_nodes; i++) {
+            if(is_fixed[i] != 1) {
+                double change = distance(new_pos[i],graph->nodes[i].position);
+                if (change >max_change){
+                    max_change = change;
+                }
+
+                //Zapis końcowych pozycji do Graph
+                graph->nodes[i].position.x = new_pos[i].x;
+                graph->nodes[i].position.y = new_pos[i].y;
+
+            }}     
+            }
+    //4.4.Zwolnienie zaalokowanej pamięci
+    free_adj_list(graph, adj_list);
+    free_deg(deg);
+
+
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Główna pętla realizuje iteracyjne przybliżanie pozycji wierzchołków do ich stanów równowagi. Dodatkowo funkcja sprawdza kolizje (nakładające się pozycje) i stosuje losowe przesunięcie (\texttt{offset}) w celu ich rozdzielenia. Pętla kończy się po osiągnięciu limitu iteracji lub gdy maksymalna zmiana pozycji wierzchołka spadnie poniżej progu \texttt{MINIMUM\_CHANGE}.
+
+\subsubsection{Funkcja \texttt{tutte\_iteration}}
+\begin{mylisting}
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[], Vector center){
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    // Jeśli wierzchołek należy do poligonu zewnętrznego, zachowujemy jego aktualną pozycję
+    if(is_fixed[iteration] == 1) {
+        new_pos[iteration] = graph->nodes[iteration].position;
+   
+        return EXIT_SUCCESS;
+    }
+        // Specjalna obsługa wierzchołków mających tylko jednego sąsiada
+        if(deg[iteration]==1){
+             int neighbor = adj_list[iteration][0];
+             //Vektor w kietrunku przeciwnym od środku
+                    Vector oposite = substract_vectors(graph->nodes[neighbor].position, center);
+                    
+                    //Dzielimy przez dystancję między centrem a wierzchołkiem żeby otrzymać vektor kirunkowy z długością = 1
+                    double len = distance(graph->nodes[neighbor].position, center);
+                    if (len != 0) {
+                        oposite.x /=len;
+                        oposite.y /=len;
+                    }
+                    // Zabezpieczenie przed dzieleniem przez zero przy zbyt małym dystansie
+                    if (len < EPSILON) return EXIT_SUCCESS;
+
+                    //Mnożymy przez ustawioną outer_rad żeby wierzchołek okazał się na odłegłości outer_rad od sąsiada
+                    double outer_rad = 10; // nie może być < margin
+                    oposite = mult_by_num(oposite, outer_rad);
+
+                    // Ustawiamy nową pozycję jako przesunięcie względem jedynego sąsiada
+                    new_pos[iteration].x = graph->nodes[neighbor].position.x + oposite.x;
+                    new_pos[iteration].y = graph->nodes[neighbor].position.y + oposite.y;
+        }else{
+            //Dla wierzchołków o stopniu > 1 stosujemy zasadę środka ciężkości
+            for(int j = 0; j <deg[iteration]; j++) {
+                    int neighbor = adj_list[iteration][j];
+                    sum_x += graph->nodes[neighbor].position.x;
+                    sum_y += graph->nodes[neighbor].position.y;
+                    
+                    }
+                    // Jeśli wierzchołek jest izolowany (stopień 0), przerywamy obliczenia
+                    if (deg[iteration] == 0) return EXIT_SUCCESS;
+                    // Nowa pozycja to średnia arytmetyczna położeń wszystkich sąsiadów
+                    new_pos[iteration].x = sum_x/deg[iteration];
+                    new_pos[iteration].y = sum_y/deg[iteration];
+                }
+            
+    
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Funkcja oblicza nową pozycję dla konkretnego wierzchołka. W przypadku wierzchołków o stopniu wyższym niż 1,
+ stosowana jest średnia arytmetyczna pozycji sąsiadów. Wierzchołki o stopniu 1 są specjalnie odpychane od środka 
+ grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na graf.
+\item \texttt{iteration} - indeks wierzchołka.
+\item \texttt{is\_fixed} - tablica wierzchołków stałych.
+\item \texttt{adj\_list} - dynamiczna tablica dwuwymiarowa sąsiadów.
+\item \texttt{new\_pos} - tablica, w której zapisywany jest wynik.
+\item \texttt{deg} - stopnie wierzchołków.
+\item \texttt{center} - geometryczny środek obszaru.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{have\_same\_pos}}
+\begin{mylisting}
+int have_same_pos(Vector a, Vector b){
+    return (fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON );
+}
+\end{mylisting}
+Funkcja porównuje dwa wektory pozycji. Zwraca prawdę (1), jeśli różnica między współrzędnymi jest mniejsza niż zdefiniowana stała \texttt{EPSILON}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{a}, \texttt{b} - porównywane wektory pozycji.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{offset}}
+\begin{mylisting}
+void offset(Vector new_pos[], int iteration,int jiteration, double difference){
+    double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
+
+    double dx = cos(angle) * difference / 2.0;
+    double dy = sin(angle) * difference / 2.0;
+
+    new_pos[iteration].x += dx;
+    new_pos[iteration].y += dy;
+
+    new_pos[jiteration].x -= dx;
+    new_pos[jiteration].y -= dy;
+}
+\end{mylisting}
+Funkcja ta służy do zmiany pozycji dwóch wierzchołków, które znalazły się w tym samym punkcie przestrzeni.
+ Rozsuwa je w przeciwnych kierunkach pod losowym kątem o dystans zdefiniowany przez parametr \texttt{difference}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{new\_pos} - tablica nowych pozycji.
+\item \texttt{iteration}, \texttt{jiteration} - indeksy kolidujących wierzchołków.
+\item \texttt{difference} - wartość przesunięcia.
 \end{itemize}
 \end{document} 
 

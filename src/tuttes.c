@@ -111,19 +111,8 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
                 graph->nodes[i].position.x = new_pos[i].x;
                 graph->nodes[i].position.y = new_pos[i].y;
 
-            }}
-                
-
-                
-                
+            }}     
             }
-
-
-        
-       
-   
-        
-    
     //4.4.Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
@@ -144,56 +133,7 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
  * @return EXIT_SUCCESS w przypadku powodzenia.
  */
 
-int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[], Vector center){
-    double sum_x = 0.0;
-    double sum_y = 0.0;
-    if(is_fixed[iteration] == 1) {
-        new_pos[iteration] = graph->nodes[iteration].position;
-   
-        return EXIT_SUCCESS;
-    }
-        
-        if(deg[iteration]==1){
-             int neighbor = adj_list[iteration][0];
-             //Vektor w kietrunku przeciwnym od środku
-                    Vector oposite = substract_vectors(graph->nodes[neighbor].position, center);
-                    
-                    //Dzielimy przez dystancję między centrem a wierzchołkiem żeby otrzymać vektor kirunkowy z długością = 1
-                    double len = distance(graph->nodes[neighbor].position, center);
-                    if (len != 0) {
-                        oposite.x /=len;
-                        oposite.y /=len;
-                    }
-                    if (len < EPSILON) return EXIT_SUCCESS;
 
-                    //I mnożymy przez ustawioną outer_rad żeby wierzchołek okazał się na odłegłości outer_rad od sąsiada
-                    double outer_rad = 10; // nie może być < margin
-                    oposite = mult_by_num(oposite, outer_rad);
-
-                    new_pos[iteration].x = graph->nodes[neighbor].position.x + oposite.x;
-                    new_pos[iteration].y = graph->nodes[neighbor].position.y + oposite.y;
-        }else{
-            for(int j = 0; j <deg[iteration]; j++) {
-                    int neighbor = adj_list[iteration][j];
-                    sum_x += graph->nodes[neighbor].position.x;
-                    sum_y += graph->nodes[neighbor].position.y;
-                
-                        
-                        
-                        
-                    }
-                    if (deg[iteration] == 0) return EXIT_SUCCESS;
-                    new_pos[iteration].x = sum_x/deg[iteration];
-                    new_pos[iteration].y = sum_y/deg[iteration];
-                }
-            
-                
-                   
-        
-    
-
-    return EXIT_SUCCESS;
-}
 /**
  * @brief Sprawdza, czy dwa punkty znajdują się w tym samym miejscu z określoną dokładnością.
  * @param a Pierwszy wektor pozycji.
