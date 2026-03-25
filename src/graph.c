@@ -57,7 +57,7 @@ int find_node(Graph *graph, int index) {
  * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
  * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
  */
-int add_node(Graph *graph, uint index, int width, int height) {
+int add_node(Graph *graph, uint index) {
     if (graph->num_nodes >= graph->capacity_nodes) {
         size_t new_capacity = graph->capacity_nodes * 2;
         Node *new_nodes = realloc(graph->nodes, new_capacity * sizeof(Node));
@@ -71,8 +71,8 @@ int add_node(Graph *graph, uint index, int width, int height) {
 
     // Tworzenie nowego wierzchołka
     Node *new_node = &graph->nodes[graph->num_nodes];
-    new_node->position.x = rand() % (width + 1);
-    new_node->position.y = rand() % (height + 1);
+    new_node->position.x = rand() % (graph->width + 1);
+    new_node->position.y = rand() % (graph->height + 1);
     new_node->force.x = 0;
     new_node->force.y = 0;
     new_node->id = index;
@@ -80,6 +80,14 @@ int add_node(Graph *graph, uint index, int width, int height) {
     return 0;
 }
 
+/**
+ * @brief Funkcja tworzy graf na podstawie wczytanego pliku
+ * @param graph_file - wskaznik do pliku
+ * @param width - szerokosc obszaru, w ktorym wyswietlony bedzie graf
+ * @param height - wysokosc obszaru, w ktorym wyswietlony bedzie graf
+ * @param out_code - kod błedu
+ * @return Wskaźnik na strukturę grafu
+ */
 Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
     if (!graph_file) {
         *out_code = ERR_FILE_OPEN;
@@ -107,6 +115,8 @@ Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
     graph->num_edges = 0;
     graph->capacity_edges = EDGELIST_SIZE;
     graph->capacity_nodes = NODELIST_SIZE;
+    graph->width = width;
+    graph->height = height;
 
     char buff[256];
     int u = 0;
@@ -115,7 +125,7 @@ Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
     while (fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
         int u_idx = find_node(graph, u);
         if (u_idx == -1) {
-            if (add_node(graph, u, width, height) == ERR_MEMORY_ALLOC) {
+            if (add_node(graph, u) == ERR_MEMORY_ALLOC) {
                 free_graph(graph);
                 *out_code = ERR_MEMORY_ALLOC;
                 return NULL;
@@ -125,7 +135,7 @@ Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
 
         int v_idx = find_node(graph, v);
         if (v_idx == -1) {
-            if (add_node(graph, v, width, height) == ERR_MEMORY_ALLOC) {
+            if (add_node(graph, v) == ERR_MEMORY_ALLOC) {
                 free_graph(graph);
                 *out_code = ERR_MEMORY_ALLOC;
                 return NULL;

@@ -551,4 +551,251 @@ w dokumentacji funkcjonalnej.
 \end{itemize}
 Funkcja zwraca liczbę całkowitą równą 1 jeżeli operacja się niepowiodła i 0 jeżeli się powiodła.
 
-\end{document}
+\subsection{Moduł \texttt{graph}}
+
+Moduł ten służy do tworzenia i zarządzania grafami.
+
+\subsubsection{Definicja struktur}
+\begin{mylisting}
+typedef struct {
+    int u, v;
+    double weight;
+    char *name;
+} Edge;
+
+typedef struct {
+    Vector position;
+    Vector force;
+    uint id;
+} Node;
+\end{mylisting}
+Zdefniowane są struktury dla wierzchołków oraz krawędzi grafu. Należy zwrócić szczególną uwagę na fakt, że pole \texttt{id} w wierzchołku nie jest używane w dalszej części programu oprócz w czasie wypisywania do pliku. Jest ono traktowane tylko jako etykieta. Aby operować na wierzchołkach program stosuje indeks tabeli \texttt{nodes} struktury grafu.
+
+\begin{mylisting}
+typedef struct{
+    Node *nodes;
+    int num_nodes;
+    int capacity_nodes;
+    
+    Edge *edges;
+    int num_edges;
+    int capacity_edges;
+    int width;
+    int height;
+} Graph;
+\end{mylisting}
+Zdefiniowano również strukturę grafu. Która zawiera tablice dynamiczne wierzchołków i krawędzi wraz z ich ilością elementów oraz pojemnością. Struktura zawiera również szerokość i wysokość obszaru, w którym wyświetlony będzie graf.
+
+\subsubsection{Funkcja \texttt{load\_graph}}
+Funkcja ta tworzy graf na podstawie wczytanego pliku.
+
+Argumenty:
+\begin{itemize}
+    \item graph\_file - wskaźnik na plik
+    \item width - szerokośc obszaru, w którym wyświetlony będzie graf
+    \item height - wysokość obszaru, w którym wyświetlony będzie graf
+    \item out\_code - kod błędu
+\end{itemize}
+Funkcja zwraca wskaźnik na strukturę grafu.
+
+\begin{mylisting}
+Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
+    if(!graph_file) {
+        *out_code = ERR_FILE_OPEN;
+        return NULL;
+    }
+
+    Graph *graph = malloc(sizeof(Graph));
+    if (!graph) {
+        *out_code = ERR_MEMORY_ALLOC;
+        return NULL;
+    }
+
+    graph->edges = malloc(EDGELIST_SIZE * sizeof(Edge));
+    graph->nodes = malloc(NODELIST_SIZE * sizeof(Node));
+
+    if (!graph->edges || !graph->nodes) {
+        free(graph->edges);
+        free(graph->nodes);
+        free(graph);
+        *out_code = ERR_MEMORY_ALLOC;
+        return NULL;
+    }
+\end{mylisting}
+Na początku funkcja sprawdza czy wskaźnik do pliku istnieje. Nastepnie alokuje miejsce dla struktury grafu, krawędzi oraz wierzchołków. Początkowo funkcja alokuje pamięć dla listy krawędzi i wierzchołków o rozmiarze równym zmiennym kolejno: \texttt{EDGELIST\_SIZE} oraz \texttt{NODELIST\_SIZE}, które domyślnie ustalone są na 16.
+
+\begin{mylisting}
+    graph->num_nodes = 0;
+    graph->num_edges = 0;
+    graph->capacity_edges = EDGELIST_SIZE;
+    graph->capacity_nodes = NODELIST_SIZE;
+    graph->width = width;
+    graph->height = height;
+\end{mylisting}
+Do zmiennych grafu zostają przypisane początkowe wartości.
+
+\begin{mylisting}
+    char buff[256];
+    int u = 0;
+    int v = 0;
+    double weight = 0.0;
+    while (fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
+\end{mylisting}
+W następnym kroku funkcja wczytuje dane z pliku za pomocą zmiennej \texttt{while} i zapisuje je do zmiennych tymczasowych.
+
+\begin{mylisting}
+    int u_idx = find_node(graph, u);
+        if (u_idx == -1) {
+            if (add_node(graph, u) == ERR_MEMORY_ALLOC) {
+                free_graph(graph);
+                *out_code = ERR_MEMORY_ALLOC;
+                return NULL;
+            }
+            u_idx = graph->num_nodes - 1;
+        }
+
+        int v_idx = find_node(graph, v);
+        if (v_idx == -1) {
+            if (add_node(graph, v) == ERR_MEMORY_ALLOC) {
+                free_graph(graph);
+                *out_code = ERR_MEMORY_ALLOC;
+                return NULL;
+            }
+            v_idx = graph->num_nodes - 1;
+        }
+\end{mylisting}
+Dla początkowego i końcowego wierzchołka funkcja szuka czy wierzchołek o takim identyfikatorze występuje w tablicy wierzchołków. Jeżeli nie, to tworzy je.
+
+\begin{mylisting}
+    if (add_edge(graph, u_idx, v_idx, weight, buff) == ERR_MEMORY_ALLOC) {
+            free_graph(graph);
+            *out_code = ERR_MEMORY_ALLOC;
+            return NULL;
+        }
+    }
+    return graph;
+}
+\end{mylisting}
+Następnie dodawana jest krawędź zawierająca oba wierzchołki. Na koniec wskaźnik na graf jest zwracany.
+
+\subsubsection{Funkcja \texttt{find\_node}}
+\begin{mylisting}
+int find_node(Graph *graph, int index) {
+    for (int i = 0; i < graph->num_nodes; i++)
+        if (graph->nodes[i].id == index)
+            return i;
+    return -1;
+}
+\end{mylisting}
+Jest to funkcja pomocnicza, która służy do znalezienia indeksu wierzchołka w tablicy wierzchołków grafu o podanym identyfikatorze.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu
+    \item index - identyfikator wierzchołka
+\end{itemize}
+Funkcja zwraca indeks wierzchołka w tablicy wierzchołków lub -1 jeżeli taki wierzchołek nie istnieje.
+
+\subsubsection{Funkcja \texttt{add\_node}}
+Funkcja służy dodawania nowego wierzchołka do grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu
+    \item index - identyfikator wierzchołka
+\end{itemize}
+
+Funkcja zwraca liczbę całkowitą, która informuje o statusie operacji. Zwraca 0 dla sukcesu i inną wartość dla błędów.
+
+\begin{mylisting}
+int add_node(Graph *graph, uint index) {
+    if (graph->num_nodes >= graph->capacity_nodes) {
+        size_t new_capacity = graph->capacity_nodes * 2;
+        Node *new_nodes = realloc(graph->nodes, new_capacity * sizeof(Node));
+
+        if (new_nodes == NULL) {
+            return ERR_MEMORY_ALLOC;
+        }
+        graph->nodes = new_nodes;
+        graph->capacity_nodes = new_capacity;
+    }
+\end{mylisting}
+Na początku funkcja sprawdza czy należy powiększyć tablicę dynamiczną wierzchołków. Jeżeli tak, to zostaje ona powiększona dwukrotnie.
+
+\begin{mylisting}
+    // Tworzenie nowego wierzchołka
+    Node *new_node = &graph->nodes[graph->num_nodes];
+    new_node->position.x = rand() % (graph->width + 1);
+    new_node->position.y = rand() % (graph->height + 1);
+    new_node->force.x = 0;
+    new_node->force.y = 0;
+    new_node->id = index;
+    graph->num_nodes++;
+    return 0;
+}
+\end{mylisting}
+Następnie dodany zostaje nowy wierzchołek. Jego położenie zostaje wylosowane biorąc pod uwagę szerokość i wysokość obszaru.
+Na koniec funkcja zwraca 0 dla sukcesu.
+
+\subsubsection{Funkcja \texttt{add\_edge}}
+Funkcja ta służy do dodawania krawędzi do grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu
+    \item u - indeks wierzchołka początkowego
+    \item v - indeks wierzchołka końcowego
+    \item weight - waga krawędzi
+    \item name - nazwa krawędzi
+\end{itemize}
+Funkcja zwraca liczbę całkowitą informującą o statusie. Zwraca 0 dla sukcesu i inną wartość dla błędu.
+\begin{mylisting}
+int add_edge(Graph *graph, int u, int v, double weight, char *name) {
+    // Sprawdzenie, czy należy powiększyć miejsce
+    if (graph->num_edges >= graph->capacity_edges) {
+        size_t new_capacity = graph->capacity_edges * 2;
+        Edge *new_edges = realloc(graph->edges, new_capacity * sizeof(Edge));
+
+        if (new_edges == NULL) {
+            return ERR_MEMORY_ALLOC;
+        }
+        graph->edges = new_edges;
+        graph->capacity_edges = new_capacity;
+    }
+\end{mylisting}
+Na początku funkcja sprawdza czy należy powiększyć tablicę dynamiczną krawędzi. Jeżeli tak, to powiększa ją dwukrotnie.
+\begin{mylisting}
+    // Tworzenie nowej krawędzi
+    Edge *new_edge = &graph->edges[graph->num_edges];
+    new_edge->u = u;
+    new_edge->v = v;
+    new_edge->weight = weight;
+    new_edge->name = strdup(name);
+    graph->num_edges++;
+    return 0;
+}
+\end{mylisting}
+Następnie dodana zostaje nowa krawędź i funkcja zwraca 0 dla sukcesu.
+\subsubsection{Funkcja \texttt{free\_graph}}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na graf
+\end{itemize}
+
+\begin{mylisting}
+void free_graph(Graph *graph) {
+    if (graph) {
+        for (int i = 0; i < graph->num_edges; i++) {
+            free(graph->edges[i].name);
+        }
+
+        free(graph->edges);
+        free(graph->nodes);
+        free(graph);
+    }
+}
+\end{mylisting}
+Funkcja dealokuje nazwy krawędzi oraz tablice krawędzi i wierzchołków oraz samą strukturę grafu.
+\end{document} 
