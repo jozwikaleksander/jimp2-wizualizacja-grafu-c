@@ -80,3 +80,15 @@ void print_list(int list[], int size){
     printf("\n");
 
 }
+
+/**
+ * @brief Funkcja odejmuje wektor b od wektora a
+ * @param a - pierwszy wektor
+ * @param b - drugi wektor
+ * @return zmieniony pierwszy wektor a 
+*/
+Vector substract_vectors (Vector a, Vector b){
+    a.x -= b.x;
+    a.y -= b.y;
+    return a;
+}

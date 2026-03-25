@@ -30,7 +30,7 @@ void eades_algorithm(Graph *graph, double minimum_force, int max_iterations, dou
  * @param v - wskaźnik na drugi wierzchołek
  * @param c - używana do obliczenia sił odpychania
 */
-void compute_repulive(Node *u, Node *v, int c);
+void compute_repulsive(Node *u, Node *v, int c);
 
 /**
  * @brief Funkcja podliczenia sił przyciągania

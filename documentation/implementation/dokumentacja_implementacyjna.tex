@@ -798,4 +798,138 @@ void free_graph(Graph *graph) {
 }
 \end{mylisting}
 Funkcja dealokuje nazwy krawędzi oraz tablice krawędzi i wierzchołków oraz samą strukturę grafu.
+Oto fragment dokumentacji implementacyjnej przygotowany na podstawie dostarczonego kodu, z zachowaniem Twojej składni LaTeX oraz oryginalnych komentarzy.
+
+\subsection{Moduł \texttt{eades}}
+Moduł ten zawiera implementację algorytmu Eadesa, należącego do grupy algorytmów siłowych (\textit{force-directed graph drawing}). Służy on do automatycznego rozmieszczania wierzchołków grafu w przestrzeni dwuwymiarowej tak, aby krawędzie miały zbliżoną długość, a wierzchołki nie nakładały się na siebie.
+
+\subsubsection{Funkcja \texttt{eades\_algorithm}}
+\begin{mylisting}
+void eades_algorithm(Graph *graph, 
+    double minimum_force, int max_iterations, 
+    double ideal_len, double spring_const, int c, double cooling)
+{
+    int t = 0;
+    double max_force_magnitude = 1.0;
+    double temperature = 1.0;
+
+    while(t < max_iterations && max_force_magnitude > minimum_force) {
+        max_force_magnitude = 0.0;
+
+        // Wyzeruj siły dla bieżącej iteracji
+        for(int i = 0; i < graph->num_nodes; i++) {
+            graph->nodes[i].force.x = 0;
+            graph->nodes[i].force.y = 0;
+        }
+
+        // Oblicz siły odpychania między wszystkimi parami wierzchołków
+        for(int i = 0; i < graph->num_nodes; i++) {
+            for(int j = i + 1; j < graph->num_nodes; j++) {
+                compute_repulive(&graph->nodes[i], &graph->nodes[j], c);
+            }
+        }
+
+        // Oblicz siły przyciągania wzdłuż krawędzi
+        for(int i = 0; i < graph->num_edges; i++) {
+            compute_attract(graph, &graph->edges[i], spring_const, ideal_len);
+        }
+
+        // Zaktualizuj pozycje wierzchołków i znajdź maksymalną siłę
+        for(int i = 0; i < graph->num_nodes; i++) {
+            Node *node = &graph->nodes[i];
+            double current_force_magnitude = count_vector_length(node->force);
+
+            if(current_force_magnitude > max_force_magnitude) {
+                max_force_magnitude = current_force_magnitude;
+            }
+
+            // Zastosuj siłę do pozycji wierzchołka, skalując przez temperaturę
+            Vector displacement = mult_by_num(node->force, temperature);
+            node->position = add_vectors(node->position, displacement);
+        }
+
+        // Schładzanie
+        temperature *= cooling;
+        t++;
+    }
+}
+\end{mylisting}
+
+Główna funkcja sterująca procesem układania grafu. W każdej iteracji obliczane są siły odpychania (pomiędzy wszystkimi wierzchołkami) oraz siły przyciągania (tylko wzdłuż krawędzi). Pozycje wierzchołków są aktualizowane o wektor wypadkowej siły pomnożony przez aktualną „temperaturę” układu, która maleje w czasie, co pozwala na stabilizację rysunku.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{graph} - wskaźnik na strukturę grafu.
+    \item \texttt{minimum\_force} - próg siły, poniżej którego algorytm kończy pracę.
+    \item \texttt{max\_iterations} - limit iteracji pętli.
+    \item \texttt{ideal\_len} - docelowa długość krawędzi.
+    \item \texttt{spring\_const} - stała sprężystości (przyciąganie).
+    \item \texttt{c} - stała potrzebna dla obliczenia siły odpychania.
+    \item \texttt{cooling} - współczynnik chłodzenia układu (z zakresu 0 do 1).
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{compute\_repulsive}}
+\begin{mylisting}
+void compute_repulsive(Node *u, Node *v, int c) {
+    Vector repulsive; //vector siły odpychania
+    double d = distance(u->position, v->position);
+    if(d < 0.0001) { //zapobieganie dzieleniu przez zero
+        d = 0.0001;
+    }
+    double rep_num_part = c / (d * d); //część numeryczna siły odpychania
+    Vector direction_uv = vector_from_points(u->position, v->position); // Wektor v - u
+    Vector unit_vec; // Wektor jednostkowy w kierunku od u do v
+    unit_vec.x = direction_uv.x / d;
+    unit_vec.y = direction_uv.y / d;
+    repulsive = mult_by_num(unit_vec, rep_num_part); //końcowa wartość siły odpychania
+
+    // Siła odpychająca na 'u' działa w kierunku przeciwnym do 'v'
+    u->force = add_vectors(u->force, negative(repulsive));
+    // Siła odpychająca na 'v' działa w kierunku przeciwnym do 'u'
+    v->force = add_vectors(v->force, repulsive);
+}
+\end{mylisting}
+Funkcja oblicza siłę odpychania działającą między dwoma wierzchołkami zgodnie z prawem odwrotnych kwadratów. Siła ta zapobiega nakładaniu się wierzchołków na siebie.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{u}, \texttt{v} - wskaźniki na wierzchołki, między którymi liczone jest odpychanie.
+    \item \texttt{c} - stała określająca moc siły odpychającej.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{compute\_attract}}
+\begin{mylisting}
+void compute_attract(Graph *graph, Edge *e, double spring_const, double ideal_len) {
+    Node *u = &graph->nodes[e->u]; //2 wierzchołki nałeżające do tej krawiędzi
+    Node *v = &graph->nodes[e->v];
+
+    Vector attractive; // vector siły przyciągania
+
+    double d = distance(u->position, v->position);
+    if(d < 0.0001) { //zapobieganie dzieleniu przez zero
+        d = 0.0001;
+    }
+    
+    Vector direction_uv = vector_from_points(u->position, v->position); // Wektor v - u
+    Vector unit_vec; // Wektor jednostkowy w kierunku od u do v
+    unit_vec.x = direction_uv.x / d;
+    unit_vec.y = direction_uv.y / d;
+    double attr_num_part = spring_const * log(d / ideal_len); // numeryczna część siły przyciągania
+    attractive = mult_by_num(unit_vec, attr_num_part);  //końcowa wartość siły przyciągania
+    // Siła przyciągająca na 'u' działa w kierunku 'v'
+    u->force = add_vectors(u->force, attractive);
+    // Siła przyciągająca na 'v' działa w kierunku 'u'
+    v->force = add_vectors(v->force, negative(attractive));
+}
+\end{mylisting}
+Funkcja oblicza siłę przyciągania wzdłuż krawędzi grafu. Wykorzystuje model logarytmiczny sprężyny, który dąży do ustawienia wierzchołków w odległości równej \texttt{ideal\_len}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{graph} - wskaźnik na graf (do pobrania struktur wierzchołków).
+    \item \texttt{e} - wskaźnik na krawędź, wzdłuż której działa siła.
+    \item \texttt{spring\_const} - sztywność „sprężyny”.
+    \item \texttt{ideal\_len} - pożądana długość krawędzi.
+\end{itemize}
 \end{document} 
+

@@ -56,7 +56,19 @@ Vector mult_by_num(Vector a, double n);
 */
 
 Vector negative(Vector a); 
+/** 
+ * @brief Funkcja wypisuje podany list
+ * @param list - lista do wypisowania
+ * @param size - ilość elementów w liście
+*/
 
 void print_list(int list[], int size);
+/** 
+ * @brief Funkcja odejmuje wektor b od wektora a
+ * @param a - pierwszy wektor
+ * @param b - drugi wektor
+ * @return zmieniony pierwszy wektor a 
+*/
+Vector substract_vectors (Vector a, Vector b);
 
 #endif

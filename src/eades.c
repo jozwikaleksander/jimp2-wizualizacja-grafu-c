@@ -30,7 +30,7 @@ void eades_algorithm(Graph *graph,
         // Oblicz siły odpychania między wszystkimi parami wierzchołków
         for(int i = 0; i < graph->num_nodes; i++) {
             for(int j = i + 1; j < graph->num_nodes; j++) {
-                compute_repulive(&graph->nodes[i], &graph->nodes[j], c);
+                compute_repulsive(&graph->nodes[i], &graph->nodes[j], c);
             }
         }
 
@@ -65,7 +65,7 @@ void eades_algorithm(Graph *graph,
  * @param v - wskaźnik na drugi wierzchołek
  * @param c - używana do obliczenia sił odpychania
  */
-void compute_repulive(Node *u, Node *v, int c) {
+void compute_repulsive(Node *u, Node *v, int c) {
     Vector repulsive; //vector siły odpychania
     double d = distance(u->position, v->position);
     if(d < 0.0001) { //zapobieganie dzieleniu przez zero
