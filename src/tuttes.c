@@ -105,7 +105,7 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
                 double change = distance(new_pos[i],graph->nodes[i].position);
                 if (change >max_change){
                     max_change = change;
-                }
+                } 
 
                 //Zapis końcowych pozycji do Graph
                 graph->nodes[i].position.x = new_pos[i].x;
@@ -132,7 +132,55 @@ int tuttes_algorithm(Graph *graph, int max_iterations) {
  * @param center Środek obszaru rysowania (używany dla wierzchołków stopnia 1).
  * @return EXIT_SUCCESS w przypadku powodzenia.
  */
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[], Vector center){
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    // Jeśli wierzchołek należy do poligonu zewnętrznego, zachowujemy jego aktualną pozycję
+    if(is_fixed[iteration] == 1) {
+        new_pos[iteration] = graph->nodes[iteration].position;
+   
+        return EXIT_SUCCESS;
+    }
+        // Specjalna obsługa wierzchołków mających tylko jednego sąsiada
+        if(deg[iteration]==1){
+             int neighbor = adj_list[iteration][0];
+             //Vektor w kietrunku przeciwnym od środku
+                    Vector oposite = substract_vectors(graph->nodes[neighbor].position, center);
+                    
+                    //Dzielimy przez dystancję między centrem a wierzchołkiem żeby otrzymać vektor kirunkowy z długością = 1
+                    double len = distance(graph->nodes[neighbor].position, center);
+                    if (len != 0) {
+                        oposite.x /=len;
+                        oposite.y /=len;
+                    }
+                    // Zabezpieczenie przed dzieleniem przez zero przy zbyt małym dystansie
+                    if (len < EPSILON) return EXIT_SUCCESS;
 
+                    //Mnożymy przez ustawioną outer_rad żeby wierzchołek okazał się na odłegłości outer_rad od sąsiada
+                    double outer_rad = 10; // nie może być < margin
+                    oposite = mult_by_num(oposite, outer_rad);
+
+                    // Ustawiamy nową pozycję jako przesunięcie względem jedynego sąsiada
+                    new_pos[iteration].x = graph->nodes[neighbor].position.x + oposite.x;
+                    new_pos[iteration].y = graph->nodes[neighbor].position.y + oposite.y;
+        }else{
+            //Dla wierzchołków o stopniu > 1 stosujemy zasadę środka ciężkości
+            for(int j = 0; j <deg[iteration]; j++) {
+                    int neighbor = adj_list[iteration][j];
+                    sum_x += graph->nodes[neighbor].position.x;
+                    sum_y += graph->nodes[neighbor].position.y;
+                    
+                    }
+                    // Jeśli wierzchołek jest izolowany (stopień 0), przerywamy obliczenia
+                    if (deg[iteration] == 0) return EXIT_SUCCESS;
+                    // Nowa pozycja to średnia arytmetyczna położeń wszystkich sąsiadów
+                    new_pos[iteration].x = sum_x/deg[iteration];
+                    new_pos[iteration].y = sum_y/deg[iteration];
+                }
+            
+            
+    return EXIT_SUCCESS;
+}
 
 /**
  * @brief Sprawdza, czy dwa punkty znajdują się w tym samym miejscu z określoną dokładnością.
@@ -145,7 +193,7 @@ int have_same_pos(Vector a, Vector b){
 
 }
 
-/**
+/** 
  * @brief Rozsuwa dwa wierzchołki o zadany dystans w losowym kierunku.
  * @param new_pos Tablica z pozycjami wierzchołków.
  * @param iteration Indeks pierwszego wierzchołka.
@@ -160,7 +208,7 @@ void offset(Vector new_pos[], int iteration,int jiteration, double difference){
 
     new_pos[iteration].x += dx;
     new_pos[iteration].y += dy;
-
+ 
     new_pos[jiteration].x -= dx;
     new_pos[jiteration].y -= dy;
 }
