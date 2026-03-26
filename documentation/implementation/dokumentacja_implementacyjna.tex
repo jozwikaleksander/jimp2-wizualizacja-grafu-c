@@ -349,14 +349,14 @@ Funkcja zwraca nowy wektor.
 
 }
 \end{mylisting}
-Wypisuje zawartoś tablicy liczb całkowitych na 
+Wypisuje zawartość tablicy liczb całkowitych na 
 standardowe wyjście. Każdy element jest prezentowany wraz z odpowiadającym mu indeksem w formacie \texttt{[indeks] - wartość}.\\
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{list} - tablica liczb całkowitych .
 \item \texttt{size} - liczba elementów znajdujących się w tablicy.
 \end{itemize}
-\clearpage
+
 \subsubsection{Funkcja \texttt{substract\_vectors}}
 \begin{mylisting}
 
@@ -458,7 +458,7 @@ Następnie funkcja sprawdza czy udało się zaalokować pamięć.
     for (int i = 0; i < graph->num_nodes; i++)
         adj_list[i] = (uint*)malloc(graph->num_nodes * sizeof(uint));
 \end{mylisting}
-Należy również zaalkować pamięć dla elementów listy sąsiedztwa.
+Należy również zaalokować pamięć dla elementów listy sąsiedztwa.
 \begin{mylisting}
     // Zbudowanie listy sąsiedztwa
     int result_adj_list = build_adj_list(graph, adj_list, deg);
@@ -500,7 +500,9 @@ int is_graph_planar(Graph *graph) {
     }
 
     // Dodawanie krawędzi
-    gp_AddEdge(gp, index_u, 0, index_v, 0);
+    for(int i = 0; i < graph->num_edges; i++) {
+        gp_AddEdge(gp, graph->edges[i].u, 0, graph->edges[i].v, 0);
+    }
 
     // Uruchomienia funkcji dla sprawdzanie planarności z biblioteki LibPlanarity
     int is_planar = (gp_Embed(gp, EMBEDFLAGS_PLANAR) == OK);
@@ -606,7 +608,7 @@ typedef struct {
     uint id;
 } Node;
 \end{mylisting}
-Zdefniowane są struktury dla wierzchołków oraz krawędzi grafu. Należy zwrócić szczególną uwagę na fakt, że pole \texttt{id} w wierzchołku nie jest używane w dalszej części programu oprócz w czasie wypisywania do pliku. Jest ono traktowane tylko jako etykieta. Aby operować na wierzchołkach program stosuje indeks tabeli \texttt{nodes} struktury grafu.
+Zdefniowane są struktury dla wierzchołków oraz krawędzi grafu. Należy zwrócić szczególną uwagę na fakt, że pole \texttt{id} w wierzchołku nie jest używane w dalszej części programu oprócz w czasie wypisywania do pliku. Jest ono traktowane tylko jako etykieta. Aby operować na wierzchołkach program stosuje indeks tabeli \texttt{nodes} struktury grafu.
 
 \begin{mylisting}
 typedef struct{
@@ -621,7 +623,8 @@ typedef struct{
     int height;
 } Graph;
 \end{mylisting}
-Zdefiniowano również strukturę grafu. Która zawiera tablice dynamiczne wierzchołków i krawędzi wraz z ich ilością elementów oraz pojemnością. Struktura zawiera również szerokość i wysokość obszaru, w którym wyświetlony będzie graf.
+Zdefiniowano również strukturę grafu. Która zawiera tablice dynamiczne wierzchołków i krawędzi wraz z ich ilością 
+elementów oraz pojemnością. Struktura zawiera również szerokość i wysokość obszaru, w którym wyświetlony będzie graf.
 
 \subsubsection{Funkcja \texttt{load\_graph}}
 Funkcja ta tworzy graf na podstawie wczytanego pliku.
@@ -837,7 +840,7 @@ void free_graph(Graph *graph) {
 Funkcja dealokuje nazwy krawędzi oraz tablice krawędzi i wierzchołków oraz samą strukturę grafu.
 Oto fragment dokumentacji implementacyjnej przygotowany na podstawie dostarczonego kodu, z zachowaniem Twojej składni LaTeX oraz oryginalnych komentarzy.
 
-\clearpage
+
 
 \subsubsection{Funkcja \texttt{build\_adj\_list}}
 \begin{mylisting}
@@ -891,7 +894,7 @@ Wypisuje kompletną listę sąsiedztwa na standardowe wyjście.
 \item \texttt{adj\_list} - tablica przechowująca sąsiadów.
 \item \texttt{deg} - tablica stopni wierzchołków.
 \end{itemize}
-\clearpage
+
 Przykład wyjścia:
 \begin{mylisting}
 Sąsiedzi dla 0: 1 
@@ -941,7 +944,7 @@ void print_nodes_pos(Graph *graph, int is_fixed[]) {
 }
 \end{mylisting}
 Wypisuje współrzędne wszystkich wierzchołków, oznaczając te, które zostały przypisane do poligonu zewnętrznego.\\
-\clearpage
+
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{graph} - wskaźnik na strukturę grafu.
@@ -983,7 +986,7 @@ void free_deg(int *deg) {
 \begin{itemize}
 \item \texttt{deg} - wskaźnik na tablicę stopni wierzchołków.
 \end{itemize}
-\clearpage
+
 \subsubsection{Funkcja \texttt{dfs\_rec}}
 \begin{mylisting}
 void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
@@ -1086,7 +1089,7 @@ Funkcja ta stanowi punkt wejścia do algorytmu wyznaczania zewnętrznego poligon
 \item \texttt{cycle\_res} - tablica, do której zostaną zapisane indeksy wierzchołków tworzących cykl.
 \item \texttt{cycle\_idx} - wskaźnik na zmienną przechowującą liczbę znalezionych wierzchołków w cyklu.
 \end{itemize}
-\clearpage
+
 
 \subsubsection{Funkcja \texttt{get\_center}}
 \begin{mylisting}
