@@ -17,11 +17,6 @@ int main(int argc, char **argv) {
     if(load_params(argc,argv,&params) == EXIT_FAILURE)
         return EXIT_FAILURE;
 
-    // Wczytanie pliku o nazwie wprowadzonej z linii poleceń
-    if (optind < argc) {
-        params.graph_file = fopen(argv[optind], "r");
-    }
-
     if (params.graph_file == NULL) {
         fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
         return ERR_FILE_OPEN;

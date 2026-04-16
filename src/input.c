@@ -126,5 +126,9 @@ int load_params(int argc, char **argv, Parameters *params) {
                     break; 
         } 
     }
+    // Wczytanie pliku o nazwie wprowadzonej z linii poleceń
+    if (optind < argc) {
+        params->graph_file = fopen(argv[optind], "r");
+    }
     return EXIT_SUCCESS;
 }
