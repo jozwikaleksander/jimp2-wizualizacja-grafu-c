@@ -39,7 +39,7 @@ Parameters create_params() {
 * @param argc - ilość parametrów
 * @param argv - tablica parametrów
 * @param params - wskaźnik na strukturę Parameters
-* @return dla sukcesu EXIT_SUCCESS, dla błędu EXIT_FAILURE
+* @return dla sukcesu EXIT_SUCCESS, dla błędu ERR_MISSING wyboru opcji
 */
 int load_params(int argc, char **argv, Parameters *params) {
     int opt;
@@ -119,7 +119,7 @@ int load_params(int argc, char **argv, Parameters *params) {
                     break;
                 case ':': 
                     fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
-                    return EXIT_FAILURE;
+                    return ERR_MISSING_VALUE;
                     break; 
                 case '?': 
                     fprintf(stderr,"BŁĄD: Nieznana opcja -%c\n", optopt);
