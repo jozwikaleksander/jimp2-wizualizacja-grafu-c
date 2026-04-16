@@ -1,0 +1,1385 @@
+\documentclass[]{article}
+\usepackage{longtable}
+
+\input{preamble.tex}
+
+\colorlet{accent}{jimp}
+
+\title{Dokumentacja funkcjonalna - Wyznaczanie współrzędnych węzłów dla wizualnej reprezentacji grafu planarnego w języku C}
+\author{\authoricon Aleksander Jóźwik, Anastasiya Kryvetskaya}
+\date{\dateicon \today}
+
+\definecolor{zalety}{HTML}{a6d189}
+\definecolor{wady}{HTML}{e78284}
+
+\begin{document}
+	\noindent
+	\maketitle
+
+	\tableofcontents
+	\clearpage
+
+	\section{Cel projektu}
+	Celem projektu jest stworzenie programu w języku C, który służy do automatycznego i estetycznego rozmieszczania
+	wierzchołków grafu planarnego w przestrzeni dwuwymiarowej, z wykorzystaniem algorytmu Eadesa lub twierdzenia 
+	Tuttego w zależności od wyboru użytkownika. Program działa w trybie nieinteraktywnym/wsadowym.
+	\section{Funkcjonalności programu}
+	Program oferuje następujące funkcjonalności:
+	\begin{enumerate}
+		\item Możliwość kontroli sposobu działania programu za pomocą argumentów linii poleceń.
+		\item Wczytywanie grafu z pliku tekstowego.
+		\item Rozmieszczanie wierzchołków za pomocą algorytmu Eadesa oraz twierdzenia Tuttego.
+		\item Zapisywanie informacji o położeniu wierzchołków po ich rozmieszczeniu do pliku tekstowego lub binarnego.
+		
+	\end{enumerate}
+	
+	\section{Sposób wykonania programu}
+	Schemat wywołania programu wygląda w następujący sposób:
+	\begin{mylisting}
+./bin/main <plik_wejściowy> <flagi>
+	\end{mylisting}
+	Na przykład:
+	\begin{mylisting}
+./bin/main examples/graph_1.txt -t b -o output.bin -s 1234 -a t
+	\end{mylisting}
+	Powyższa komenda wywoła program w następujący sposób:
+	\begin{enumerate}
+		\item Program odczyta graf z pliku \texttt{graph\_1.txt}.
+		\item Wynik programu zostanie zapisany do pliku binarnego (flaga \texttt{-t}).
+		\item Rezultat zostanie zapisany do pliku \texttt{output.bin} (flaga \texttt{-o}).
+		\item Program użyje do początkowego rozmieszczenia wierzchołków ziarna \texttt{1234} (flaga \texttt{-s}).
+		\item Program użyje twierdzenia Tuttego do rozmieszczenia wierzchołków (flaga \texttt{-a}).
+	\end{enumerate}
+
+	\clearpage
+	\section{Lista dostępnych flag}
+	\begin{tabularx}{\textwidth}{| c | X | X | X |}
+		\hline
+		Nazwa flagi & Opis & Dostępne wartości & Domyślne wartości\\
+		\hline
+		-a & wybór algorytmu rozmieszczania wierzchołków & e, eades, t, tutte & e - Algorytm Eadesa\\
+		\hline
+		-t & typ pliku wyjściowego & t, txt, b, bin; & t - plik tekstowy\\
+		\hline
+		-o & nazwa pliku wyjściowego & - & output.txt lub output.bin\\
+		\hline
+		-s & ziarno używane dla początkowego rozmieszczenia wierzchołków & Nieujemna liczba całkowita &
+		Program samodzielnie wybiera ziarno na podstawie czasu wykonania programu. \\
+		\hline
+		-w & szerokość obszaru & Dodatnia liczba całkowita. & 100 \\
+		\hline
+		-h & wysokość obszaru & Dodatnia liczba całkowita. & 100 \\
+		\hline
+		\multicolumn{4}{|c|}{Parametry algorytmu Eadesa} \\
+		\hline
+		-m & Minimalna siła, poniżej której algorytm się zatrzymuje & Liczba zmiennoprzecinkowa & 0.1 \\
+		\hline
+		-i & Maksymalna liczba iteracji algorytmu & Liczba całkowita & 10000 \\
+		\hline
+		-l & Idealna długość krawędzi (sprężyny) & Liczba zmiennoprzecinkowa & 10.0 \\
+		\hline
+		-k & Stała sprężystości (siła przyciągania) & Liczba zmiennoprzecinkowa & 1.0 \\
+		\hline
+		-c & Stała odpychania & Liczba zmiennoprzecinkowa & 2.0 \\
+		\hline
+		-C & Współczynnik chłodzenia (spowalnia siły w czasie) & Liczba zmiennoprzecinkowa & 0.97 \\
+		\hline
+	\end{tabularx}
+
+	Program nie wymaga podania żadnych flag do wykonania.
+	\section{Dane wejściowe}
+	Dane wejściowe mają następujący format:
+	\begin{mylisting}
+<nazwa_krawędzi> <wierzchołek_A> <wierzchołek_B> <waga_krawędzi>	
+	\end{mylisting}
+	Na przykład:
+	\begin{mylisting}
+AB   1  2  1
+BC   2  3  1
+CD   3  4  1
+DB   4  2  1.407
+	\end{mylisting}
+
+	Uwaga: Waga krawędzi nie jest używana przez algorytmy.
+	
+	\section{Komunikaty błędów}
+	W przypadku napotkania błędu program zwraca następujące komunikaty.
+
+	\begin{tabularx}{\textwidth}{| X | X | c |}
+		\hline
+		Komunikat & Opis komunikatu & Kod powrotu\\
+		\hline
+		\texttt{BŁĄD: Podano nieprawidłowy algorytm.} & Wyświetlany, gdy wpisana wartość flagi 
+		\texttt{-a} jest różna od dostępnych. Program wykonuje się z algorytmem Eadesa. & -\\
+		\hline
+		\texttt{BŁĄD: Podano nieprawidłowy typ pliku wyjściowego.} & Wyświetlany, gdy wpisana wartość 
+		flagi \texttt{-t} jest różna od dostępnych. Program zapisuje do pliku tekstowego. & -\\
+		\hline
+		\texttt{BŁĄD: Podano nieprawidłową szerokość/wysokość obszaru (wartość musi być większa od 0). Wybieram domyślną wartość = 100} & Wyświetlany, jeżeli wpisana wysokość lub szerokość nie 
+		jest liczbą całkowitą lub nie jest > 0. Program wybiera domyślne wartości. & -\\
+		\hline
+		\texttt{BŁĄD: Podano niepoprawne ziarno. Ziarno musi być nieujemne.} & Wyświetlany, gdy podane ziarno jest mniejsze od 
+		0. Program sam wybiera ziarno. & -\\
+		\hline
+		\texttt{BŁĄD: Opcja -X wymaga podania wartości!} & Wyświetlany, gdy nie podano wartości dla parametru, który wybrano. 
+		Program przerywa działanie. & 1\\
+		\hline
+		\texttt{BŁĄD: Nieznana opcja -X} & Wyświetlany, gdy podano nieznany parametr. Program ignoruje parametr. & -\\
+		\hline
+		\texttt{BŁĄD: Nie udało się otworzyć pliku.} & Wyświetlany, gdy nie udało się otworzyć pliku o podanej nazwie.
+		Program przerywa działanie. & 2\\
+		\hline
+		\texttt{BŁĄD: Nie udało się wczytać grafu.} & Wyświetlany, gdy nie udało się wczytać grafu z otwartego pliku.
+		Program przerywa działanie. & 3\\
+		\hline
+		\texttt{BŁĄD: Podany graf nie jest spójny.} & Wyświetlany, gdy wczytany graf nie jest spójny. Program przerywa 
+		działanie.& 4\\
+		\hline
+		\texttt{BŁĄD: Podany graf nie jest planarny.} & Wyświetlany, gdy wczytany graf nie jest planarny. Program przerywa działanie. & 5\\
+		\hline
+		\texttt{BŁĄD: Nie udało się zapisać do pliku tekstowego.} & Wyświetlany, gdy nie udało się zapisać do pliku tekstowego o 
+		podanej nazwie. Program przerywa działanie. & 6\\
+		\hline
+		\texttt{BŁĄD: Nie udało się zapisać do pliku binarnego.} & Wyświetlany, gdy nie udało się zapisać do pliku binarnego o
+		podanej nazwie. Program przerywa działanie. & 7\\
+		\hline
+		\texttt{BŁĄD: Nie udało się zaalokować pamięci.} & Wyświetlany, gdy nie udało się zaalokować pamięci. & 8\\
+		\hline
+	\end{tabularx}
+
+	\section{Dane wyjściowe}
+	Program oferuje możliwość zapisu do pliku tekstowego oraz binarnego. 
+	
+	\subsection{Plik tekstowy}
+	Dane w pliku tekstowym są zapisywane w następującym formacie:
+	\begin{mylisting}
+<numer_wierzchołka> <współrzędna_x> <współrzędna_y>
+	\end{mylisting}
+	Na przykład:
+	\begin{mylisting}
+1 288.000000 288.000000
+2 254.000000 254.000000
+3 307.000000 307.000000
+4 101.000000 101.000000
+	\end{mylisting}
+	\subsection{Plik binarny}
+	Dane w pliku binarnym zapisywane są w następującej kolejności:
+	\begin{enumerate}
+		\item Liczba wierzchołków - \texttt{uint32\_t} - $4$ B
+		\item Identyfikator wierzchołka - \texttt{uint32\_t} - $4$ B
+		\item Współrzędna X wierzchołka - \texttt{float} - $4$ B 
+		\item Współrzędna Y wierzchołka - \texttt{float} - $4$ B
+	\end{enumerate}
+	Kroki 2, 3 i 4 powtarzane są dla każdego wierzchołka grafu. Zapis odbywa się zgodnie z metodą \texttt{Little Endian}
+	- zapis od najmniej znaczącego bajtu.
+
+	\section{Sposób działania algorytmów}
+	\subsection{Algorytm sprężynowy Eadesa}
+	Ten algorytm liczy dla każdego wierzchołka sumę sił odpychania i przyciągania.
+	\begin{mylisting}
+SpringEmbedder(G, minimalna_sila, maks_iteracji)
+//minimalna_sila = bardzo mała wartość ogranicza działanie algorytmu i zatrzymuje pracę
+//kiedy maksymalna znaleziona siła jest mniejsza niż minimalna_sila
+t = 0
+max_sila = duza_wartosc // maksymalna siła działająca na jeden z wierzchołków
+
+while (t < maks_iteracji AND max_sila > minimalna_sila)
+
+    dla każdego wierzchołka v w G
+        oblicz siły odpychania od wszystkich innych wierzchołków
+
+    dla każdej krawędzi (u, v) w G
+        oblicz siłę przyciągania między u i v
+
+    dla każdego wierzchołka v w G
+        zaktualizuj pozycję v na podstawie działającej siły
+        zaktualizuj max_sila
+
+    t = t + 1
+
+end while
+\end{mylisting}
+\textbf{Formuła dla siły odpychania:}
+\begin{equation}
+	f_{\mathrm{rep}}(p_u,p_v) =
+	\frac{c_{\mathrm{rep}}}{\|p_v - p_u\|^2} \cdot \vec{p_u p_v}
+\end{equation}
+Gdzie:
+\begin{itemize}
+    \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
+    \item $c_{\mathrm{rep}}$ -- stała określająca siłę odpychania
+    \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
+    \item $\|\cdot\|$ -- norma euklidesowa wektora
+\end{itemize}
+\textbf{Formuła dla siły przyciągania:}
+\begin{equation}
+	f_{\mathrm{attr}}(p_u,p_v) =
+	c_{\mathrm{spring}} \cdot
+	\log\!\left(\frac{\|p_u - p_v\|}{\ell}\right)
+	\cdot \vec{p_u p_v}
+\end{equation}
+Gdzie:
+\begin{itemize}
+    \item $p_v, p_u$ -- pozycje wierzchołków $v$ i $u$
+    \item $c_{\mathrm{spring}}$ -- stała określająca siłę sprężyny
+    \item $\ell$ -- długość optymalna krawędzi
+    \item $\vec{p_u p_v}$ -- wektor kierunkowy od $u$ do $v$
+    \item $\|\cdot\|$ -- norma euklidesowa wektora
+\end{itemize}
+\subsection{Twierdzenie Tuttego}
+	Ten algorytm działa szukając takiej pozycji dla każdego wierzchołka, aby jego współrzędne były średnią arytmetyczną pozycji jego sąsiadów.
+	\begin{mylisting}
+TutteEmbedding(G)
+
+wybierz wierzchołki zewnętrznej ściany grafu
+ustaw ich pozycje na okręgu
+
+dla każdego pozostałego wierzchołka v
+    zapisz równanie: pozycja v = średnia pozycji sąsiadów v
+
+zbuduj układ równań liniowych dla współrzędnych x i y
+
+rozwiąż układ równań
+
+dla każdego wierzchołka v
+    ustaw jego pozycję według otrzymanego rozwiązania
+	\end{mylisting}
+
+\textbf{Warunek barycentryczny:}
+\begin{equation}
+	p_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} p_u
+\end{equation}
+Gdzie:
+\begin{itemize}
+    \item $p_v$ -- pozycja wierzchołka $v$ na płaszczyźnie
+    \item $p_u$ -- pozycja sąsiada $u$ wierzchołka $v$
+    \item $N(v)$ -- zbiór sąsiadów wierzchołka $v$
+    \item $\deg(v)$ -- stopień wierzchołka $v$ (liczba jego sąsiadów)
+    \item $\sum$ -- suma po wszystkich sąsiadach wierzchołka $v$
+\end{itemize}
+\textbf{Równania liniowe dla współrzędnych:}
+\begin{equation}
+x_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} x_u
+\end{equation}
+\begin{equation}
+y_v = \frac{1}{\deg(v)} \sum_{u \in N(v)} y_u
+\end{equation}
+Gdzie:
+\begin{itemize}
+    \item $x_v, y_v$ -- współrzędne wierzchołka $v$
+    \item $x_u, y_u$ -- współrzędne sąsiada $u$ wierzchołka $v$
+    \item $N(v)$ -- zbiór sąsiadów wierzchołka $v$
+    \item $\deg(v)$ -- stopień wierzchołka $v$
+\end{itemize}
+
+
+
+\colorlet{accent}{jimp}
+
+
+
+	\noindent
+	\maketitle
+
+	\tableofcontents
+	\clearpage
+
+	\section{Schemat blokowy działania programu}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{assets/Diagram blokowy.png}
+		\caption{Diagram blokowy ilustrujący sposób działania programu}
+		\label{fig:diagram_blokowy}
+	\end{figure}
+
+	\section{Podział programu na moduły}
+
+    \begin{center}
+	\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{assets/Podział_na_pliki4_0.png}
+    \caption{Diagram podziału programu na pliki}
+    \label{fig:diagram_podzialu}
+	\end{figure}
+    \end{center}
+
+	Program został podzielony na 6 modułów z których każdy składa się z pliku C i pliku nagłówkowego. Moduły to:
+	\begin{itemize}
+		\item \texttt{graph} - odpowiada za zdefniowanie struktur dla grafu, tworzenie grafu bazując na wczytanym pliku, 
+		zarządzanie pamięcią zaalokowaną dla struktur grafu.
+		\item \texttt{validation} - odpowiada za sprawdzenie czy graf jest spójny i planarny.
+		\item \texttt{eades} - odpowiada za uruchomienie funkcji implementującej algorytm Eadesa.
+		\item \texttt{tuttes} - odpowiada za uruchomienie funkcji iplementującej twierdzenie Tuttego.
+		\item \texttt{vector} - odpowiada za wykonywanie operacji na wektorach.
+		\item \texttt{output} - odpowiada za zapisywanie informacji o pozycji wierzchołków do pliku tekstowego lub binarnego.
+	\end{itemize}
+
+	\section{Opis głównego pliku}
+	Plik \texttt{main.c} zarządza przebiegiem programu oraz odpowiada za wczytywanie parametrów wykonania programu z linii poleceń.
+
+	\begin{mylisting}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+
+#include "eades.h"
+#include "graph.h"
+#include "output.h"
+#include "tuttes.h"
+#include "error.h"
+#include "validation.h"
+	\end{mylisting}
+Na początku program włącza pliki nagłówkowe.
+
+\begin{mylisting}
+int main(int argc, char **argv) {
+\end{mylisting}
+Funkcja \texttt{main} przyjmuje ilość argumentów oraz tablicę argumentów z linii poleceń.
+
+\begin{mylisting}
+	// Zmienne dla parametrow wykonania
+    int algorithm = 0;
+    int output_type = OUTPUT_TXT;
+    char *output_name = NULL;
+    int opt;
+    FILE *graph_file = NULL;
+    
+    int seed = 0;
+    int wasSeedProvided = 0;
+    int width = 100;
+    int height = 100;
+
+    // Parametry algorytmu Eadesa z wartościami domyślnymi
+    double minimum_force = 0.1;
+    int max_iterations = 10000;
+    double ideal_len = 10.0;
+    double repulsion_const = 2.0;
+    double spring_const = 1.0;
+    double cooling = 0.97;
+\end{mylisting}
+Następnie inicjalizowane są zmienne potrzebne do pracy programu.
+\begin{mylisting}
+	// Wczytanie parametrow wykonania
+    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:m:i:l:k:c:C:")) != -1) 
+    {
+        switch(opt) 
+            { 
+                // Wybor algorytmu
+                case 'a':
+                    if (strcmp(optarg, "t") == 0 || strcmp(optarg, "tutte") == 0) {
+                        algorithm = TUTTES_ALGORITHM; // 1 for Tutte
+                    } else if (strcmp(optarg, "e") == 0 || strcmp(optarg, "eades") == 0) {
+                        algorithm = EADES_ALGORITHM; // 0 for Eades
+                    } else {
+                        fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
+                        algorithm = EADES_ALGORITHM;
+                    }
+                    break;
+				
+					[Kolejne flagi pominięto ...]
+
+				case ':': 
+                    fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
+                    return EXIT_FAILURE;
+                    break; 
+                case '?': 
+                    fprintf(stderr,"BŁĄD: Nieznana opcja -%c\n", optopt);
+                    break; 
+            } 
+    }
+\end{mylisting}
+W kolejnym kroku program korzysta z pętli \texttt{while} oraz funkcji \texttt{getopt} do wczytywania parametrów wykonania programu. Poprzez instrukcję \texttt{switch} funkcja sprawdza czy kolejne flagi i przyporządkowuje ich wartości do zmiennych. Pokazano jedynie kilka najważniejszych przypadków.
+\begin{mylisting}
+	// Wczytanie pliku o nazwie wprowadzonej z linii poleceń
+    if (optind < argc) {
+        graph_file = fopen(argv[optind], "r");
+    }
+\end{mylisting}
+Następnie \texttt{main} sprawdza czy podano dodatkowy parametr, którym jest nazwa pliku, jeżeli tak to plik jest zostaje wczytany.
+\begin{mylisting}
+	if (graph_file == NULL) {
+        fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
+        return ERR_FILE_OPEN;
+    }
+\end{mylisting}
+Program sprawdza czy plik został otworzony, jeśli nie to wyświetla komunikat o błędzie i zwraca kod.
+\begin{mylisting}
+	// Sprawdzenie czy ziarno zostało podano jako argument linii poleceń
+    if(wasSeedProvided == 1)
+        srand(seed);
+    else
+        srand(time(NULL));
+\end{mylisting}
+Jeżeli nie podano ziarna, program wybiera je samodzielnie, bazując na aktualnym czasie.
+\begin{mylisting}
+	// Stworzenie grafu na podstawie pliku
+    int load_graph_status = 0;
+    Graph *graph = load_graph(graph_file, width, height, &load_graph_status);
+    if(load_graph_status == ERR_GRAPH_LOAD) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_GRAPH_LOAD;
+    }
+    else if (load_graph_status == ERR_MEMORY_ALLOC) {
+        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
+        fclose(graph_file);
+        free(output_name);
+        return ERR_MEMORY_ALLOC;
+    }
+\end{mylisting}
+W tej części tworzony jest graf na podstawie otwartego pliku.
+\begin{mylisting}
+	int validation_result = is_graph_valid(graph);
+    switch(validation_result) {
+        case ERR_GRAPH_NOT_CONNECTED:
+            fprintf(stderr,"BŁĄD: Graf nie jest spójny.\n");
+            return validation_result;
+        case ERR_GRAPH_NOT_PLANAR:
+            fprintf(stderr,"BŁĄD: Graf nie jest planarny.\n");
+            return validation_result;
+        case ERR_MEMORY_ALLOC:
+            fprintf(stderr, "BŁĄD: Błąd alokacji pamięci podczas walidacji grafu.\n");
+            return validation_result;
+        default:
+            break;
+    }
+\end{mylisting}
+Następnie graf zostaje sprawdzony pod kątem spójności i planarności.
+\begin{mylisting}
+	// Obsluga wyboru algorytmu z linii polecen
+    switch(algorithm) {
+        case EADES_ALGORITHM:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+        case TUTTES_ALGORITHM:
+            tuttes_algorithm(graph);
+            break;
+        default:
+            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
+            break;
+    }
+\end{mylisting}
+Na podstawie wyboru użytkownika uruchomiony zostaje określony algorytm.
+\begin{mylisting}
+	// Obsluga zapisu do wybranego typu pliku
+    switch(output_type) {
+        case OUTPUT_TXT:
+            if(save_to_txt(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku tekstowego.\n");
+                return ERR_SAVE_TEXT_FAILED;
+            }
+            break;
+        case OUTPUT_BIN:
+            if(save_to_bin(graph, output_name) == 1){
+                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku binarnego.\n");
+                return ERR_SAVE_BINARY_FAILED;
+            }
+            break;
+    }
+\end{mylisting}
+W zależności od wybranego typu pliku program zapisuje dane wyjściowe.
+
+\begin{mylisting}
+	free(output_name);
+    fclose(graph_file);
+
+    printf("Pomyślnie zapisano informacje o %d wierzcholkach do pliku.\n", graph->num_nodes);
+    free_graph(graph);
+
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Na koniec program zwalnia pamięć, zamyka pliki i wyświetla komunikat o pomyślnym zapisaniu danych.
+\section{Opis poszczególnych modułów}
+\subsection{Moduł \texttt{vector}}
+Moduł udostepnia funkcję służące do wykonywania operacji na wektorach, a także definiuje ich strukture. Funkcje tego
+modułu wykorzystywane są przez moduł \texttt{eades} i \texttt{tuttes}.
+
+\subsubsection{Struktury}
+\begin{mylisting}
+typedef struct {
+    double x;
+    double y;
+} Vector;
+\end{mylisting}
+Struktura wektora składa się dwóch liczb zmiennoprzecinkowych dla współrzędnych x i y.
+\subsubsection{Funkcja \texttt{add\_vectors}}
+\begin{mylisting}
+Vector add_vectors (Vector a, Vector b){
+    a.x += b.x;
+    a.y += b.y;
+    return a;
+}
+\end{mylisting}
+Funkcja dodaje do siebie dwa wektory.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{a} - pierwszy wektor
+    \item \texttt{b} - drugi wektor
+\end{itemize}
+Funkcja zwraca zmieniony pierwszy wektor.
+
+\subsubsection{Funkcja \texttt{count\_vector\_length}}
+\begin{mylisting}
+double count_vector_length(Vector a){
+    return sqrt(a.x * a.x + a.y * a.y);
+}
+\end{mylisting}
+Funkcja oblicza długość wektora.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+\end{itemize}
+Funkcja zwraca długość wektora jako wartość typu \texttt{double}.
+
+\subsubsection{Funkcja \texttt{distance}}
+\begin{mylisting}
+double distance (Vector a, Vector b){
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
+    return sqrt(dx * dx + dy * dy);
+}
+\end{mylisting}
+Funkcja oblicza odległość między dwoma wektorami.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - pierwszy wektor
+    \item b - drugi wektor
+\end{itemize}
+Funkcja zwraca odległość między wektorami jako wartość typu \texttt{double}.
+
+\subsubsection{Funkcja \texttt{vector\_from\_points}}
+\begin{mylisting}
+Vector vector_from_points(Vector a, Vector b){
+    Vector new;
+    new.x = b.x-a.x;
+    new.y = b.y-a.y;
+    return new;
+}
+\end{mylisting}
+Funkcja tworzy wektor przemieszczenia od punktu reprezentowanego przez wektor \texttt{a} do punktu reprezentowanego przez wektor \texttt{b}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - pierwszy wektor
+    \item b - drugi wektor
+\end{itemize}
+Funkcja zwraca nowy wektor.
+
+\subsubsection{Funkcja \texttt{mult\_by\_num}}
+\begin{mylisting}
+    Vector mult_by_num(Vector a, double n){
+    a.x *=n;
+    a.y *=n;
+    return a;
+}
+\end{mylisting}
+Funkcja mnoży wektor przez skalar.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+    \item n - wartośc liczbowa typu \texttt{double}
+\end{itemize}
+Funkcja zwraca nowy wektor, będący wynikiem mnożenia wektora \texttt{a} przez skalar \texttt{n}.
+
+\subsubsection{Funkcja \texttt{negative}}
+\begin{mylisting}
+Vector negative(Vector a){
+    Vector new;
+    new.x = -a.x;
+    new.y= -a.y;
+    return new;
+}
+\end{mylisting}
+Funkcja zmienia znak współrzędnych wektora.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item a - wektor
+\end{itemize}
+Funkcja zwraca nowy wektor.
+\subsubsection{Funkcja \texttt{print\_list}}
+\begin{mylisting}
+
+    void print_list(int list[], int size){
+    for (int i = 0; i<size; i++){
+    printf("[%d] - %d ", i,list[i]);
+
+    }
+    printf("\n");
+
+}
+\end{mylisting}
+Wypisuje zawartość tablicy liczb całkowitych na 
+standardowe wyjście. Każdy element jest prezentowany wraz z odpowiadającym mu indeksem w formacie \texttt{[indeks] - wartość}.\\
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{list} - tablica liczb całkowitych .
+\item \texttt{size} - liczba elementów znajdujących się w tablicy.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{substract\_vectors}}
+\begin{mylisting}
+
+    Vector substract_vectors (Vector a, Vector b){
+        a.x -= b.x;
+        a.y -= b.y;
+        return a;
+    }
+    \end{mylisting}
+    Funkcja odejmowania dwóch wektorów dwuwymiarowych. Oblicza różnicę współrzędnych x oraz y.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{a} - wektor od którege odejmujemy.
+\item \texttt{b} - wektor który odejmujemy.
+\end{itemize}
+Funkcja zwraca nową strukturę \texttt{Vector} będącą wynikiem operacji a−b.
+
+\subsection{Moduł \texttt{validation}}
+Moduł ten odpowiada za sprawdzenie grafu pod kątem planarności i spójności po jego wczytaniu z pliku. Moduł składa się z
+4 funkcji, które zostaną opisane poniżej.
+
+\subsubsection{Funkcja \texttt{is\_graph\_valid}}
+\begin{mylisting}
+int is_graph_valid(Graph *graph){
+    if(is_potentially_planar(graph) == 0)
+        return ERR_GRAPH_NOT_PLANAR;
+    else if(is_graph_connected(graph) == 0){
+        return ERR_GRAPH_NOT_CONNECTED;
+    }
+    else if(is_graph_planar(graph) == 0){
+        return ERR_GRAPH_NOT_PLANAR;
+    }
+    return 0;
+}
+\end{mylisting}
+
+Jest to funkcja publiczna używana przez plik \texttt{main.c}, która używa innych funkcji tego modułu w celu weryfikacji grafu
+i w razie potrzeby zwrócenia odpowiednich kodów błędu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na strukturę grafu.
+\end{itemize}
+Funkcja zwraca liczbę całkowitą int informującą o rezultacie funkcji.
+
+
+\subsection{Moduł \texttt{output}}
+Moduł ten odpowiada za wypisywania danych do pliku tekstowego lub binarnego.
+
+\subsubsection{Funkcja \texttt{save\_to\_text}}
+\begin{mylisting}
+int save_to_txt(Graph *graph, char *output_name) {
+    if(!graph) return 1;
+
+    char *final_name = output_name ? output_name : OUTPUT_NAME_TXT;
+
+    FILE *file = fopen(final_name,"w");
+    if(!file) return 1;
+
+    for(int i = 0; i < graph->num_nodes; i++) {
+        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.y);
+    }
+    fclose(file);
+    return 0;
+}
+\end{mylisting}
+
+Funkcja ta odpowiada za wypisywanie informacji o wierzchołkach grafu do pliku tekstowego o wybranej nazwie. Jeżeli nazwa
+nie została podana to zostaje ona ustawiona na domyślną ("output.txt"). Plik tekstowy jest zgodny z formatem ustalony
+w dokumentacji funkcjonalnej.
+\begin{mylisting}
+<numer_wierzchołka> <współrzędna_x> <współrzędna_y>
+\end{mylisting}
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnika na strukturę grafu 
+    \item output\_name - nazwa pliku wyjściowego
+\end{itemize}
+Funkcja zwraca liczbę całkowitą równą 1 jeżeli operacja się niepowiodła i 0 jeżeli się powiodła.
+
+\subsubsection{Funkcja \texttt{save\_to\_bin}}
+\begin{mylisting}
+int save_to_bin(Graph *graph, char *output_name) {
+    if(!graph) return 1;
+
+    char *final_name = output_name ? output_name : OUTPUT_NAME_BIN;
+
+    FILE *file = fopen(final_name,"wb");
+    if(!file) return 1;
+    
+    uint32_t num_nodes = (uint32_t) graph->num_nodes;
+    fwrite(&num_nodes,sizeof(uint32_t),1,file);
+    for(int i = 0; i < graph->num_nodes; i++) {
+        uint32_t index = (uint32_t) graph->nodes[i].id;
+        float x = (float) graph->nodes[i].position.x;
+        float y = (float) graph->nodes[i].position.y;
+
+        fwrite(&index,sizeof(uint32_t),1,file);
+        fwrite(&x,sizeof(float),1,file);
+        fwrite(&y,sizeof(float),1,file);
+    }
+    fclose(file);
+    return 0;
+}
+\end{mylisting}
+Funkcja \texttt{save\_to\_bin} służy do wypisywania danych do pliku binarnego. Podobnie jak dla poprzedniej funkcji, jeżeli
+nazwa pliku nie została podana to jest ona ustawiona na domyślną ("output.bin"). Dane są zapisywane w kolejności i typie zdefniowanym
+w dokumentacji funkcjonalnej. 
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnika na strukturę grafu 
+    \item output\_name - nazwa pliku wyjściowego
+\end{itemize}
+Funkcja zwraca liczbę całkowitą równą 1 jeżeli operacja się niepowiodła i 0 jeżeli się powiodła.
+
+\subsection{Moduł \texttt{graph}}
+
+Moduł ten służy do tworzenia i zarządzania grafami.
+
+\subsubsection{Definicja struktur}
+\begin{mylisting}
+typedef struct {
+    int u, v;
+    double weight;
+    char *name;
+} Edge;
+
+typedef struct {
+    Vector position;
+    Vector force;
+    uint id;
+} Node;
+\end{mylisting}
+Zdefniowane są struktury dla wierzchołków oraz krawędzi grafu. Należy zwrócić szczególną uwagę na fakt, że pole \texttt{id} w wierzchołku nie jest używane w dalszej części programu oprócz w czasie wypisywania do pliku. Jest ono traktowane tylko jako etykieta. Aby operować na wierzchołkach program stosuje indeks tabeli \texttt{nodes} struktury grafu.
+
+\begin{mylisting}
+typedef struct{
+    Node *nodes;
+    int num_nodes;
+    int capacity_nodes;
+    
+    Edge *edges;
+    int num_edges;
+    int capacity_edges;
+    int width;
+    int height;
+} Graph;
+\end{mylisting}
+Zdefiniowano również strukturę grafu. Która zawiera tablice dynamiczne wierzchołków i krawędzi wraz z ich ilością 
+elementów oraz pojemnością. Struktura zawiera również szerokość i wysokość obszaru, w którym wyświetlony będzie graf.
+
+ \subsubsection{Funkcja \texttt{load\_graph}}
+
+Funkcja ta tworzy graf na podstawie wczytanego pliku.
+
+
+Argumenty:
+
+\begin{itemize}
+
+\item graph\_file - wskaźnik na plik
+
+\item width - szerokośc obszaru, w którym wyświetlony będzie graf
+
+\item height - wysokość obszaru, w którym wyświetlony będzie graf
+
+\item out\_code - kod błędu
+
+\end{itemize}
+
+Funkcja zwraca wskaźnik na strukturę grafu.
+
+\begin{mylisting}
+
+graph load_graph(plik, szerokość, wysokość, out_kod):
+    1. JEŚLI plik nie istnieje -> ustaw błąd i zwróć NULL.
+
+    2. ALOKUJ pamięć dla struktury Graph:
+       - Ustaw początkową pojemność (16) dla wierzchołków i krawędzi.
+       - Zainicjalizuj wymiary obszaru wyświetlania.
+       - JEŚLI błąd alokacji -> zwróć NULL.
+
+    3. DOPÓKI można odczytać dane z pliku (identyfikator, u, v, waga):
+       - Szukaj wierzchołka 'u' w grafie:
+         - Jeśli nie istnieje -> dodaj go do tablicy.
+       - Szukaj wierzchołka 'v' w grafie:
+         - Jeśli nie istnieje -> dodaj go do tablicy.
+       - DODAJ krawędź między 'u' a 'v' z podaną wagą i nazwą.
+       
+       - JEŚLI podczas dodawania zabraknie pamięci -> zwolnij wszystko i zwróć NULL.
+
+    4. ZWRÓĆ gotowy wskaźnik na graf.
+\end{mylisting}
+
+\subsubsection{Funkcja \texttt{free\_graph}}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item graph - wskaźnik na graf
+\end{itemize}
+
+\begin{mylisting}
+void free_graph(Graph *graph) {
+    if (graph) {
+        for (int i = 0; i < graph->num_edges; i++) {
+            free(graph->edges[i].name);
+        }
+
+        free(graph->edges);
+        free(graph->nodes);
+        free(graph);
+    }
+}
+\end{mylisting}
+Funkcja dealokuje nazwy krawędzi oraz tablice krawędzi i wierzchołków oraz samą strukturę grafu.
+Oto fragment dokumentacji implementacyjnej przygotowany na podstawie dostarczonego kodu, z zachowaniem Twojej składni LaTeX oraz oryginalnych komentarzy.
+
+
+
+\subsubsection{Funkcja \texttt{build\_adj\_list}}
+\begin{mylisting}
+int build_adj_list(Graph *graph, uint **adj_list, int *deg) {
+    int n_nodes = graph->num_nodes;
+    int n_edges = graph->num_edges;
+
+    // Zapełnienie deg
+    for (int i = 0; i < n_nodes; i++)
+        deg[i] = 0;
+
+    // Zapełnienie adj_list
+    for (int i = 0; i < n_edges; i++) {
+        int u = graph->edges[i].u;
+        int v = graph->edges[i].v;
+
+        adj_list[u][deg[u]++] = v;
+        adj_list[v][deg[v]++] = u;
+    }
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Funkcja ta przekształca listową reprezentację krawędzi w listę sąsiedztwa, co jest używane przez algorytm tuttesa dla efektywnego poszukiwania sąsiadów.
+ W pierwszym kroku zeruje tablicę stopni wierzchołków, a następnie iteruje po krawędziach, dodając sąsiadów do odpowiednich list.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{graph} - wskaźnik na strukturę grafu.
+    \item \texttt{adj\_list} - tablica dwuwymiarowa przechowująca sąsiadów wierzchołków.
+    \item \texttt{deg} - tablica przechowująca liczbę sąsiadów dla każdego wierzchołka.
+\end{itemize}
+Funkcja zwraca \texttt{EXIT\_SUCCESS} po poprawnym zbudowaniu struktury.
+
+\subsubsection{Funkcja print\_adj\_list }
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+
+\begin{mylisting}
+void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
+    for (int u = 0; u < graph->num_nodes; u++) {
+        printf("Sąsiedzi dla %d: ", u);
+        for (int i = 0; i < deg[u]; i++)
+            printf("%d ", adj_list[u][i]);
+        printf("\n");
+    }
+}
+\end{mylisting}
+Wypisuje kompletną listę sąsiedztwa na standardowe wyjście.
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{adj\_list} - tablica przechowująca sąsiadów.
+\item \texttt{deg} - tablica stopni wierzchołków.
+\end{itemize}
+
+Przykład wyjścia:
+\begin{mylisting}
+Sąsiedzi dla 0: 1 
+Sąsiedzi dla 1: 0 2 3 
+Sąsiedzi dla 2: 1 3 
+Sąsiedzi dla 3: 2 1 
+\end{mylisting}
+
+
+\subsubsection{Funkcja print\_outer\_face}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+\begin{mylisting}
+void print_outer_face(int dfs_res[], int dfs_res_size) {
+    for (int i = 0; i < dfs_res_size; i++) {
+        printf("%d", dfs_res[i]);
+        printf("->");
+    }
+    printf("%d", dfs_res[0]);
+    printf("\n");
+}
+\end{mylisting}
+Wizualizuje cykl tworzący zewnętrzny poligon grafu (outer face) w formacie czytelnej ścieżki. 
+Pierwszy i ostatni element zawsze będą takie same, ponieważ jest to presentacja zamknętego cykłu\\ 
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{dfs\_res} - tablica przechowująca indeksy wierzchołków poligonu zewnętrznego.
+\item \texttt{dfs\_res\_size} - liczba elementów w tablicy.
+\end{itemize}
+Przykład wyjścia:
+\begin{mylisting}
+3->2->1->3
+\end{mylisting}
+\subsubsection{Funkcja print\_nodes\_pos}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+\begin{mylisting}
+void print_nodes_pos(Graph *graph, int is_fixed[]) {
+    for (int i = 0; i < graph->num_nodes; i++) {
+        printf("[%d] - (%.3f,%.3f) ", i, graph->nodes[i].position.x,
+               graph->nodes[i].position.y);
+        if (is_fixed[i] == 1) {
+            printf("-poligon zewnętrzny");
+        }
+        printf("\n");
+    }
+    printf("=============================================");
+    printf("\n");
+}
+\end{mylisting}
+Wypisuje współrzędne wszystkich wierzchołków, oznaczając te, które zostały przypisane do poligonu zewnętrznego.\\
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{is\_fixed} - tablica flag logicznych (1 - wierzchołek stały(z poligonu zewnętrznego ), 0 - ruchomy).
+\end{itemize}
+Przykład wyjścia:
+\begin{mylisting}
+[0] - (30.000,72.000) 
+[1] - (55.000,48.000) -poligon zewnętrzny
+[2] - (100.000,72.000) -poligon zewnętrzny
+[3] - (36.000,28.000) -poligon zewnętrzny
+=============================================
+\end{mylisting}
+
+\subsubsection{Funkcja free\_adj\_list}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury listy sąsiedztwa.
+\begin{mylisting}
+void free_adj_list(Graph *graph, uint **adj_list) {
+    for (int i = 0; i < graph->num_nodes; i++)
+        free(adj_list[i]);
+    free(adj_list);
+}
+\end{mylisting}
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu (używany do określenia liczby wierzchołków).
+\item \texttt{adj\_list} - tablica sąsiadów do usunięcia.
+\end{itemize}
+\subsubsection{Funkcja free\_deg}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury ilości sąsiadów.
+\begin{mylisting}
+void free_deg(int *deg) {
+    if (!deg)
+        return;
+    free(deg);
+}
+\end{mylisting} 
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{deg} - wskaźnik na tablicę stopni wierzchołków.
+\end{itemize}
+
+
+\subsubsection{Funkcja \texttt{find\_outer\_face}}
+\begin{mylisting}
+void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
+int *cycle_idx) {
+// Inicjalizacja narzędzi
+int n = graph->num_nodes;
+int visited[n];
+int parent[n];
+int found = 0;
+int start = 0;
+
+// Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[]
+// znaczy że ten wieszchołek nie ma rodzica
+for (int i = 0; i < n; i++) {
+    visited[i] = 0;
+    parent[i] = -1;
+}
+*cycle_idx = 0;
+
+dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res,
+             cycle_idx, &found);
+
+}
+\end{mylisting}
+Funkcja ta stanowi punkt wejścia do algorytmu wyznaczania zewnętrznego poligonu. Jej zadaniem jest przygotowanie struktur pomocniczych (tablicy odwiedzin oraz tablicy przodków) i uruchomienie dedykowanego algorytmu przeszukiwania w głąb (\texttt{dfs\_rec\_face}), który zidentyfikuje pierwszy napotkany cykl.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{adj\_list} - dynamiczna tablica dwuwymiarowa (lista sąsiedztwa).
+\item \texttt{deg} - tablica przechowująca stopnie wierzchołków.
+\item \texttt{cycle\_res} - tablica, do której zostaną zapisane indeksy wierzchołków tworzących cykl.
+\item \texttt{cycle\_idx} - wskaźnik na zmienną przechowującą liczbę znalezionych wierzchołków w cyklu.
+\end{itemize}
+
+
+\subsubsection{Funkcja \texttt{get\_center}}
+\begin{mylisting}
+Vector get_center(Graph *graph) {
+    Vector center;
+    center.x = round((graph->width) / 2);
+    center.y = round((graph->height) / 2);
+    return center;
+}
+\end{mylisting}
+Funkcja oblicza współrzędne środka obszaru, na którym rysowany jest graf. Wynik jest wyznaczany na podstawie wymiarów (\texttt{width} i \texttt{height}) zapisanych w strukturze grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu zawierającą wymiary obszaru roboczego.
+\end{itemize}
+Funkcja zwraca strukturę \texttt{Vector} zawierającą współrzędne punktu środkowego.
+
+\subsubsection{Funkcja \texttt{place\_on\_circle}}
+\begin{mylisting}
+void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center) {
+    // margin to odległość krańca okręga od granicy przestrzeni
+    int margin = 20;
+    // radius- promień domyślego okręga na którym rozskładamy wierzchołki
+    double radius = fmin(graph->width, graph->height) / 2.0 - margin;
+
+    // Iteracja po wierzchołkach zewnętrznego poligonu
+    for (int i = 0; i < k; i++) {
+
+        // Kąt pomiędzy kolejnymi wierzchołkami
+        double angle = 2.0 * M_PI * i / k;
+
+        // Zmiana pozycji wieszchołków
+        graph->nodes[outer_faces[i]].position.x =
+        center.x + radius * cos(angle);
+        graph->nodes[outer_faces[i]].position.y =
+        center.y + radius * sin(angle);
+    }
+}
+\end{mylisting}
+Funkcja odpowiada za geometryczne rozmieszczenie wierzchołków wyznaczonych jako „poligon zewnętrzny” na okręgu. Jest to kluczowy etap przygotowawczy dla algorytmu Tutte'a, ponieważ unieruchomienie tych wierzchołków w formie wypukłego wielokąta gwarantuje poprawne rozmieszczenie pozostałych punktów wewnątrz.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{outer\_faces} - tablica indeksów wierzchołków do rozmieszczenia.
+\item \texttt{graph} - wskaźnik na strukturę grafu, w której zostaną zaktualizowane pozycje.
+\item \texttt{k} - liczba wierzchołków w wielokącie zewnętrznym.
+\item \texttt{center} - wektor współrzędnych środka, wokół którego budowany jest okrąg.
+\end{itemize}
+\subsection{Moduł \texttt{eades}}
+Moduł ten zawiera implementację algorytmu Eadesa, należącego do grupy algorytmów siłowych (\textit{force-directed graph drawing}). Służy on do automatycznego rozmieszczania wierzchołków grafu w przestrzeni dwuwymiarowej tak, aby krawędzie miały zbliżoną długość, a wierzchołki nie nakładały się na siebie.
+
+\subsubsection{Funkcja \texttt{eades\_algorithm}}
+\begin{mylisting}
+void eades_algorithm(Graph *graph, 
+    double minimum_force, int max_iterations, 
+    double ideal_len, double spring_const, int c, double cooling)
+{
+    int t = 0;
+    double max_force_magnitude = 1.0;
+    double temperature = 1.0;
+
+    while(t < max_iterations && max_force_magnitude > minimum_force) {
+        max_force_magnitude = 0.0;
+
+        // Wyzeruj siły dla bieżącej iteracji
+        for(int i = 0; i < graph->num_nodes; i++) {
+            graph->nodes[i].force.x = 0;
+            graph->nodes[i].force.y = 0;
+        }
+
+        // Oblicz siły odpychania między wszystkimi parami wierzchołków
+        for(int i = 0; i < graph->num_nodes; i++) {
+            for(int j = i + 1; j < graph->num_nodes; j++) {
+                compute_repulive(&graph->nodes[i], &graph->nodes[j], c);
+            }
+        }
+
+        // Oblicz siły przyciągania wzdłuż krawędzi
+        for(int i = 0; i < graph->num_edges; i++) {
+            compute_attract(graph, &graph->edges[i], spring_const, ideal_len);
+        }
+
+        // Zaktualizuj pozycje wierzchołków i znajdź maksymalną siłę
+        for(int i = 0; i < graph->num_nodes; i++) {
+            Node *node = &graph->nodes[i];
+            double current_force_magnitude = count_vector_length(node->force);
+
+            if(current_force_magnitude > max_force_magnitude) {
+                max_force_magnitude = current_force_magnitude;
+            }
+
+            // Zastosuj siłę do pozycji wierzchołka, skalując przez temperaturę
+            Vector displacement = mult_by_num(node->force, temperature);
+            node->position = add_vectors(node->position, displacement);
+        }
+
+        // Schładzanie
+        temperature *= cooling;
+        t++;
+    }
+}
+\end{mylisting}
+
+Główna funkcja sterująca procesem układania grafu. W każdej iteracji obliczane są siły odpychania (pomiędzy wszystkimi wierzchołkami) oraz siły przyciągania (tylko wzdłuż krawędzi). Pozycje wierzchołków są aktualizowane o wektor wypadkowej siły pomnożony przez aktualną „temperaturę” układu, która maleje w czasie, co pozwala na stabilizację rysunku.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item \texttt{graph} - wskaźnik na strukturę grafu.
+    \item \texttt{minimum\_force} - próg siły, poniżej którego algorytm kończy pracę.
+    \item \texttt{max\_iterations} - limit iteracji pętli.
+    \item \texttt{ideal\_len} - docelowa długość krawędzi.
+    \item \texttt{spring\_const} - stała sprężystości (przyciąganie).
+    \item \texttt{c} - stała potrzebna dla obliczenia siły odpychania.
+    \item \texttt{cooling} - współczynnik chłodzenia układu (z zakresu 0 do 1).
+\end{itemize}
+\subsection{Moduł \texttt{tuttes}}
+Moduł ten zawiera implementację algorytmu Tutte’a (metoda barycentryczna), służącego do wyznaczania planarnego ułożenia grafu. Algorytm opiera się 
+na unieruchomieniu wierzchołków poligonu zewnętrznego na planie wielokąta wypukłego i rozmieszczeniu pozostałych wierzchołków w środkach ciężkości ich sąsiadów.
+
+\subsubsection{Funkcja \texttt{tuttes\_algorithm}}
+Jest to główna funkcja sterująca procesem rozmieszczania grafu. Proces ten został podzielony na fazę przygotowawczą oraz iteracyjną pętlę obliczeniową.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na strukturę grafu.
+\item \texttt{max\_iterations} - maksymalna liczba kroków algorytmu.
+\end{itemize}
+Funkcja zwraca \texttt{EXIT\_SUCCESS} w przypadku powodzenia lub kod błędu alokacji.
+
+\begin{mylisting}
+int tuttes_algorithm(Graph *graph, int max_iterations) {
+  
+    //Inicjalizacja potrzebnych narzędzi i allokacja
+    int n = graph->num_nodes;
+    int idx = 0;
+    int dfs_res[n];
+    uint **adj_list = (uint **)malloc(n * sizeof(uint *));
+    int *deg = (int *)malloc(n * sizeof(int));
+    Vector new_pos [n];
+
+    for(int i = 0; i < n; i++)
+        new_pos[i] = graph->nodes[i].position;
+    for (int i = 0; i < n; i++){
+        adj_list[i] = (uint *)malloc(n * sizeof(uint));
+    }
+
+    double max_change;
+    double difference = 0.08 * (graph->width + graph->height) / 2.0;
+
+    // Sprawdzenie działania allocacji
+    if (adj_list == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        return ERR_MEMORY_ALLOC;
+    }
+    if (deg == NULL) {
+        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
+        return ERR_MEMORY_ALLOC;
+    }
+
+\end{mylisting}
+W pierwszej części funkcja alokuje pamięć na listy sąsiedztwa oraz pomocniczą tablicę \texttt{new\_pos}, która przechowuje nowo obliczone współrzędne przed ich ostatecznym zapisaniem do struktury grafu.
+
+\begin{mylisting}
+// Budowanie listy sąsiedstwa
+    int result_adj_list = build_adj_list(graph, adj_list, deg);
+    if (result_adj_list != 0) {
+        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
+        return ERR_ADJ_LIST;
+    }
+    // Wypisywanie listy sąsiedstwa
+    //print_adj_list(graph, adj_list, deg);
+
+    // 2.Znaleznienie dowolnego cykłu wierzchołków grafu
+    find_outer_face(graph, adj_list, deg, dfs_res, &idx);
+
+    // Wypisywanie poligonu zewnętrznego
+    //print_outer_face(dfs_res, idx);
+
+
+    //3.======================Część obliczeniowa======================
+    // Przygotowanie tablicy wierzchołków poligonu zewnętrznego (fixed)
+    int is_fixed[n];
+    for (int i = 0; i < n; i++) {
+        is_fixed[i] = 0;
+    }
+    for (int i = 0; i < idx; i++) {
+        is_fixed[dfs_res[i]] = 1;
+    }
+    // Ustawienie środka i rozmieszczenie punktów zewnętrznych na okręgu
+    Vector center = get_center(graph);
+    place_on_circle(dfs_res, graph, idx, center);
+
+\end{mylisting}
+Następnie graf jest analizowany w celu znalezienia cyklu (ściany zewnętrznej). Wierzchołki należące do tego cyklu są oznaczane jako \texttt{fixed} (stałe) i rozmieszczane na okręgu za pomocą funkcji \texttt{place\_on\_circle}.
+
+\begin{mylisting}
+//Wypisywanie pozycji wierzchołków po rozstawianiu wiezchołków poligonu zewnętrznego
+    //print_nodes_pos(graph, is_fixed);
+
+    int t = 0;
+    max_change = 10.0;
+    //// 4. Główna pętla obliczeniowa
+    while(t < max_iterations && max_change > MINIMUM_CHANGE) {
+        
+        t++; 
+        max_change = 0.0;
+        
+        //4.1.Liczymy idealne pozycje za pomocą algorytmu Tutte
+        for(int i = 0; i < graph->num_nodes; i++) {
+            tutte_iteration(graph,i, is_fixed, adj_list,new_pos, deg, center);
+
+          
+        }
+
+        //4.2.Itercja po każdej parze nowych koordynat dla wierzchołków, jeśli one mają tę samą pozycję, to rozsuwamy je
+                for (int a = 0;a<n; a++ ){
+                    for(int b =a+1;b<n;b++){
+                        if(have_same_pos(new_pos[a], new_pos[b]) && is_fixed[a] !=1 && is_fixed[b]!=1){
+                            offset(new_pos, a,b, difference);
+                        }
+                    }
+                }
+        //4.3.Sprawdzenie warunku pętli while oraz zapis policzonych pozycji
+        for(int i = 0; i < graph->num_nodes; i++) {
+            if(is_fixed[i] != 1) {
+                double change = distance(new_pos[i],graph->nodes[i].position);
+                if (change >max_change){
+                    max_change = change;
+                }
+
+                //Zapis końcowych pozycji do Graph
+                graph->nodes[i].position.x = new_pos[i].x;
+                graph->nodes[i].position.y = new_pos[i].y;
+
+            }}     
+            }
+    //4.4.Zwolnienie zaalokowanej pamięci
+    free_adj_list(graph, adj_list);
+    free_deg(deg);
+
+
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Główna pętla realizuje iteracyjne przybliżanie pozycji wierzchołków do ich stanów równowagi. Dodatkowo funkcja sprawdza kolizje (nakładające się pozycje) i stosuje losowe przesunięcie (\texttt{offset}) w celu ich rozdzielenia. Pętla kończy się po osiągnięciu limitu iteracji lub gdy maksymalna zmiana pozycji wierzchołka spadnie poniżej progu \texttt{MINIMUM\_CHANGE}.
+
+\subsubsection{Funkcja \texttt{tutte\_iteration}}
+\begin{mylisting}
+int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[], Vector center){
+    double sum_x = 0.0;
+    double sum_y = 0.0;
+    // Jeśli wierzchołek należy do poligonu zewnętrznego, zachowujemy jego aktualną pozycję
+    if(is_fixed[iteration] == 1) {
+        new_pos[iteration] = graph->nodes[iteration].position;
+   
+        return EXIT_SUCCESS;
+    }
+        // Specjalna obsługa wierzchołków mających tylko jednego sąsiada
+        if(deg[iteration]==1){
+             int neighbor = adj_list[iteration][0];
+             //Vektor w kietrunku przeciwnym od środku
+                    Vector oposite = substract_vectors(graph->nodes[neighbor].position, center);
+                    
+                    //Dzielimy przez dystancję między centrem a wierzchołkiem żeby otrzymać vektor kirunkowy z długością = 1
+                    double len = distance(graph->nodes[neighbor].position, center);
+                    if (len != 0) {
+                        oposite.x /=len;
+                        oposite.y /=len;
+                    }
+                    // Zabezpieczenie przed dzieleniem przez zero przy zbyt małym dystansie
+                    if (len < EPSILON) return EXIT_SUCCESS;
+
+                    //Mnożymy przez ustawioną outer_rad żeby wierzchołek okazał się na odłegłości outer_rad od sąsiada
+                    double outer_rad = 10; // nie może być < margin
+                    oposite = mult_by_num(oposite, outer_rad);
+
+                    // Ustawiamy nową pozycję jako przesunięcie względem jedynego sąsiada
+                    new_pos[iteration].x = graph->nodes[neighbor].position.x + oposite.x;
+                    new_pos[iteration].y = graph->nodes[neighbor].position.y + oposite.y;
+        }else{
+            //Dla wierzchołków o stopniu > 1 stosujemy zasadę środka ciężkości
+            for(int j = 0; j <deg[iteration]; j++) {
+                    int neighbor = adj_list[iteration][j];
+                    sum_x += graph->nodes[neighbor].position.x;
+                    sum_y += graph->nodes[neighbor].position.y;
+                    
+                    }
+                    // Jeśli wierzchołek jest izolowany (stopień 0), przerywamy obliczenia
+                    if (deg[iteration] == 0) return EXIT_SUCCESS;
+                    // Nowa pozycja to średnia arytmetyczna położeń wszystkich sąsiadów
+                    new_pos[iteration].x = sum_x/deg[iteration];
+                    new_pos[iteration].y = sum_y/deg[iteration];
+                }
+            
+    
+    return EXIT_SUCCESS;
+}
+\end{mylisting}
+Funkcja oblicza nową pozycję dla konkretnego wierzchołka. W przypadku wierzchołków o stopniu wyższym niż 1,
+ stosowana jest średnia arytmetyczna pozycji sąsiadów. Wierzchołki o stopniu 1 są specjalnie odpychane od środka 
+ grafu.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{graph} - wskaźnik na graf.
+\item \texttt{iteration} - indeks wierzchołka.
+\item \texttt{is\_fixed} - tablica wierzchołków stałych.
+\item \texttt{adj\_list} - dynamiczna tablica dwuwymiarowa sąsiadów.
+\item \texttt{new\_pos} - tablica, w której zapisywany jest wynik.
+\item \texttt{deg} - stopnie wierzchołków.
+\item \texttt{center} - geometryczny środek obszaru.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{have\_same\_pos}}
+\begin{mylisting}
+int have_same_pos(Vector a, Vector b){
+    return (fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON );
+}
+\end{mylisting}
+Funkcja porównuje dwa wektory pozycji. Zwraca prawdę (1), jeśli różnica między współrzędnymi jest mniejsza niż zdefiniowana stała \texttt{EPSILON}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{a}, \texttt{b} - porównywane wektory pozycji.
+\end{itemize}
+
+\subsubsection{Funkcja \texttt{offset}}
+\begin{mylisting}
+void offset(Vector new_pos[], int iteration,int jiteration, double difference){
+    double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
+
+    double dx = cos(angle) * difference / 2.0;
+    double dy = sin(angle) * difference / 2.0;
+
+    new_pos[iteration].x += dx;
+    new_pos[iteration].y += dy;
+
+    new_pos[jiteration].x -= dx;
+    new_pos[jiteration].y -= dy;
+}
+\end{mylisting}
+Funkcja ta służy do zmiany pozycji dwóch wierzchołków, które znalazły się w tym samym punkcie przestrzeni.
+ Rozsuwa je w przeciwnych kierunkach pod losowym kątem o dystans zdefiniowany przez parametr \texttt{difference}.
+
+\textbf{Argumenty:}
+\begin{itemize}
+\item \texttt{new\_pos} - tablica nowych pozycji.
+\item \texttt{iteration}, \texttt{jiteration} - indeksy kolidujących wierzchołków.
+\item \texttt{difference} - wartość przesunięcia.
+\end{itemize}
+\end{document} 
+
