@@ -31,7 +31,7 @@ w języku C}
     \begin{center}
 	\begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{assets/Podział na pliki.png}
+        \includegraphics[width=1\textwidth]{assets/Podział na pliki.png}
     \caption{Diagram podziału programu na pliki}
     \label{fig:diagram_podzialu}
 	\end{figure}
@@ -39,6 +39,8 @@ w języku C}
 
 	Program został podzielony na 6 modułów z których każdy składa się z pliku C i pliku nagłówkowego. Moduły to:
 	\begin{itemize}
+        \item \text {input} - odpowiada za wczytywnia parametrow z linii polecen.
+
 		\item \texttt{graph} - odpowiada za zdefniowanie struktur dla grafu, tworzenie grafu bazując na wczytanym pliku, 
 		zarządzanie pamięcią zaalokowaną dla struktur grafu.
 		\item \texttt{validation} - odpowiada za sprawdzenie czy graf jest spójny i planarny.
@@ -51,174 +53,57 @@ w języku C}
 	\section{Opis głównego pliku}
 	Plik \texttt{main.c} zarządza przebiegiem programu oraz odpowiada za wczytywanie parametrów wykonania programu z linii poleceń.
 
-	\begin{mylisting}
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
-
-#include "eades.h"
-#include "graph.h"
-#include "output.h"
-#include "tuttes.h"
-#include "error.h"
-#include "validation.h"
-	\end{mylisting}
-Na początku program włącza pliki nagłówkowe.
 
 \begin{mylisting}
 int main(int argc, char **argv) {
-\end{mylisting}
-Funkcja \texttt{main} przyjmuje ilość argumentów oraz tablicę argumentów z linii poleceń.
+    // Pobranie parametrów wykonania programu z linii poleceń
+    Parameters params = create_params();
+    Jeśli load_params(argc,argv,&params) nie działa:
+        return EXIT_FAILURE
 
-\begin{mylisting}
-	// Zmienne dla parametrow wykonania
-    int algorithm = 0;
-    int output_type = OUTPUT_TXT;
-    char *output_name = NULL;
-    int opt;
-    FILE *graph_file = NULL;
-    
-    int seed = 0;
-    int wasSeedProvided = 0;
-    int width = 100;
-    int height = 100;
-
-    // Parametry algorytmu Eadesa z wartościami domyślnymi
-    double minimum_force = 0.1;
-    int max_iterations = 10000;
-    double ideal_len = 10.0;
-    double repulsion_const = 2.0;
-    double spring_const = 1.0;
-    double cooling = 0.97;
-\end{mylisting}
-Następnie inicjalizowane są zmienne potrzebne do pracy programu.
-\begin{mylisting}
-	// Wczytanie parametrow wykonania
-    while((opt = getopt(argc, argv, ":a:t:s:o:w:h:m:i:l:k:c:C:")) != -1) 
-    {
-        switch(opt) 
-            { 
-                // Wybor algorytmu
-                case 'a':
-                    if (strcmp(optarg, "t") == 0 || strcmp(optarg, "tutte") == 0) {
-                        algorithm = TUTTES_ALGORITHM; // 1 for Tutte
-                    } else if (strcmp(optarg, "e") == 0 || strcmp(optarg, "eades") == 0) {
-                        algorithm = EADES_ALGORITHM; // 0 for Eades
-                    } else {
-                        fprintf(stderr, "BŁĄD: Podano nieprawidłowy algorytm.\n");
-                        algorithm = EADES_ALGORITHM;
-                    }
-                    break;
-				
-					[Kolejne flagi pominięto ...]
-
-				case ':': 
-                    fprintf(stderr,"BŁĄD: Opcja -%c wymaga podania wartości!\n", optopt);
-                    return EXIT_FAILURE;
-                    break; 
-                case '?': 
-                    fprintf(stderr,"BŁĄD: Nieznana opcja -%c\n", optopt);
-                    break; 
-            } 
-    }
-\end{mylisting}
-W kolejnym kroku program korzysta z pętli \texttt{while} oraz funkcji \texttt{getopt} do wczytywania parametrów wykonania programu. Poprzez instrukcję \texttt{switch} funkcja sprawdza czy kolejne flagi i przyporządkowuje ich wartości do zmiennych. Pokazano jedynie kilka najważniejszych przypadków.
-\begin{mylisting}
-	// Wczytanie pliku o nazwie wprowadzonej z linii poleceń
-    if (optind < argc) {
-        graph_file = fopen(argv[optind], "r");
-    }
-\end{mylisting}
-Następnie \texttt{main} sprawdza czy podano dodatkowy parametr, którym jest nazwa pliku, jeżeli tak to plik jest zostaje wczytany.
-\begin{mylisting}
-	if (graph_file == NULL) {
-        fprintf(stderr,"BŁĄD: Nie udało się otworzyć pliku.\n");
+    Jeśłi nie udało się otworayć
         return ERR_FILE_OPEN;
-    }
-\end{mylisting}
-Program sprawdza czy plik został otworzony, jeśli nie to wyświetla komunikat o błędzie i zwraca kod.
-\begin{mylisting}
-	// Sprawdzenie czy ziarno zostało podano jako argument linii poleceń
-    if(wasSeedProvided == 1)
-        srand(seed);
+    
+
+    // Sprawdzenie czy ziarno zostało podano jako argument linii poleceń
+    if(params.wasSeedProvided == 1)
+        srand(params.seed);
     else
         srand(time(NULL));
-\end{mylisting}
-Jeżeli nie podano ziarna, program wybiera je samodzielnie, bazując na aktualnym czasie.
-\begin{mylisting}
-	// Stworzenie grafu na podstawie pliku
+
+    // Stworzenie grafu na podstawie pliku
     int load_graph_status = 0;
-    Graph *graph = load_graph(graph_file, width, height, &load_graph_status);
-    if(load_graph_status == ERR_GRAPH_LOAD) {
-        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
-        fclose(graph_file);
-        free(output_name);
-        return ERR_GRAPH_LOAD;
-    }
-    else if (load_graph_status == ERR_MEMORY_ALLOC) {
-        fprintf(stderr,"BŁĄD: Nie udało się wczytać grafu.\n");
-        fclose(graph_file);
-        free(output_name);
+    Graph *graph = load_graph(params.graph_file, params.width, params.height, &load_graph_status);
+
+    Jeśli nie udało się wczytać graf
+       return ERR_GRAPH_LOAD;
+    
+    Jeśli nie udała się alokacja pamięci
         return ERR_MEMORY_ALLOC;
     }
-\end{mylisting}
-W tej części tworzony jest graf na podstawie otwartego pliku.
-\begin{mylisting}
-	int validation_result = is_graph_valid(graph);
-    switch(validation_result) {
-        case ERR_GRAPH_NOT_CONNECTED:
-            fprintf(stderr,"BŁĄD: Graf nie jest spójny.\n");
-            return validation_result;
-        case ERR_GRAPH_NOT_PLANAR:
-            fprintf(stderr,"BŁĄD: Graf nie jest planarny.\n");
-            return validation_result;
-        case ERR_MEMORY_ALLOC:
-            fprintf(stderr, "BŁĄD: Błąd alokacji pamięci podczas walidacji grafu.\n");
-            return validation_result;
-        default:
-            break;
-    }
-\end{mylisting}
-Następnie graf zostaje sprawdzony pod kątem spójności i planarności.
-\begin{mylisting}
-	// Obsluga wyboru algorytmu z linii polecen
-    switch(algorithm) {
-        case EADES_ALGORITHM:
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
-            break;
-        case TUTTES_ALGORITHM:
-            tuttes_algorithm(graph);
-            break;
-        default:
-            eades_algorithm(graph, minimum_force, max_iterations, ideal_len, spring_const, repulsion_const, cooling);
-            break;
-    }
-\end{mylisting}
-Na podstawie wyboru użytkownika uruchomiony zostaje określony algorytm.
-\begin{mylisting}
-	// Obsluga zapisu do wybranego typu pliku
-    switch(output_type) {
-        case OUTPUT_TXT:
-            if(save_to_txt(graph, output_name) == 1){
-                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku tekstowego.\n");
-                return ERR_SAVE_TEXT_FAILED;
-            }
-            break;
-        case OUTPUT_BIN:
-            if(save_to_bin(graph, output_name) == 1){
-                fprintf(stderr, "BŁĄD: Nie udało się zapisać do pliku binarnego.\n");
-                return ERR_SAVE_BINARY_FAILED;
-            }
-            break;
-    }
-\end{mylisting}
-W zależności od wybranego typu pliku program zapisuje dane wyjściowe.
 
-\begin{mylisting}
-	free(output_name);
-    fclose(graph_file);
+    Sprawdzenie czy graf jest spóny, planarny, i alokację pamięci,
+    jeśli nie, to zwracanie odpowiednego kodu błędu  
+    
+    // Obsluga wyboru algorytmu z linii polecen
+    Jeśli wybrany Eades
+            eades_algorithm(graph, params.minimum_force, params.max_iterations, params.ideal_len, params.spring_const, 
+                params.repulsion_const, params.cooling);
+            
+    Jeśli wybrany Tuttes
+            tuttes_algorithm(graph, params.max_iterations);
+            
+    Domyślnie
+        eades_algorithm(graph, params.minimum_force, params.max_iterations, params.ideal_len, params.spring_const, params.repulsion_const, params.cooling);
+
+    // Obsluga zapisu do wybranego typu pliku
+    Jeśli nie udało się zapisać do pliku tekstowego
+                return ERR_SAVE_TEXT_FAILED;
+    Jeśli nie udało się zapisac do pliku binarnego
+                return ERR_SAVE_BINARY_FAILED;
+  
+    free(params.output_name);
+    fclose(params.graph_file);
 
     printf("Pomyślnie zapisano informacje o %d wierzcholkach do pliku.\n", graph->num_nodes);
     free_graph(graph);
@@ -228,6 +113,48 @@ W zależności od wybranego typu pliku program zapisuje dane wyjściowe.
 \end{mylisting}
 Na koniec program zwalnia pamięć, zamyka pliki i wyświetla komunikat o pomyślnym zapisaniu danych.
 \section{Opis poszczególnych modułów}
+
+\subsection{Moduł \texttt{input}}
+Moduł ten służy do wczytania parametrów linii poleceń do struktury, które będzie je przechowywać.
+
+\begin{mylisting}
+typedef struct {
+    int algorithm;
+    int output_type;
+    char *output_name;
+    FILE *graph_file;
+
+    int seed;
+    int wasSeedProvided;
+    int width;
+    int height;
+
+    // Parametry algorytmu Eadesa z wartościami domyślnymi
+    double minimum_force;
+    int max_iterations;
+    double ideal_len;
+    double repulsion_const;
+    double spring_const;
+    double cooling;
+} Parameters;
+\end{mylisting}
+Moduł definiuje strukturę \textbf{Parameters}, która służy do przechowywania parametrów.
+
+\subsubsection{Funkcja \texttt{create\_params}}
+Tworzy nową strukturę i ustawia wartości zmiennych na domyślne. Funkcja zwraca strukturę \textbf{Parameters}.
+
+\subsubsection{Funkcja \texttt{load\_params}}
+Funkcja pobiera parametry podane z linii poleceń (udostępnione z funkcji \texttt{main}) i umieszcza je w strukturze
+Parameters.
+
+\textbf{Argumenty:}
+\begin{itemize}
+    \item argc - ilość parametrów
+    \item argv - tablica parametrów
+    \item params - wskaźnik na strukturę Parameters
+\end{itemize}
+Funkcja zwraca \texttt{EXIT\_SUCCESS} dla sukcesu i \texttt{ERR\_MISSING} jeżeli użyto nieznanej opcji.
+
 \subsection{Moduł \texttt{vector}}
 Moduł udostepnia funkcję służące do wykonywania operacji na wektorach, a także definiuje ich strukture. Funkcje tego
 modułu wykorzystywane są przez moduł \texttt{eades} i \texttt{tuttes}.
@@ -241,13 +168,7 @@ typedef struct {
 \end{mylisting}
 Struktura wektora składa się dwóch liczb zmiennoprzecinkowych dla współrzędnych x i y.
 \subsubsection{Funkcja \texttt{add\_vectors}}
-\begin{mylisting}
-Vector add_vectors (Vector a, Vector b){
-    a.x += b.x;
-    a.y += b.y;
-    return a;
-}
-\end{mylisting}
+
 Funkcja dodaje do siebie dwa wektory.
 
 \textbf{Argumenty:}
@@ -258,11 +179,7 @@ Funkcja dodaje do siebie dwa wektory.
 Funkcja zwraca zmieniony pierwszy wektor.
 
 \subsubsection{Funkcja \texttt{count\_vector\_length}}
-\begin{mylisting}
-double count_vector_length(Vector a){
-    return sqrt(a.x * a.x + a.y * a.y);
-}
-\end{mylisting}
+
 Funkcja oblicza długość wektora.
 
 \textbf{Argumenty:}
@@ -272,14 +189,8 @@ Funkcja oblicza długość wektora.
 Funkcja zwraca długość wektora jako wartość typu \texttt{double}.
 
 \subsubsection{Funkcja \texttt{distance}}
-\begin{mylisting}
-double distance (Vector a, Vector b){
-    double dx = b.x - a.x;
-    double dy = b.y - a.y;
-    return sqrt(dx * dx + dy * dy);
-}
-\end{mylisting}
-Funkcja oblicza odległość między dwoma wektorami.
+
+Funkcja oblicza odległość między dwoma wektorami zgodnie z formulą :$d = \sqrt{(x_b - x_a)^2 + (y_b - y_a)^2}$
 
 \textbf{Argumenty:}
 \begin{itemize}
@@ -289,14 +200,8 @@ Funkcja oblicza odległość między dwoma wektorami.
 Funkcja zwraca odległość między wektorami jako wartość typu \texttt{double}.
 
 \subsubsection{Funkcja \texttt{vector\_from\_points}}
-\begin{mylisting}
-Vector vector_from_points(Vector a, Vector b){
-    Vector new;
-    new.x = b.x-a.x;
-    new.y = b.y-a.y;
-    return new;
-}
-\end{mylisting}
+
+
 Funkcja tworzy wektor przemieszczenia od punktu reprezentowanego przez wektor \texttt{a} do punktu reprezentowanego przez wektor \texttt{b}.
 
 \textbf{Argumenty:}
@@ -307,13 +212,7 @@ Funkcja tworzy wektor przemieszczenia od punktu reprezentowanego przez wektor \t
 Funkcja zwraca nowy wektor.
 
 \subsubsection{Funkcja \texttt{mult\_by\_num}}
-\begin{mylisting}
-    Vector mult_by_num(Vector a, double n){
-    a.x *=n;
-    a.y *=n;
-    return a;
-}
-\end{mylisting}
+
 Funkcja mnoży wektor przez skalar.
 
 \textbf{Argumenty:}
@@ -324,15 +223,8 @@ Funkcja mnoży wektor przez skalar.
 Funkcja zwraca nowy wektor, będący wynikiem mnożenia wektora \texttt{a} przez skalar \texttt{n}.
 
 \subsubsection{Funkcja \texttt{negative}}
-\begin{mylisting}
-Vector negative(Vector a){
-    Vector new;
-    new.x = -a.x;
-    new.y= -a.y;
-    return new;
-}
-\end{mylisting}
-Funkcja zmienia znak współrzędnych wektora.
+
+Funkcja zmienia znak współrzędnych wektora na przeciwny.
 
 \textbf{Argumenty:}
 \begin{itemize}
@@ -340,17 +232,7 @@ Funkcja zmienia znak współrzędnych wektora.
 \end{itemize}
 Funkcja zwraca nowy wektor.
 \subsubsection{Funkcja \texttt{print\_list}}
-\begin{mylisting}
 
-    void print_list(int list[], int size){
-    for (int i = 0; i<size; i++){
-    printf("[%d] - %d ", i,list[i]);
-
-    }
-    printf("\n");
-
-}
-\end{mylisting}
 Wypisuje zawartość tablicy liczb całkowitych na 
 standardowe wyjście. Każdy element jest prezentowany wraz z odpowiadającym mu indeksem w formacie \texttt{[indeks] - wartość}.\\
 \textbf{Argumenty:}
@@ -360,14 +242,7 @@ standardowe wyjście. Każdy element jest prezentowany wraz z odpowiadającym mu
 \end{itemize}
 
 \subsubsection{Funkcja \texttt{substract\_vectors}}
-\begin{mylisting}
 
-    Vector substract_vectors (Vector a, Vector b){
-        a.x -= b.x;
-        a.y -= b.y;
-        return a;
-    }
-    \end{mylisting}
     Funkcja odejmowania dwóch wektorów dwuwymiarowych. Oblicza różnicę współrzędnych x oraz y.
 
 \textbf{Argumenty:}
@@ -405,141 +280,35 @@ i w razie potrzeby zwrócenia odpowiednich kodów błędu.
 \end{itemize}
 Funkcja zwraca liczbę całkowitą int informującą o rezultacie funkcji.
 
-\subsubsection{Funkcja \texttt{is\_potentially\_planar}}
-\begin{mylisting}
-int is_potentially_planar(Graph *graph) {
-    if (graph->num_nodes < 3) return 1;
-    return graph->num_edges <= 3 * graph->num_nodes - 6;
-}
-\end{mylisting}
-Funkcja ta służy to szybkiego sprawdzenia warunku koniecznego planarności grafu. Pozwala to na szybkie odrzucenie grafów,
-o których wiadomo że nie są planarne.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu.
-\end{itemize}
-Funkcja zwraca liczbę całkowitą int równą 1 dla grafu planarnego lub o innej wartości dla grafu nieplanarnego.
-
-\subsubsection{Funkcja \texttt{is\_graph\_connected}}
-Funkcja ta służy do sprawdzenia czy graf jest spójny za pomocą algorytmu DFS (Depth-first search).
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu.
-\end{itemize}
-Funkcja zwraca liczbę całkowitą int równą 1 dla grafu spójnego lub 0 dla niespójnego.
-
-\begin{mylisting}
-int is_graph_connected(Graph *graph) {
-    if(graph->num_nodes == 0) return 1;
-
-    // Alokacja pamięci
-    int *visited = (int*)calloc(graph->num_nodes, sizeof(int));
-    int *dfs_res = (int*)malloc(graph->num_nodes * sizeof(int));
-    uint **adj_list = (uint**)malloc(graph->num_nodes * sizeof(uint*));
-    int *deg = (int*)malloc(graph->num_nodes * sizeof(int));
-    int idx = 0;
-    int is_connected = 0;
-\end{mylisting}
-Na początku następuje sprawdzenie ilości wierzchołków grafu oraz alokacja pamięci dla potrzebnych zmiennych.
-\begin{mylisting}
-    // Sprawdzenie czy udało się zaalokować pamięć
-    if (visited == NULL || dfs_res == NULL || adj_list == NULL || deg == NULL) {
-        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
-        if (visited) free(visited);
-        if (dfs_res) free(dfs_res);
-        if (adj_list) free(adj_list);
-        if (deg) free(deg);
-        return ERR_MEMORY_ALLOC;
-    }
-\end{mylisting}
-Następnie funkcja sprawdza czy udało się zaalokować pamięć.
-\begin{mylisting}
-    // Alokacja pamieci dla elementów listy sąsiedztwa
-    for (int i = 0; i < graph->num_nodes; i++)
-        adj_list[i] = (uint*)malloc(graph->num_nodes * sizeof(uint));
-\end{mylisting}
-Należy również zaalokować pamięć dla elementów listy sąsiedztwa.
-\begin{mylisting}
-    // Zbudowanie listy sąsiedztwa
-    int result_adj_list = build_adj_list(graph, adj_list, deg);
-    
-    // Sprawdzenie czy udało się zbudować
-    if (result_adj_list != 0){
-        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
-    } else {
-        // Uruchomienie DFS
-        dfs_rec(graph, adj_list, deg, &idx, 0, visited,dfs_res);
-        // Jeżeli indeks po wykonaniu DFS jest równy ilości wierzchołków to graf jest spójny
-        if(idx == graph->num_nodes)
-            is_connected = 1;
-    }
-\end{mylisting}
-W kolejnym kroku tworzona jest lista sąsiedztwa na podstawie grafu. Jeżeli operacja się powiodła to uruchomiony zostaje
-algorytm DFS oraz następuje sprawdzenie czy końcowy indeks jest równy ilości wierzchołków co świadczy o spójności grafu.
-\begin{mylisting}
-    // Zwolnienie pamięci
-    free_adj_list(graph, adj_list);
-    free_deg(deg);
-    free(visited);
-    free(dfs_res);
-
-    return is_connected;
-\end{mylisting}
-Na koniec następuje zwolnienie pamięci oraz zwrócenie zmiennej \texttt{is\_connected}.
-
-\subsubsection{Funkcja \texttt{is\_graph\_planar}}
-Funkcja ta wykorzystuje bibliotekę \texttt{planarity} w celu sprawdzenia czy graf jest planarny.
-
-\begin{mylisting}
-int is_graph_planar(Graph *graph) {
-    graphP gp = gp_New();
-
-    if (gp_InitGraph(gp, graph->num_nodes) != OK) {
-        gp_Free(&gp);
-        return false; 
-    }
-
-    // Dodawanie krawędzi
-    for(int i = 0; i < graph->num_edges; i++) {
-        gp_AddEdge(gp, graph->edges[i].u, 0, graph->edges[i].v, 0);
-    }
-
-    // Uruchomienia funkcji dla sprawdzanie planarności z biblioteki LibPlanarity
-    int is_planar = (gp_Embed(gp, EMBEDFLAGS_PLANAR) == OK);
-
-    // Zwalnianie pamięci
-    gp_Free(&gp);
-    return is_planar;
-}
-\end{mylisting}
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu.
-\end{itemize}
-Funkcja zwraca liczbę całkowitą int równą 1 dla grafu planarnego lub 0 dla nieplanarnego.
 
 \subsection{Moduł \texttt{output}}
 Moduł ten odpowiada za wypisywania danych do pliku tekstowego lub binarnego.
 
 \subsubsection{Funkcja \texttt{save\_to\_text}}
 \begin{mylisting}
-int save_to_txt(Graph *graph, char *output_name) {
-    if(!graph) return 1;
+ save_to_txt(graf, nazwa_wyjściowa):
 
-    char *final_name = output_name ? output_name : OUTPUT_NAME_TXT;
+    Jeśli graf nie istnieje -> zwróć błąd (1).
 
-    FILE *file = fopen(final_name,"w");
-    if(!file) return 1;
+    Ustal nazwę pliku:
 
-    for(int i = 0; i < graph->num_nodes; i++) {
-        fprintf(file, "%d %lf %lf\n", graph->nodes[i].id, graph->nodes[i].position.x, graph->nodes[i].position.y);
-    }
-    fclose(file);
-    return 0;
-}
+        Jeśli podano nazwa_wyjściowa, użyj jej.
+
+        W przeciwnym razie użyj nazwy domyślnej (OUTPUT_NAME_TXT).
+
+    Otwórz plik do zapisu:
+
+        Jeśli nie udało się otworzyć pliku -> zwróć błąd (1).
+
+    Dla każdego wierzchołka w grafie:
+
+        Zapisz do pliku w jednej linii: identyfikator, pozycja_x, pozycja_y.
+
+    Zamknij plik.
+
+    Zwróć sukces (0).
+
+    
 \end{mylisting}
 
 Funkcja ta odpowiada za wypisywanie informacji o wierzchołkach grafu do pliku tekstowego o wybranej nazwie. Jeżeli nazwa
@@ -628,196 +397,49 @@ typedef struct{
 Zdefiniowano również strukturę grafu. Która zawiera tablice dynamiczne wierzchołków i krawędzi wraz z ich ilością 
 elementów oraz pojemnością. Struktura zawiera również szerokość i wysokość obszaru, w którym wyświetlony będzie graf.
 
-\subsubsection{Funkcja \texttt{load\_graph}}
+ \subsubsection{Funkcja \texttt{load\_graph}}
+
 Funkcja ta tworzy graf na podstawie wczytanego pliku.
 
+
 Argumenty:
+
 \begin{itemize}
-    \item graph\_file - wskaźnik na plik
-    \item width - szerokośc obszaru, w którym wyświetlony będzie graf
-    \item height - wysokość obszaru, w którym wyświetlony będzie graf
-    \item out\_code - kod błędu
+
+\item graph\_file - wskaźnik na plik
+
+\item width - szerokośc obszaru, w którym wyświetlony będzie graf
+
+\item height - wysokość obszaru, w którym wyświetlony będzie graf
+
+\item out\_code - kod błędu
+
 \end{itemize}
+
 Funkcja zwraca wskaźnik na strukturę grafu.
 
 \begin{mylisting}
-Graph *load_graph(FILE *graph_file, int width, int height, int *out_code) {
-    if(!graph_file) {
-        *out_code = ERR_FILE_OPEN;
-        return NULL;
-    }
 
-    Graph *graph = malloc(sizeof(Graph));
-    if (!graph) {
-        *out_code = ERR_MEMORY_ALLOC;
-        return NULL;
-    }
+graph load_graph(plik, szerokość, wysokość, out_kod):
+    1. JEŚLI plik nie istnieje -> ustaw błąd i zwróć NULL.
 
-    graph->edges = malloc(EDGELIST_SIZE * sizeof(Edge));
-    graph->nodes = malloc(NODELIST_SIZE * sizeof(Node));
+    2. ALOKUJ pamięć dla struktury Graph:
+       - Ustaw początkową pojemność (16) dla wierzchołków i krawędzi.
+       - Zainicjalizuj wymiary obszaru wyświetlania.
+       - JEŚLI błąd alokacji -> zwróć NULL.
 
-    if (!graph->edges || !graph->nodes) {
-        free(graph->edges);
-        free(graph->nodes);
-        free(graph);
-        *out_code = ERR_MEMORY_ALLOC;
-        return NULL;
-    }
+    3. DOPÓKI można odczytać dane z pliku (identyfikator, u, v, waga):
+       - Szukaj wierzchołka 'u' w grafie:
+         - Jeśli nie istnieje -> dodaj go do tablicy.
+       - Szukaj wierzchołka 'v' w grafie:
+         - Jeśli nie istnieje -> dodaj go do tablicy.
+       - DODAJ krawędź między 'u' a 'v' z podaną wagą i nazwą.
+       
+       - JEŚLI podczas dodawania zabraknie pamięci -> zwolnij wszystko i zwróć NULL.
+
+    4. ZWRÓĆ gotowy wskaźnik na graf.
 \end{mylisting}
-Na początku funkcja sprawdza czy wskaźnik do pliku istnieje. Nastepnie alokuje miejsce dla struktury grafu, krawędzi oraz wierzchołków. Początkowo funkcja alokuje pamięć dla listy krawędzi i wierzchołków o rozmiarze równym zmiennym kolejno: \texttt{EDGELIST\_SIZE} oraz \texttt{NODELIST\_SIZE}, które domyślnie ustalone są na 16.
 
-\begin{mylisting}
-    graph->num_nodes = 0;
-    graph->num_edges = 0;
-    graph->capacity_edges = EDGELIST_SIZE;
-    graph->capacity_nodes = NODELIST_SIZE;
-    graph->width = width;
-    graph->height = height;
-\end{mylisting}
-Do zmiennych grafu zostają przypisane początkowe wartości.
-
-\begin{mylisting}
-    char buff[256];
-    int u = 0;
-    int v = 0;
-    double weight = 0.0;
-    while (fscanf(graph_file, "%s %d %d %lf", buff, &u, &v, &weight) == 4) {
-\end{mylisting}
-W następnym kroku funkcja wczytuje dane z pliku za pomocą zmiennej \texttt{while} i zapisuje je do zmiennych tymczasowych.
-
-\begin{mylisting}
-    int u_idx = find_node(graph, u);
-        if (u_idx == -1) {
-            if (add_node(graph, u) == ERR_MEMORY_ALLOC) {
-                free_graph(graph);
-                *out_code = ERR_MEMORY_ALLOC;
-                return NULL;
-            }
-            u_idx = graph->num_nodes - 1;
-        }
-
-        int v_idx = find_node(graph, v);
-        if (v_idx == -1) {
-            if (add_node(graph, v) == ERR_MEMORY_ALLOC) {
-                free_graph(graph);
-                *out_code = ERR_MEMORY_ALLOC;
-                return NULL;
-            }
-            v_idx = graph->num_nodes - 1;
-        }
-\end{mylisting}
-Dla początkowego i końcowego wierzchołka funkcja szuka czy wierzchołek o takim identyfikatorze występuje w tablicy wierzchołków. Jeżeli nie, to tworzy je.
-
-\begin{mylisting}
-    if (add_edge(graph, u_idx, v_idx, weight, buff) == ERR_MEMORY_ALLOC) {
-            free_graph(graph);
-            *out_code = ERR_MEMORY_ALLOC;
-            return NULL;
-        }
-    }
-    return graph;
-}
-\end{mylisting}
-Następnie dodawana jest krawędź zawierająca oba wierzchołki. Na koniec wskaźnik na graf jest zwracany.
-
-\subsubsection{Funkcja \texttt{find\_node}}
-\begin{mylisting}
-int find_node(Graph *graph, int index) {
-    for (int i = 0; i < graph->num_nodes; i++)
-        if (graph->nodes[i].id == index)
-            return i;
-    return -1;
-}
-\end{mylisting}
-Jest to funkcja pomocnicza, która służy do znalezienia indeksu wierzchołka w tablicy wierzchołków grafu o podanym identyfikatorze.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu
-    \item index - identyfikator wierzchołka
-\end{itemize}
-Funkcja zwraca indeks wierzchołka w tablicy wierzchołków lub -1 jeżeli taki wierzchołek nie istnieje.
-
-\subsubsection{Funkcja \texttt{add\_node}}
-Funkcja służy dodawania nowego wierzchołka do grafu.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu
-    \item index - identyfikator wierzchołka
-\end{itemize}
-
-Funkcja zwraca liczbę całkowitą, która informuje o statusie operacji. Zwraca 0 dla sukcesu i inną wartość dla błędów.
-
-\begin{mylisting}
-int add_node(Graph *graph, uint index) {
-    if (graph->num_nodes >= graph->capacity_nodes) {
-        size_t new_capacity = graph->capacity_nodes * 2;
-        Node *new_nodes = realloc(graph->nodes, new_capacity * sizeof(Node));
-
-        if (new_nodes == NULL) {
-            return ERR_MEMORY_ALLOC;
-        }
-        graph->nodes = new_nodes;
-        graph->capacity_nodes = new_capacity;
-    }
-\end{mylisting}
-Na początku funkcja sprawdza czy należy powiększyć tablicę dynamiczną wierzchołków. Jeżeli tak, to zostaje ona powiększona dwukrotnie.
-
-\begin{mylisting}
-    // Tworzenie nowego wierzchołka
-    Node *new_node = &graph->nodes[graph->num_nodes];
-    new_node->position.x = rand() % (graph->width + 1);
-    new_node->position.y = rand() % (graph->height + 1);
-    new_node->force.x = 0;
-    new_node->force.y = 0;
-    new_node->id = index;
-    graph->num_nodes++;
-    return 0;
-}
-\end{mylisting}
-Następnie dodany zostaje nowy wierzchołek. Jego położenie zostaje wylosowane biorąc pod uwagę szerokość i wysokość obszaru.
-Na koniec funkcja zwraca 0 dla sukcesu.
-
-\subsubsection{Funkcja \texttt{add\_edge}}
-Funkcja ta służy do dodawania krawędzi do grafu.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item graph - wskaźnik na strukturę grafu
-    \item u - indeks wierzchołka początkowego
-    \item v - indeks wierzchołka końcowego
-    \item weight - waga krawędzi
-    \item name - nazwa krawędzi
-\end{itemize}
-Funkcja zwraca liczbę całkowitą informującą o statusie. Zwraca 0 dla sukcesu i inną wartość dla błędu.
-\begin{mylisting}
-int add_edge(Graph *graph, int u, int v, double weight, char *name) {
-    // Sprawdzenie, czy należy powiększyć miejsce
-    if (graph->num_edges >= graph->capacity_edges) {
-        size_t new_capacity = graph->capacity_edges * 2;
-        Edge *new_edges = realloc(graph->edges, new_capacity * sizeof(Edge));
-
-        if (new_edges == NULL) {
-            return ERR_MEMORY_ALLOC;
-        }
-        graph->edges = new_edges;
-        graph->capacity_edges = new_capacity;
-    }
-\end{mylisting}
-Na początku funkcja sprawdza czy należy powiększyć tablicę dynamiczną krawędzi. Jeżeli tak, to powiększa ją dwukrotnie.
-\begin{mylisting}
-    // Tworzenie nowej krawędzi
-    Edge *new_edge = &graph->edges[graph->num_edges];
-    new_edge->u = u;
-    new_edge->v = v;
-    new_edge->weight = weight;
-    new_edge->name = strdup(name);
-    graph->num_edges++;
-    return 0;
-}
-\end{mylisting}
-Następnie dodana zostaje nowa krawędź i funkcja zwraca 0 dla sukcesu.
 \subsubsection{Funkcja \texttt{free\_graph}}
 Funkcja służy do zwalniania pamięci zaalokowanej dla struktury grafu.
 
@@ -877,18 +499,9 @@ Funkcja ta przekształca listową reprezentację krawędzi w listę sąsiedztwa,
 Funkcja zwraca \texttt{EXIT\_SUCCESS} po poprawnym zbudowaniu struktury.
 
 \subsubsection{Funkcja print\_adj\_list }
-\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla diagnostyki. Jej wywołanie jest zakomentowane w kodzie.
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
 
-\begin{mylisting}
-void print_adj_list(Graph *graph, uint **adj_list, int *deg) {
-    for (int u = 0; u < graph->num_nodes; u++) {
-        printf("Sąsiedzi dla %d: ", u);
-        for (int i = 0; i < deg[u]; i++)
-            printf("%d ", adj_list[u][i]);
-        printf("\n");
-    }
-}
-\end{mylisting}
+
 Wypisuje kompletną listę sąsiedztwa na standardowe wyjście.
 \textbf{Argumenty:}
 \begin{itemize}
@@ -907,19 +520,10 @@ Sąsiedzi dla 3: 2 1
 
 
 \subsubsection{Funkcja print\_outer\_face}
-\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla diagnostyki. Jej wywołanie jest zakomentowane w kodzie.
-\begin{mylisting}
-void print_outer_face(int dfs_res[], int dfs_res_size) {
-    for (int i = 0; i < dfs_res_size; i++) {
-        printf("%d", dfs_res[i]);
-        printf("->");
-    }
-    printf("%d", dfs_res[0]);
-    printf("\n");
-}
-\end{mylisting}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+
 Wizualizuje cykl tworzący zewnętrzny poligon grafu (outer face) w formacie czytelnej ścieżki. 
-Pierwszy i ostatni element zawsze będą takie same, ponieważ jest to prezentacja zamknętego cyklu.\\ 
+Pierwszy i ostatni element zawsze będą takie same, ponieważ jest to presentacja zamknętego cykłu\\ 
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{dfs\_res} - tablica przechowująca indeksy wierzchołków poligonu zewnętrznego.
@@ -930,21 +534,8 @@ Przykład wyjścia:
 3->2->1->3
 \end{mylisting}
 \subsubsection{Funkcja print\_nodes\_pos}
-\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla diagnostyki. Jej wywołanie jest zakomentowane w kodzie.
-\begin{mylisting}
-void print_nodes_pos(Graph *graph, int is_fixed[]) {
-    for (int i = 0; i < graph->num_nodes; i++) {
-        printf("[%d] - (%.3f,%.3f) ", i, graph->nodes[i].position.x,
-               graph->nodes[i].position.y);
-        if (is_fixed[i] == 1) {
-            printf("-poligon zewnętrzny");
-        }
-        printf("\n");
-    }
-    printf("=============================================");
-    printf("\n");
-}
-\end{mylisting}
+\textcolor{red}{(*)}Funkcja słuzy wyłącznie dla dyagnostyki.Jej wywolanie jest zakomentowane w kodzie.
+
 Wypisuje współrzędne wszystkich wierzchołków, oznaczając te, które zostały przypisane do poligonu zewnętrznego.\\
 
 \textbf{Argumenty:}
@@ -962,14 +553,8 @@ Przykład wyjścia:
 \end{mylisting}
 
 \subsubsection{Funkcja free\_adj\_list}
-Funkcja służy do zwolnienia pamięci zaalokowanej dla struktury listy sąsiedztwa.
-\begin{mylisting}
-void free_adj_list(Graph *graph, uint **adj_list) {
-    for (int i = 0; i < graph->num_nodes; i++)
-        free(adj_list[i]);
-    free(adj_list);
-}
-\end{mylisting}
+Funkcja służy do zwalniania pamięci zaalokowanej dla struktury listy sąsiedztwa.
+
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{graph} - wskaźnik na strukturę grafu (używany do określenia liczby wierzchołków).
@@ -977,110 +562,15 @@ void free_adj_list(Graph *graph, uint **adj_list) {
 \end{itemize}
 \subsubsection{Funkcja free\_deg}
 Funkcja służy do zwalniania pamięci zaalokowanej dla struktury ilości sąsiadów.
-\begin{mylisting}
-void free_deg(int *deg) {
-    if (!deg)
-        return;
-    free(deg);
-}
-\end{mylisting} 
+
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{deg} - wskaźnik na tablicę stopni wierzchołków.
 \end{itemize}
 
-\subsubsection{Funkcja \texttt{dfs\_rec}}
-\begin{mylisting}
-void dfs_rec(Graph *graph, uint **adj_list, int *deg, int *idx, int start,
-             int visited[], int dfs_res[]) {
-    // Lista typu: [0]:1, [1]:1, [2]:0 gdzie 0 - nie zwiedzony; 1- zwiedzony
-    visited[start] = 1;
-
-    // Lista przechowująca indeksy zwiedzonych wierzchołków
-    dfs_res[(*idx)++] = start;
-
-    for (int i = 0; i < deg[start]; i++) {
-        int neighbor = adj_list[start][i];
-        if (visited[neighbor] == 0)
-            dfs_rec(graph, adj_list, deg, idx, neighbor, visited, dfs_res);
-    }
-}
-\end{mylisting}
-Standardowa rekurencyjna implementacja przeszukiwania w głąb (DFS), służąca do wyznaczania ścieżki zwiedzania grafu.
-
-\subsubsection{Funkcja \texttt{dfs\_rec\_face}}
-Jest to specjalna wersja algorytmu DFS, której celem jest wykrycie pierwszego napotkanego cyklu w grafie, który posłuży jako zewnętrzny
- poligon w algorytmie Tutte’a.
-
-\begin{mylisting}
-int dfs_rec_face(Graph *graph, uint **adj_list, int *deg, int *idx, int current,
-                 int visited[], int parent[], int cycle_res[], int *cycle_idx,
-                 int *found) {
-    // Jeśli już znalezliśmy cykl to EXIT_SUCCESS.
-    if (*found)
-        return EXIT_SUCCESS;
-    visited[current] = 1;
-\end{mylisting}
-W następnej pętli otbywa się iteracja po sąsiadach w adj\_list:
-\begin{mylisting}
-    for (int i = 0; i < deg[current]; i++) {
-        int neighbor = adj_list[current][i];
-        // Jeśli sąsiad jescze nie zwiedzony - przechodzimy dalej i
-        // rekurencyjnie zamykamy funkcję
-        if (visited[neighbor] == 0) {
-            parent[neighbor] = current;
-            dfs_rec_face(graph, adj_list, deg, idx, neighbor, visited, parent,
-                         cycle_res, cycle_idx, found);
-            if (*found)
-                return EXIT_SUCCESS;
-        }
-\end{mylisting}
-
-Jeśli sąsiad nie przodek i już zwiedzony, to znalezliśmy cykł i wracamy do początku:
-\begin{mylisting}
-        else if (neighbor != parent[current] && visited[neighbor] == 1) {
-            *found = 1;
-            int v = current;
-            while (v != neighbor && v != -1) {
-                cycle_res[(*cycle_idx)++] = v;
-                // Wracanie po poprzednikach
-                v = parent[v];
-                // printf("%d ",v); Pokaże  po jakich wieszchołkach wrócamy się,
-            }
-            cycle_res[(*cycle_idx)++] = neighbor;
-            return EXIT_SUCCESS;
-        }
-    }
-    visited[current] = 2;
-    return EXIT_SUCCESS;
-}
-\end{mylisting}
-Kluczowy mechanizm: jeśli algorytm napotka wierzchołek już zwiedzony, który nie jest bezpośrednim rodzicem aktualnego wierzchołka, oznacza to wykrycie krawędzi powrotnej i domknięcie cyklu. Następuje wtedy odtworzenie ścieżki cyklu za pomocą tablicy \texttt{parent}.
 
 \subsubsection{Funkcja \texttt{find\_outer\_face}}
-\begin{mylisting}
-void find_outer_face(Graph *graph, uint **adj_list, int *deg, int cycle_res[],
-int *cycle_idx) {
-// Inicjalizacja narzędzi
-int n = graph->num_nodes;
-int visited[n];
-int parent[n];
-int found = 0;
-int start = 0;
 
-// Zapełniamy zerami visited[], czyli "nic nie zwiedzono"; -1 w parent[]
-// znaczy że ten wieszchołek nie ma rodzica
-for (int i = 0; i < n; i++) {
-    visited[i] = 0;
-    parent[i] = -1;
-}
-*cycle_idx = 0;
-
-dfs_rec_face(graph, adj_list, deg, &start, 0, visited, parent, cycle_res,
-             cycle_idx, &found);
-
-}
-\end{mylisting}
 Funkcja ta stanowi punkt wejścia do algorytmu wyznaczania zewnętrznego poligonu. Jej zadaniem jest przygotowanie struktur pomocniczych (tablicy odwiedzin oraz tablicy przodków) i uruchomienie dedykowanego algorytmu przeszukiwania w głąb (\texttt{dfs\_rec\_face}), który zidentyfikuje pierwszy napotkany cykl.
 
 \textbf{Argumenty:}
@@ -1094,14 +584,7 @@ Funkcja ta stanowi punkt wejścia do algorytmu wyznaczania zewnętrznego poligon
 
 
 \subsubsection{Funkcja \texttt{get\_center}}
-\begin{mylisting}
-Vector get_center(Graph *graph) {
-    Vector center;
-    center.x = round((graph->width) / 2);
-    center.y = round((graph->height) / 2);
-    return center;
-}
-\end{mylisting}
+
 Funkcja oblicza współrzędne środka obszaru, na którym rysowany jest graf. Wynik jest wyznaczany na podstawie wymiarów (\texttt{width} i \texttt{height}) zapisanych w strukturze grafu.
 
 \textbf{Argumenty:}
@@ -1118,22 +601,19 @@ void place_on_circle(int outer_faces[], Graph *graph, int k, Vector center) {
     // radius- promień domyślego okręga na którym rozskładamy wierzchołki
     double radius = fmin(graph->width, graph->height) / 2.0 - margin;
 
-    // Iteracja po wierzchołkach zewnętrznego poligonu
-    for (int i = 0; i < k; i++) {
+    Po wierzchołkach zewnętrznego poligonu
+        liczymy kąt(patrz formulę poniżej)
 
-        // Kąt pomiędzy kolejnymi wierzchołkami
-        double angle = 2.0 * M_PI * i / k;
 
-        // Zmiana pozycji wieszchołków
-        graph->nodes[outer_faces[i]].position.x =
-        center.x + radius * cos(angle);
-        graph->nodes[outer_faces[i]].position.y =
-        center.y + radius * sin(angle);
-    }
+        Zmieniamy pozycji wieszchołków
+       
+    
 }
 \end{mylisting}
 Funkcja odpowiada za geometryczne rozmieszczenie wierzchołków wyznaczonych jako „poligon zewnętrzny” na okręgu. Jest to kluczowy etap przygotowawczy dla algorytmu Tutte'a, ponieważ unieruchomienie tych wierzchołków w formie wypukłego wielokąta gwarantuje poprawne rozmieszczenie pozostałych punktów wewnątrz.
-
+Formula dla kątu :     \[
+\alpha = \frac{2 \pi \cdot i}{k}
+\]
 \textbf{Argumenty:}
 \begin{itemize}
 \item \texttt{outer\_faces} - tablica indeksów wierzchołków do rozmieszczenia.
@@ -1150,50 +630,40 @@ void eades_algorithm(Graph *graph,
     double minimum_force, int max_iterations, 
     double ideal_len, double spring_const, int c, double cooling)
 {
+    //Inicjalizacja zmiennych
     int t = 0;
     double max_force_magnitude = 1.0;
     double temperature = 1.0;
 
-    while(t < max_iterations && max_force_magnitude > minimum_force) {
+    Główna pętla symulacji (wykonuj, dopóki t < max_iter ORAZ max_force_magnitude > min_force)
         max_force_magnitude = 0.0;
 
-        // Wyzeruj siły dla bieżącej iteracji
-        for(int i = 0; i < graph->num_nodes; i++) {
-            graph->nodes[i].force.x = 0;
-            graph->nodes[i].force.y = 0;
-        }
+        Wyzeruj wszystkie siły dla bieżącej iteracji
+        
 
         // Oblicz siły odpychania między wszystkimi parami wierzchołków
-        for(int i = 0; i < graph->num_nodes; i++) {
-            for(int j = i + 1; j < graph->num_nodes; j++) {
-                compute_repulive(&graph->nodes[i], &graph->nodes[j], c);
-            }
-        }
+        Dla każdej pary wierzchołków
+                Obliczanie sił odchyłania
+            
+        
 
         // Oblicz siły przyciągania wzdłuż krawędzi
-        for(int i = 0; i < graph->num_edges; i++) {
-            compute_attract(graph, &graph->edges[i], spring_const, ideal_len);
-        }
+        Dla każdej krawiędzi
+            Obliczanie sił przyciągania
 
         // Zaktualizuj pozycje wierzchołków i znajdź maksymalną siłę
-        for(int i = 0; i < graph->num_nodes; i++) {
-            Node *node = &graph->nodes[i];
-            double current_force_magnitude = count_vector_length(node->force);
+        Dla każdego wierzchołku
+            Aktualizacja pozycji
+            Znalezninie maksymalnej wartości siły
 
-            if(current_force_magnitude > max_force_magnitude) {
-                max_force_magnitude = current_force_magnitude;
-            }
-
-            // Zastosuj siłę do pozycji wierzchołka, skalując przez temperaturę
-            Vector displacement = mult_by_num(node->force, temperature);
-            node->position = add_vectors(node->position, displacement);
+            Zastosowanie siły do pozycji wierzchołka, skalując przez temperaturę
+            
         }
 
         // Schładzanie
         temperature *= cooling;
         t++;
-    }
-}
+
 \end{mylisting}
 
 Główna funkcja sterująca procesem układania grafu. W każdej iteracji obliczane są siły odpychania (pomiędzy wszystkimi wierzchołkami) oraz siły przyciągania (tylko wzdłuż krawędzi). Pozycje wierzchołków są aktualizowane o wektor wypadkowej siły pomnożony przez aktualną „temperaturę” układu, która maleje w czasie, co pozwala na stabilizację rysunku.
@@ -1208,71 +678,6 @@ Główna funkcja sterująca procesem układania grafu. W każdej iteracji oblicz
     \item \texttt{c} - stała potrzebna dla obliczenia siły odpychania.
     \item \texttt{cooling} - współczynnik chłodzenia układu (z zakresu 0 do 1).
 \end{itemize}
-
-\subsubsection{Funkcja \texttt{compute\_repulsive}}
-\begin{mylisting}
-void compute_repulsive(Node *u, Node *v, int c) {
-    Vector repulsive; //vector siły odpychania
-    double d = distance(u->position, v->position);
-    if(d < 0.0001) { //zapobieganie dzieleniu przez zero
-        d = 0.0001;
-    }
-    double rep_num_part = c / (d * d); //część numeryczna siły odpychania
-    Vector direction_uv = vector_from_points(u->position, v->position); // Wektor v - u
-    Vector unit_vec; // Wektor jednostkowy w kierunku od u do v
-    unit_vec.x = direction_uv.x / d;
-    unit_vec.y = direction_uv.y / d;
-    repulsive = mult_by_num(unit_vec, rep_num_part); //końcowa wartość siły odpychania
-
-    // Siła odpychająca na 'u' działa w kierunku przeciwnym do 'v'
-    u->force = add_vectors(u->force, negative(repulsive));
-    // Siła odpychająca na 'v' działa w kierunku przeciwnym do 'u'
-    v->force = add_vectors(v->force, repulsive);
-}
-\end{mylisting}
-Funkcja oblicza siłę odpychania działającą między dwoma wierzchołkami zgodnie z prawem odwrotnych kwadratów. Siła ta zapobiega nakładaniu się wierzchołków na siebie.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item \texttt{u}, \texttt{v} - wskaźniki na wierzchołki, między którymi liczone jest odpychanie.
-    \item \texttt{c} - stała określająca moc siły odpychającej.
-\end{itemize}
-
-\subsubsection{Funkcja \texttt{compute\_attract}}
-\begin{mylisting}
-void compute_attract(Graph *graph, Edge *e, double spring_const, double ideal_len) {
-    Node *u = &graph->nodes[e->u]; //2 wierzchołki nałeżające do tej krawiędzi
-    Node *v = &graph->nodes[e->v];
-
-    Vector attractive; // vector siły przyciągania
-
-    double d = distance(u->position, v->position);
-    if(d < 0.0001) { //zapobieganie dzieleniu przez zero
-        d = 0.0001;
-    }
-    
-    Vector direction_uv = vector_from_points(u->position, v->position); // Wektor v - u
-    Vector unit_vec; // Wektor jednostkowy w kierunku od u do v
-    unit_vec.x = direction_uv.x / d;
-    unit_vec.y = direction_uv.y / d;
-    double attr_num_part = spring_const * log(d / ideal_len); // numeryczna część siły przyciągania
-    attractive = mult_by_num(unit_vec, attr_num_part);  //końcowa wartość siły przyciągania
-    // Siła przyciągająca na 'u' działa w kierunku 'v'
-    u->force = add_vectors(u->force, attractive);
-    // Siła przyciągająca na 'v' działa w kierunku 'u'
-    v->force = add_vectors(v->force, negative(attractive));
-}
-\end{mylisting}
-Funkcja oblicza siłę przyciągania wzdłuż krawędzi grafu. Wykorzystuje model logarytmiczny sprężyny, który dąży do ustawienia wierzchołków w odległości równej \texttt{ideal\_len}.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item \texttt{graph} - wskaźnik na graf (do pobrania struktur wierzchołków).
-    \item \texttt{e} - wskaźnik na krawędź, wzdłuż której działa siła.
-    \item \texttt{spring\_const} - sztywność „sprężyny”.
-    \item \texttt{ideal\_len} - pożądana długość krawędzi.
-\end{itemize}
-
 \subsection{Moduł \texttt{tuttes}}
 Moduł ten zawiera implementację algorytmu Tutte’a (metoda barycentryczna), służącego do wyznaczania planarnego ułożenia grafu. Algorytm opiera się 
 na unieruchomieniu wierzchołków poligonu zewnętrznego na planie wielokąta wypukłego i rozmieszczeniu pozostałych wierzchołków w środkach ciężkości ich sąsiadów.
@@ -1287,114 +692,58 @@ Jest to główna funkcja sterująca procesem rozmieszczania grafu. Proces ten zo
 \end{itemize}
 Funkcja zwraca \texttt{EXIT\_SUCCESS} w przypadku powodzenia lub kod błędu alokacji.
 
-\begin{mylisting}
-int tuttes_algorithm(Graph *graph, int max_iterations) {
-  
-    //Inicjalizacja potrzebnych narzędzi i allokacja
-    int n = graph->num_nodes;
-    int idx = 0;
-    int dfs_res[n];
-    uint **adj_list = (uint **)malloc(n * sizeof(uint *));
-    int *deg = (int *)malloc(n * sizeof(int));
-    Vector new_pos [n];
 
-    for(int i = 0; i < n; i++)
-        new_pos[i] = graph->nodes[i].position;
-    for (int i = 0; i < n; i++){
-        adj_list[i] = (uint *)malloc(n * sizeof(uint));
-    }
-
-    double max_change;
-    double difference = 0.08 * (graph->width + graph->height) / 2.0;
-
-    // Sprawdzenie działania allocacji
-    if (adj_list == NULL) {
-        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
-        return ERR_MEMORY_ALLOC;
-    }
-    if (deg == NULL) {
-        fprintf(stderr, "BŁĄD: Nie udało się zaalokować pamięci.\n");
-        return ERR_MEMORY_ALLOC;
-    }
-
-\end{mylisting}
-W pierwszej części funkcja alokuje pamięć dla listy sąsiedztwa oraz pomocniczą tablicę \texttt{new\_pos}, która przechowuje nowo obliczone współrzędne przed ich ostatecznym zapisaniem do struktury grafu.
+W pierwszej części funkcja alokuje pamięć na listy sąsiedztwa oraz pomocniczą tablicę \texttt{new\_pos}, która przechowuje nowo obliczone współrzędne przed ich ostatecznym zapisaniem do struktury grafu.
 
 \begin{mylisting}
 // Budowanie listy sąsiedstwa
     int result_adj_list = build_adj_list(graph, adj_list, deg);
-    if (result_adj_list != 0) {
-        fprintf(stderr, "BŁĄD: Nie udało się zbudować listy sąsiedztwa.\n");
-        return ERR_ADJ_LIST;
-    }
-    // Wypisywanie listy sąsiedstwa
-    //print_adj_list(graph, adj_list, deg);
-
-    // 2.Znaleznienie dowolnego cykłu wierzchołków grafu
-    find_outer_face(graph, adj_list, deg, dfs_res, &idx);
-
-    // Wypisywanie poligonu zewnętrznego
-    //print_outer_face(dfs_res, idx);
+    Sprawdanie budowania result_adj_list;
+    
 
 
     //3.======================Część obliczeniowa======================
     // Przygotowanie tablicy wierzchołków poligonu zewnętrznego (fixed)
-    int is_fixed[n];
-    for (int i = 0; i < n; i++) {
-        is_fixed[i] = 0;
-    }
-    for (int i = 0; i < idx; i++) {
-        is_fixed[dfs_res[i]] = 1;
-    }
+   
+    Zapełninie is_fixed[]
+
     // Ustawienie środka i rozmieszczenie punktów zewnętrznych na okręgu
     Vector center = get_center(graph);
     place_on_circle(dfs_res, graph, idx, center);
 
 \end{mylisting}
-Następnie graf jest analizowany w celu znalezienia cyklu (poligonu zewnętrznego). Wierzchołki należące do tego cyklu są oznaczane jako \texttt{fixed} (stałe) i rozmieszczane na okręgu za pomocą funkcji \texttt{place\_on\_circle}.
+Następnie graf jest analizowany w celu znalezienia cyklu (ściany zewnętrznej). Wierzchołki należące do tego cyklu są oznaczane jako \texttt{fixed} (stałe) i rozmieszczane na okręgu za pomocą funkcji \texttt{place\_on\_circle}.
 
 \begin{mylisting}
-//Wypisywanie pozycji wierzchołków po rozstawianiu wiezchołków poligonu zewnętrznego
-    //print_nodes_pos(graph, is_fixed);
+
 
     int t = 0;
     max_change = 10.0;
     //// 4. Główna pętla obliczeniowa
-    while(t < max_iterations && max_change > MINIMUM_CHANGE) {
-        
+    Główna pętla symulacji (wykonuj, dopóki t < max_iterations ORAZ max_change > MINIMUM_CHANGE):
+
         t++; 
         max_change = 0.0;
         
         //4.1.Liczymy idealne pozycje za pomocą algorytmu Tutte
-        for(int i = 0; i < graph->num_nodes; i++) {
+        Dla każdego wierzchołka
             tutte_iteration(graph,i, is_fixed, adj_list,new_pos, deg, center);
 
-          
-        }
-
-        //4.2.Iteracja po każdej parze nowych koordynat dla wierzchołków, jeśli one mają tę samą pozycję, to rozsuwamy je
-                for (int a = 0;a<n; a++ ){
-                    for(int b =a+1;b<n;b++){
-                        if(have_same_pos(new_pos[a], new_pos[b]) && is_fixed[a] !=1 && is_fixed[b]!=1){
+        //4.2.Itercja po każdej parze nowych koordynat dla wierzchołków, jeśli one mają tę samą pozycję, to rozsuwamy je
+                Dla każdej pary wirzchołków
+                        if(Jeśli mają tą samąpozycję ORAZ nie nałeżą do poligonu zewnętrznego){
                             offset(new_pos, a,b, difference);
-                        }
-                    }
-                }
+
         //4.3.Sprawdzenie warunku pętli while oraz zapis policzonych pozycji
-        for(int i = 0; i < graph->num_nodes; i++) {
-            if(is_fixed[i] != 1) {
-                double change = distance(new_pos[i],graph->nodes[i].position);
-                if (change >max_change){
-                    max_change = change;
-                }
+        Dla każdego wierzchołku
+            Jeśłi nie nałeży do poligonu zewnętrznego
+                Liczymy różnicę między nową a starą pozycję i porównymamy z nową 
 
-                //Zapis końcowych pozycji do Graph
-                graph->nodes[i].position.x = new_pos[i].x;
-                graph->nodes[i].position.y = new_pos[i].y;
+                Zapis końcowych pozycji do Graph
+               
 
-            }}     
-            }
-    //4.4.Zwolnienie zaalokowanej pamięci
+            
+    //Zwolnienie zaalokowanej pamięci
     free_adj_list(graph, adj_list);
     free_deg(deg);
 
@@ -1404,150 +753,7 @@ Następnie graf jest analizowany w celu znalezienia cyklu (poligonu zewnętrzneg
 \end{mylisting}
 Główna pętla realizuje iteracyjne przybliżanie pozycji wierzchołków do ich stanów równowagi. Dodatkowo funkcja sprawdza kolizje (nakładające się pozycje) i stosuje losowe przesunięcie (\texttt{offset}) w celu ich rozdzielenia. Pętla kończy się po osiągnięciu limitu iteracji lub gdy maksymalna zmiana pozycji wierzchołka spadnie poniżej progu \texttt{MINIMUM\_CHANGE}.
 
-\subsubsection{Funkcja \texttt{tutte\_iteration}}
-\begin{mylisting}
-int tutte_iteration(Graph *graph,int iteration, int is_fixed[], uint** adj_list, Vector new_pos[], int deg[], Vector center){
-    double sum_x = 0.0;
-    double sum_y = 0.0;
-    // Jeśli wierzchołek należy do poligonu zewnętrznego, zachowujemy jego aktualną pozycję
-    if(is_fixed[iteration] == 1) {
-        new_pos[iteration] = graph->nodes[iteration].position;
-   
-        return EXIT_SUCCESS;
-    }
-        // Specjalna obsługa wierzchołków mających tylko jednego sąsiada
-        if(deg[iteration]==1){
-             int neighbor = adj_list[iteration][0];
-             //Vektor w kietrunku przeciwnym od środku
-                    Vector oposite = substract_vectors(graph->nodes[neighbor].position, center);
-                    
-                    //Dzielimy przez dystancję między centrem a wierzchołkiem żeby otrzymać vektor kirunkowy z długością = 1
-                    double len = distance(graph->nodes[neighbor].position, center);
-                    if (len != 0) {
-                        oposite.x /=len;
-                        oposite.y /=len;
-                    }
-                    // Zabezpieczenie przed dzieleniem przez zero przy zbyt małym dystansie
-                    if (len < EPSILON) return EXIT_SUCCESS;
 
-                    //Mnożymy przez ustawioną outer_rad żeby wierzchołek okazał się na odłegłości outer_rad od sąsiada
-                    double outer_rad = 10; // nie może być < margin
-                    oposite = mult_by_num(oposite, outer_rad);
 
-                    // Ustawiamy nową pozycję jako przesunięcie względem jedynego sąsiada
-                    new_pos[iteration].x = graph->nodes[neighbor].position.x + oposite.x;
-                    new_pos[iteration].y = graph->nodes[neighbor].position.y + oposite.y;
-        }else{
-            //Dla wierzchołków o stopniu > 1 stosujemy zasadę środka ciężkości
-            for(int j = 0; j <deg[iteration]; j++) {
-                    int neighbor = adj_list[iteration][j];
-                    sum_x += graph->nodes[neighbor].position.x;
-                    sum_y += graph->nodes[neighbor].position.y;
-                    
-                    }
-                    // Jeśli wierzchołek jest izolowany (stopień 0), przerywamy obliczenia
-                    if (deg[iteration] == 0) return EXIT_SUCCESS;
-                    // Nowa pozycja to średnia arytmetyczna położeń wszystkich sąsiadów
-                    new_pos[iteration].x = sum_x/deg[iteration];
-                    new_pos[iteration].y = sum_y/deg[iteration];
-                }
-            
-    
-    return EXIT_SUCCESS;
-}
-\end{mylisting}
-Funkcja oblicza nową pozycję dla konkretnego wierzchołka. W przypadku wierzchołków o stopniu wyższym niż 1,
- stosowana jest średnia arytmetyczna pozycji sąsiadów. Wierzchołki o stopniu 1 są specjalnie odpychane od środka 
- grafu.
 
-\textbf{Argumenty:}
-\begin{itemize}
-\item \texttt{graph} - wskaźnik na graf.
-\item \texttt{iteration} - indeks wierzchołka.
-\item \texttt{is\_fixed} - tablica wierzchołków stałych.
-\item \texttt{adj\_list} - dynamiczna tablica dwuwymiarowa sąsiadów.
-\item \texttt{new\_pos} - tablica, w której zapisywany jest wynik.
-\item \texttt{deg} - stopnie wierzchołków.
-\item \texttt{center} - geometryczny środek obszaru.
-\end{itemize}
-
-\subsubsection{Funkcja \texttt{have\_same\_pos}}
-\begin{mylisting}
-int have_same_pos(Vector a, Vector b){
-    return (fabs(a.x - b.x) < EPSILON && fabs(a.y - b.y) < EPSILON );
-}
-\end{mylisting}
-Funkcja porównuje dwa wektory pozycji. Zwraca prawdę (1), jeśli różnica między współrzędnymi jest mniejsza niż zdefiniowana stała \texttt{EPSILON}.
-
-\textbf{Argumenty:}
-\begin{itemize}
-\item \texttt{a}, \texttt{b} - porównywane wektory pozycji.
-\end{itemize}
-
-\subsubsection{Funkcja \texttt{offset}}
-\begin{mylisting}
-void offset(Vector new_pos[], int iteration,int jiteration, double difference){
-    double angle = ((double)rand() / RAND_MAX) * 2.0 * M_PI;
-
-    double dx = cos(angle) * difference / 2.0;
-    double dy = sin(angle) * difference / 2.0;
-
-    new_pos[iteration].x += dx;
-    new_pos[iteration].y += dy;
-
-    new_pos[jiteration].x -= dx;
-    new_pos[jiteration].y -= dy;
-}
-\end{mylisting}
-Funkcja ta służy do zmiany pozycji dwóch wierzchołków, które znalazły się w tym samym punkcie przestrzeni.
- Rozsuwa je w przeciwnych kierunkach pod losowym kątem o dystans zdefiniowany przez parametr \texttt{difference}.
-
-\textbf{Argumenty:}
-\begin{itemize}
-\item \texttt{new\_pos} - tablica nowych pozycji.
-\item \texttt{iteration}, \texttt{jiteration} - indeksy kolidujących wierzchołków.
-\item \texttt{difference} - wartość przesunięcia.
-\end{itemize}
-
-\subsection{Moduł \texttt{input}}
-Moduł ten służy do wczytania parametrów linii poleceń do struktury, które będzie je przechowywać.
-
-\begin{mylisting}
-typedef struct {
-    int algorithm;
-    int output_type;
-    char *output_name;
-    FILE *graph_file;
-
-    int seed;
-    int wasSeedProvided;
-    int width;
-    int height;
-
-    // Parametry algorytmu Eadesa z wartościami domyślnymi
-    double minimum_force;
-    int max_iterations;
-    double ideal_len;
-    double repulsion_const;
-    double spring_const;
-    double cooling;
-} Parameters;
-\end{mylisting}
-Moduł definiuje strukturę \textbf{Parameters}, która służy do przechowywania parametrów.
-
-\subsubsection{Funkcja \texttt{create\_params}}
-Tworzy nową strukturę i ustawia wartości zmiennych na domyślne. Funkcja zwraca strukturę \textbf{Parameters}.
-
-\subsubsection{Funkcja \texttt{load\_params}}
-Funkcja pobiera parametry podane z linii poleceń (udostępnione z funkcji \texttt{main}) i umieszcza je w strukturze
-Parameters.
-
-\textbf{Argumenty:}
-\begin{itemize}
-    \item argc - ilość parametrów
-    \item argv - tablica parametrów
-    \item params - wskaźnik na strukturę Parameters
-\end{itemize}
-Funkcja zwraca \texttt{EXIT\_SUCCESS} dla sukcesu i \texttt{ERR\_MISSING} jeżeli użyto nieznanej opcji.
-
-\end{document}
+\end{document} 
